@@ -157,4 +157,22 @@ public class TrafficLightServiceImpl implements TrafficLightService {
         logger.debug("Fetching old traffic lights - status: {}, before: {}", status, beforeDate);
         return trafficLightRepository.findOldTrafficLightsByStatus(status, beforeDate);
     }
+
+    /**
+     * Retrieves a traffic light by ID with maintenance logs eagerly loaded using JOIN FETCH.
+     *
+     * @param id the ID of the traffic light
+     * @return the traffic light with maintenance logs loaded
+     * @throws TrafficLightNotFoundException if no traffic light with the given ID exists
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public TrafficLight getTrafficLightByIdWithMaintenanceLogs(int id) {
+        logger.debug("Fetching traffic light by id with maintenance logs: {}", id);
+        TrafficLight trafficLight = trafficLightRepository.findByIdWithMaintenanceLogs(id).orElse(null);
+        if (trafficLight == null) {
+            throw new TrafficLightNotFoundException(id);
+        }
+        return trafficLight;
+    }
 }

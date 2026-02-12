@@ -43,7 +43,7 @@ public class Intersection {
     @Column(name = "intersection_image")
     private String intersectionImage;
 
-    @OneToMany(mappedBy = "intersection", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "intersection", fetch = FetchType.LAZY)
     private List<TrafficLight> trafficLights;
 
     protected Intersection() {

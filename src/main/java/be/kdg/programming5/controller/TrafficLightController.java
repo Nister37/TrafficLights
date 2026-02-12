@@ -136,25 +136,16 @@ public class TrafficLightController {
     public String getTrafficLightDetails(@PathVariable int id, Model model) {
         logger.debug("Getting details for traffic light id: {}", id);
 
-        TrafficLight trafficLight = trafficLightService.getTrafficLightById(id);
+        // Use JOIN FETCH method to load traffic light with maintenance logs in single query
+        TrafficLight trafficLight = trafficLightService.getTrafficLightByIdWithMaintenanceLogs(id);
 
         if (trafficLight == null) {
             logger.warn("Traffic light with id {} not found", id);
             return "redirect:/trafficLights?status=ACTIVE";
         }
 
-        // Load intersection if exists
-        if (trafficLight.getIntersection() == null) {
-            // Find intersection by loading traffic light with intersection
-            var allLights = trafficLightService.getAllTrafficLights();
-            trafficLight = allLights.stream()
-                    .filter(tl -> tl.getId() == id)
-                    .findFirst()
-                    .orElse(trafficLight);
-        }
-
-        // Load related maintenance logs
-        var maintenanceLogs = maintenanceLogService.getMaintenanceLogsByTrafficLightId(id);
+        // Maintenance logs already loaded via JOIN FETCH
+        var maintenanceLogs = trafficLight.getMaintenanceLogs();
 
         model.addAttribute("trafficLight", trafficLight);
         model.addAttribute("maintenanceLogs", maintenanceLogs);

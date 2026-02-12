@@ -32,8 +32,11 @@ public class MaintenanceCompany {
     @Column(nullable = false)
     private LocalDate since;
 
-    @ManyToMany(mappedBy = "maintenanceCompanies", fetch = FetchType.LAZY)
-    private List<MaintenanceLog> maintenanceLogs;
+    /**
+     * Association entity relationship - replaces @ManyToMany per course guidelines (Scenario 1).
+     */
+    @OneToMany(mappedBy = "maintenanceCompany", fetch = FetchType.LAZY)
+    private List<MaintenanceLogCompany> maintenanceLogCompanies;
 
     protected MaintenanceCompany() {
         // Required by JPA
@@ -48,7 +51,7 @@ public class MaintenanceCompany {
         this.contactEmail = contactEmail;
         this.active = active;
         this.since = since;
-        this.maintenanceLogs = new ArrayList<>();
+        this.maintenanceLogCompanies = new ArrayList<>();
         logger.debug("Created new MaintenanceCompany (ID will be auto-generated), name: {}", name);
     }
 
@@ -63,23 +66,25 @@ public class MaintenanceCompany {
         this.contactEmail = contactEmail;
         this.active = active;
         this.since = since;
-        this.maintenanceLogs = new ArrayList<>();
+        this.maintenanceLogCompanies = new ArrayList<>();
         logger.debug("Created new MaintenanceCompany with id: {}, name: {}", id, name);
     }
 
-    public void addMaintenanceLog(MaintenanceLog log) {
-        logger.debug("Adding maintenance log to company id: {}", this.id);
-        if (!maintenanceLogs.contains(log)) {
-            maintenanceLogs.add(log);
-            log.addMaintenanceCompany(this);
-            logger.debug("Maintenance log added successfully to company id: {}", this.id);
-        } else {
-            logger.debug("Maintenance log already exists in company id: {}", this.id);
-        }
+    /**
+     * Returns the association entities linking this company to maintenance logs.
+     */
+    public List<MaintenanceLogCompany> getMaintenanceLogCompanies() {
+        return maintenanceLogCompanies;
     }
 
+    /**
+     * Convenience method to get the maintenance logs associated with this company.
+     * Extracts logs from the association entities.
+     */
     public List<MaintenanceLog> getMaintenanceLogs() {
-        return maintenanceLogs;
+        return maintenanceLogCompanies.stream()
+                .map(MaintenanceLogCompany::getMaintenanceLog)
+                .toList();
     }
 
     public Integer getId() {

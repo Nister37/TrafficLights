@@ -28,4 +28,9 @@ public interface TrafficLightService {
      * Find old traffic lights by status (installed before a specific date).
      */
     List<TrafficLight> getOldTrafficLightsByStatus(TrafficLightStatus status, LocalDate beforeDate);
+
+    /**
+     * Retrieves a traffic light by ID with maintenance logs eagerly loaded.
+     */
+    TrafficLight getTrafficLightByIdWithMaintenanceLogs(int id);
 }

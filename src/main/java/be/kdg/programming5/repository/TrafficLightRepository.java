@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Spring Data JPA repository for TrafficLight entity.
@@ -41,5 +42,11 @@ public interface TrafficLightRepository extends JpaRepository<TrafficLight, Inte
      */
     @Query("SELECT tl FROM TrafficLight tl WHERE tl.status = :status AND tl.installationDate < :beforeDate ORDER BY tl.installationDate ASC")
     List<TrafficLight> findOldTrafficLightsByStatus(@Param("status") TrafficLightStatus status, @Param("beforeDate") LocalDate beforeDate);
+
+    /**
+     * Find traffic light by ID with maintenance logs eagerly fetched.
+     */
+    @Query("SELECT t FROM TrafficLight t LEFT JOIN FETCH t.maintenanceLogs WHERE t.id = :id")
+    Optional<TrafficLight> findByIdWithMaintenanceLogs(@Param("id") int id);
 }
 

@@ -115,13 +115,14 @@ public class IntersectionController {
     @GetMapping("/intersection/{id}")
     public String getIntersectionDetails(@PathVariable int id, Model model) {
         logger.debug("Getting details for intersection id: {}", id);
-        var intersection = intersectionService.getIntersectionById(id);
+        // Use JOIN FETCH method to avoid N+1 queries - loads traffic lights in single query
+        var intersection = intersectionService.getIntersectionByIdWithTrafficLights(id);
         if (intersection == null) {
             logger.warn("Intersection with id {} not found", id);
             return "redirect:/intersections";
         }
-        // Load related traffic lights
-        var trafficLights = intersectionService.getTrafficLightsByIntersectionId(id);
+        // Traffic lights are already loaded via JOIN FETCH
+        var trafficLights = intersection.getTrafficLights();
         model.addAttribute("intersection", intersection);
         model.addAttribute("trafficLights", trafficLights);
         logger.debug("Displaying details for intersection: {} with {} traffic lights", intersection.getId(), trafficLights.size());

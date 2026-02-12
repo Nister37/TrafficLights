@@ -110,15 +110,16 @@ public class MaintenanceLogController {
     public String getMaintenanceLogDetails(@PathVariable int id, Model model) {
         logger.debug("Getting details for maintenance log id: {}", id);
 
-        var log = maintenanceLogService.getMaintenanceLogById(id);
+        // Use JOIN FETCH method to load maintenance log with companies in single query
+        var log = maintenanceLogService.getMaintenanceLogByIdWithCompanies(id);
 
         if (log == null) {
             logger.warn("Maintenance log with id {} not found", id);
             return "redirect:/maintenanceLogs";
         }
 
-        // Load related maintenance companies (Many-to-Many)
-        var maintenanceCompanies = maintenanceCompanyService.getCompaniesByMaintenanceLogId(id);
+        // Companies already loaded via JOIN FETCH - use convenience method
+        var maintenanceCompanies = log.getMaintenanceCompanies();
 
         model.addAttribute("log", log);
         model.addAttribute("maintenanceCompanies", maintenanceCompanies);

@@ -46,7 +46,10 @@ public class TrafficLight {
     @Column(name = "right_arrow", nullable = false)
     private boolean rightArrow;
 
-    @OneToMany(mappedBy = "trafficLight", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    /**
+     * Bidirectional relationship with MaintenanceLogs.
+     */
+    @OneToMany(mappedBy = "trafficLight", fetch = FetchType.LAZY)
     private List<MaintenanceLog> maintenanceLogs;
 
     @ManyToOne(fetch = FetchType.LAZY)

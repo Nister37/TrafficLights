@@ -9,6 +9,12 @@ public interface IntersectionService {
     List<Intersection> getAllIntersections();
     List<TrafficLight> getTrafficLightsByIntersectionId(int intersectionId);
     Intersection getIntersectionById(int id);
+
+    /**
+     * Retrieves an intersection by ID with traffic lights eagerly loaded.
+     */
+    Intersection getIntersectionByIdWithTrafficLights(int id);
+
     void addIntersection(Intersection intersection);
     void deleteIntersection(int id);
 }

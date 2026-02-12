@@ -11,4 +11,9 @@ public interface MaintenanceLogService {
     void addMaintenanceLog(MaintenanceLog maintenanceLog);
     void addMaintenanceLogWithTrafficLight(MaintenanceLog maintenanceLog, int trafficLightId);
     void deleteMaintenanceLog(int id);
+
+    /**
+     * Retrieves a maintenance log by ID with maintenance companies eagerly loaded.
+     */
+    MaintenanceLog getMaintenanceLogByIdWithCompanies(int id);
 }

@@ -53,6 +53,24 @@ public class IntersectionServiceImpl implements IntersectionService {
         return intersection;
     }
 
+    /**
+     * Retrieves an intersection by ID with traffic lights eagerly loaded using JOIN FETCH.
+     *
+     * @param id the ID of the intersection
+     * @return the intersection with traffic lights loaded
+     * @throws IntersectionNotFoundException if no intersection with the given ID exists
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Intersection getIntersectionByIdWithTrafficLights(int id) {
+        logger.debug("Fetching intersection by id with traffic lights: {}", id);
+        Intersection intersection = intersectionRepository.findByIdWithTrafficLights(id).orElse(null);
+        if (intersection == null) {
+            throw new IntersectionNotFoundException(id);
+        }
+        return intersection;
+    }
+
     @Override
     @Transactional
     public void addIntersection(Intersection intersection) {

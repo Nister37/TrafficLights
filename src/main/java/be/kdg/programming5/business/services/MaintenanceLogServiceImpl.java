@@ -70,4 +70,18 @@ public class MaintenanceLogServiceImpl implements MaintenanceLogService {
         logger.debug("Deleting maintenance log: {}", id);
         maintenanceLogRepository.deleteById(id);
     }
+
+    /**
+     * Retrieves a maintenance log by ID with maintenance companies eagerly loaded using JOIN FETCH.
+     *
+     * @param id the ID of the maintenance log
+     * @return the maintenance log with companies loaded, or null if not found
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public MaintenanceLog getMaintenanceLogByIdWithCompanies(int id) {
+        logger.debug("Fetching maintenance log by id with companies: {}", id);
+        return maintenanceLogRepository.findByIdWithCompanies(id).orElse(null);
+    }
+
 }

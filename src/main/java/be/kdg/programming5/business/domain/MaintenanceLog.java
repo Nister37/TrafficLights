@@ -37,13 +37,11 @@ public class MaintenanceLog {
     @Column(name = "invoice_number", nullable = false, length = 100)
     private String invoiceNumber;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "maintenance_log_company",
-            joinColumns = @JoinColumn(name = "maintenance_log_id"),
-            inverseJoinColumns = @JoinColumn(name = "maintenance_company_id")
-    )
-    private List<MaintenanceCompany> maintenanceCompanies;
+    /**
+     * Association entity relationship - replaces @ManyToMany per course guidelines (Scenario 1).
+     */
+    @OneToMany(mappedBy = "maintenanceLog", fetch = FetchType.LAZY)
+    private List<MaintenanceLogCompany> maintenanceLogCompanies;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "traffic_light_id")
@@ -63,7 +61,7 @@ public class MaintenanceLog {
         this.cost = cost;
         this.completed = completed;
         this.invoiceNumber = invoiceNumber;
-        this.maintenanceCompanies = new ArrayList<>();
+        this.maintenanceLogCompanies = new ArrayList<>();
         logger.debug("Created new MaintenanceLog (ID will be auto-generated), kind: {}", kind);
     }
 
@@ -79,15 +77,25 @@ public class MaintenanceLog {
         this.cost = cost;
         this.completed = completed;
         this.invoiceNumber = invoiceNumber;
-        this.maintenanceCompanies = new ArrayList<>();
+        this.maintenanceLogCompanies = new ArrayList<>();
         logger.debug("Created new MaintenanceLog with id: {}, kind: {}", id, kind);
     }
 
+    /**
+     * Adds a maintenance company to this log through the association entity.
+     * Establishes bidirectional relationship using the new MaintenanceLogCompany entity.
+     *
+     * @param company the maintenance company to add
+     */
     public void addMaintenanceCompany(MaintenanceCompany company) {
         logger.debug("Adding maintenance company to log id: {}", this.id);
-        if (!maintenanceCompanies.contains(company)) {
-            maintenanceCompanies.add(company);
-            company.addMaintenanceLog(this);
+        // Check if association already exists
+        boolean exists = maintenanceLogCompanies.stream()
+                .anyMatch(mlc -> mlc.getMaintenanceCompany().equals(company));
+        if (!exists) {
+            MaintenanceLogCompany association = new MaintenanceLogCompany(this, company);
+            maintenanceLogCompanies.add(association);
+            company.getMaintenanceLogCompanies().add(association);
             logger.debug("Maintenance company added successfully to log id: {}", this.id);
         } else {
             logger.debug("Maintenance company already exists in log id: {}", this.id);
@@ -103,8 +111,21 @@ public class MaintenanceLog {
         return trafficLight;
     }
 
+    /**
+     * Returns the association entities linking this log to maintenance companies.
+     */
+    public List<MaintenanceLogCompany> getMaintenanceLogCompanies() {
+        return maintenanceLogCompanies;
+    }
+
+    /**
+     * Convenience method to get the maintenance companies associated with this log.
+     * Extracts companies from the association entities.
+     */
     public List<MaintenanceCompany> getMaintenanceCompanies() {
-        return maintenanceCompanies;
+        return maintenanceLogCompanies.stream()
+                .map(MaintenanceLogCompany::getMaintenanceCompany)
+                .toList();
     }
 
     public Integer getId() {
