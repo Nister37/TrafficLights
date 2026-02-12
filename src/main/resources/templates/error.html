@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Error - Traffic Lights Management</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.1/font/bootstrap-icons.css}">
+</head>
+<body class="d-flex flex-column min-vh-100 bg-light">
+    <main class="flex-shrink-0">
+        <div class="container my-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card shadow-lg">
+                        <div class="card-header bg-danger text-white">
+                            <h3 class="mb-0">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                Error <span th:text="${status}">500</span>
+                            </h3>
+                        </div>
+                        <div class="card-body p-5">
+                            <h4 class="text-danger mb-4" th:text="${error}">Internal Server Error</h4>
+
+                            <div class="alert alert-warning" role="alert">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <strong>Something went wrong!</strong>
+                            </div>
+
+                            <p class="lead mb-4" th:text="${message}">
+                                An unexpected error occurred. Please try again later.
+                            </p>
+
+                            <div class="bg-light p-3 rounded mb-4">
+                                <small class="text-muted">
+                                    <strong>Timestamp:</strong> <span th:text="${timestamp}">2025-12-31 16:00:00</span>
+                                </small>
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                                <a th:href="@{/}" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-house-fill me-2"></i>
+                                    Go to Homepage
+                                </a>
+                                <button onclick="history.back()" class="btn btn-outline-secondary btn-lg">
+                                    <i class="bi bi-arrow-left me-2"></i>
+                                    Go Back
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted">
+                            If this problem persists, please contact the system administrator.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-auto py-3 bg-dark text-white text-center">
+        <div class="container">
+            <span>© 2025 Traffic Lights Management System</span>
+        </div>
+    </footer>
+
+    <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
+

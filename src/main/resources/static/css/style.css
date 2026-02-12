@@ -1,0 +1,164 @@
+/* Main styles for Traffic Lights Management System */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f5f5f5;
+}
+
+h1 {
+    color: #333;
+    border-bottom: 2px solid #4CAF50;
+    padding-bottom: 10px;
+}
+
+/* Navigation menu */
+.navigation-menu {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+    background-color: #333;
+    overflow: hidden;
+}
+
+.navigation-menu li {
+    float: left;
+}
+
+.navigation-menu li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.navigation-menu li a:hover {
+    background-color: #4CAF50;
+}
+
+.navigation-menu li.separator {
+    color: white;
+    padding: 14px 5px;
+}
+
+/* Table styles */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    background-color: white;
+    margin-top: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+th {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px;
+    text-align: left;
+}
+
+td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Status-based row highlighting */
+.status-broken {
+    background-color: #ffcccc !important;
+}
+
+.status-maintenance {
+    background-color: #fff3cd !important;
+}
+
+.status-active {
+    background-color: #d4edda !important;
+}
+
+.inactive-company {
+    background-color: #f8d7da !important;
+}
+
+.incomplete-log {
+    background-color: #fff3cd !important;
+}
+
+/* Form styles */
+form {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    max-width: 600px;
+    margin: 20px 0;
+}
+
+form label {
+    display: inline-block;
+    width: 150px;
+    margin: 10px 0;
+    font-weight: bold;
+}
+
+form input[type="text"],
+form input[type="number"],
+form input[type="date"],
+form input[type="email"],
+form select {
+    padding: 8px;
+    margin: 10px 0;
+    width: 300px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+form input[type="checkbox"] {
+    margin: 10px 5px;
+}
+
+form button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+form button:hover {
+    background-color: #45a049;
+}
+
+/* Item count display */
+.item-count {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #666;
+}
+
+/* Filter section */
+.filter-section {
+    background-color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.filter-section label {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.filter-section select,
+.filter-section input {
+    margin-right: 15px;
+    padding: 5px;
+}
+

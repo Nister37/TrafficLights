@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="#{maintenanceLogs.title} + ' - Details'">Maintenance Log Details</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.1/font/bootstrap-icons.css}">
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <!-- Navbar -->
+    <div th:replace="~{fragments/navigation :: navbar}"></div>
+
+    <!-- Main Content -->
+    <main class="flex-shrink-0">
+        <div class="container mt-4">
+
+        <h2 class="mt-4" th:text="'Maintenance Log #' + ${log.id}">Log Details</h2>
+
+        <!-- Element visible only on large displays -->
+        <div class="alert alert-info d-none d-lg-block" role="alert">
+            <i class="bi bi-info-circle"></i> You are viewing detailed information on a large screen
+        </div>
+
+        <div class="row mt-4">
+            <!-- Details -->
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="'Log #' + ${log.id}">ID</h5>
+
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <th th:text="#{maintenanceLogs.table.date}">Date</th>
+                                    <td th:text="${log.date}">2020-01-01</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{maintenanceLogs.table.description}">Description</th>
+                                    <td th:text="${log.description}">Description</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{maintenanceLogs.table.kind}">Kind</th>
+                                    <td>
+                                        <span class="badge bg-primary" th:text="${log.kind}">Kind</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{maintenanceLogs.table.cost}">Cost</th>
+                                    <td th:text="${'$' + #numbers.formatDecimal(log.cost, 1, 2)}">$0.00</td>
+                                </tr>
+                                <tr>
+                                    <th th:text="#{maintenanceLogs.table.completed}">Completed</th>
+                                    <td>
+                                        <span class="badge"
+                                              th:classappend="${log.completed ? 'bg-success' : 'bg-warning text-dark'}"
+                                              th:text="${log.completed ? 'Yes' : 'No'}">
+                                            Status
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${log.invoiceNumber != null and !log.invoiceNumber.isEmpty()}">
+                                    <th th:text="#{maintenanceLogs.table.invoiceNumber}">Invoice Number</th>
+                                    <td th:text="${log.invoiceNumber}">Invoice</td>
+                                </tr>
+                                <tr th:if="${log.trafficLight != null}">
+                                    <th>Traffic Light</th>
+                                    <td>
+                                        <a th:href="@{/trafficLight/{id}(id=${log.trafficLight.id})}"
+                                           th:text="'Traffic Light #' + ${log.trafficLight.id}">
+                                            Traffic Light Link
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="mt-3">
+                            <a th:href="@{/maintenanceLogs}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to List
+                            </a>
+                            <form th:action="@{/maintenanceLog/{id}/delete(id=${log.id})}" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this maintenance log?');">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Maintenance Companies Section (Many-to-Many) -->
+        <div class="row mt-4" th:if="${maintenanceCompanies != null && !maintenanceCompanies.isEmpty()}">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="bi bi-building"></i> Companies Performing this Maintenance</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+                            <div class="col" th:each="company : ${maintenanceCompanies}">
+                                <div class="card h-100 shadow-sm" style="cursor: pointer;" th:onclick="'window.location.href=\'/maintenanceCompany/' + ${company.id} + '\''">
+                                    <div class="card-body">
+                                        <h6 class="card-title" th:text="${company.name}">Company Name</h6>
+                                        <p class="card-text mb-1">
+                                            <span class="badge"
+                                                  th:classappend="${company.active ? 'bg-success' : 'bg-secondary'}"
+                                                  th:text="${company.active ? 'Active' : 'Inactive'}">Status</span>
+                                        </p>
+                                        <p class="card-text mb-1">
+                                            <i class="bi bi-telephone"></i> <small th:text="${company.contactPhone}">Phone</small>
+                                        </p>
+                                        <p class="card-text mb-0">
+                                            <i class="bi bi-envelope"></i> <small th:text="${company.contactEmail}">Email</small>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/navigation :: footer}"></div>
+
+    <!-- Bootstrap JS -->
+    <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
+

@@ -1,0 +1,69 @@
+package be.kdg.programming5.business.services;
+
+import be.kdg.programming5.business.domain.Intersection;
+import be.kdg.programming5.business.domain.TrafficLight;
+import be.kdg.programming5.exception.IntersectionNotFoundException;
+import be.kdg.programming5.repository.IntersectionRepository;
+import be.kdg.programming5.repository.TrafficLightRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+/**
+ * Service implementation for managing intersections.
+ */
+@Service
+public class IntersectionServiceImpl implements IntersectionService {
+    private static final Logger logger = LoggerFactory.getLogger(IntersectionServiceImpl.class);
+
+    private final IntersectionRepository intersectionRepository;
+    private final TrafficLightRepository trafficLightRepository;
+
+    public IntersectionServiceImpl(IntersectionRepository intersectionRepository,
+                                   TrafficLightRepository trafficLightRepository) {
+        this.intersectionRepository = intersectionRepository;
+        this.trafficLightRepository = trafficLightRepository;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Intersection> getAllIntersections() {
+        logger.debug("Fetching all intersections");
+        return intersectionRepository.findAll();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TrafficLight> getTrafficLightsByIntersectionId(int intersectionId) {
+        logger.debug("Fetching traffic lights for intersection: {}", intersectionId);
+        return trafficLightRepository.findByIntersectionId(intersectionId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Intersection getIntersectionById(int id) {
+        logger.debug("Fetching intersection by id: {}", id);
+        Intersection intersection = intersectionRepository.findById(id).orElse(null);
+        if (intersection == null) {
+            throw new IntersectionNotFoundException(id);
+        }
+        return intersection;
+    }
+
+    @Override
+    @Transactional
+    public void addIntersection(Intersection intersection) {
+        logger.debug("Adding intersection: {}", intersection.getId());
+        intersectionRepository.save(intersection);
+    }
+
+    @Override
+    @Transactional
+    public void deleteIntersection(int id) {
+        logger.debug("Deleting intersection: {}", id);
+        intersectionRepository.deleteById(id);
+    }
+}

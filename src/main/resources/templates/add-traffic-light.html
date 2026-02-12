@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="#{addTrafficLight.title}">Add Traffic Light</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.1/font/bootstrap-icons.css}">
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <!-- Navbar -->
+    <div th:replace="~{fragments/navigation :: navbar}"></div>
+
+    <!-- Main Content -->
+    <main class="flex-shrink-0">
+        <div class="container my-4">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card shadow">
+                        <div class="card-header bg-primary text-white">
+                            <h3 class="mb-0">
+                                <i class="bi bi-stoplights-fill"></i>
+                                <span th:text="#{addTrafficLight.title}">Add New Traffic Light</span>
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <!-- Error Message Alert -->
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${errorMessage}">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                <strong th:text="#{error.title}">Error!</strong>
+                                <span th:text="${errorMessage}">An error occurred.</span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+
+                            <form method="post" th:action="@{/addTrafficLight}" th:object="${trafficLight}">
+                                <div class="row">
+
+                                    <!-- Status -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label" th:text="#{addTrafficLight.form.status}">Status:</label>
+                                        <select class="form-select" th:field="*{status}"
+                                                th:classappend="${#fields.hasErrors('status')} ? 'is-invalid' : ''" required>
+                                            <option value="">Choose...</option>
+                                            <option th:each="status : ${statuses}" th:value="${status}" th:text="${status}"></option>
+                                        </select>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('status')}" th:errors="*{status}">
+                                            Please select a status.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <!-- Installation Date -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label" th:text="#{addTrafficLight.form.installationDate}">Installation Date:</label>
+                                        <input type="date" class="form-control" th:field="*{installationDate}"
+                                               th:classappend="${#fields.hasErrors('installationDate')} ? 'is-invalid' : ''" required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('installationDate')}" th:errors="*{installationDate}">
+                                            Please provide an installation date.
+                                        </div>
+                                    </div>
+
+                                    <!-- Direction -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label" th:text="#{addTrafficLight.form.direction}">Direction:</label>
+                                        <select class="form-select" th:field="*{direction}"
+                                                th:classappend="${#fields.hasErrors('direction')} ? 'is-invalid' : ''" required>
+                                            <option value="">Choose...</option>
+                                            <option th:each="dir : ${directions}" th:value="${dir}" th:text="${dir}"></option>
+                                        </select>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('direction')}" th:errors="*{direction}">
+                                            Please select a direction.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <!-- Type -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label" th:text="#{addTrafficLight.form.type}">Type:</label>
+                                        <select class="form-select" th:field="*{type}"
+                                                th:classappend="${#fields.hasErrors('type')} ? 'is-invalid' : ''" required>
+                                            <option value="">Choose...</option>
+                                            <option th:each="t : ${types}" th:value="${t}" th:text="${t}"></option>
+                                        </select>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('type')}" th:errors="*{type}">
+                                            Please select a type.
+                                        </div>
+                                    </div>
+
+                                    <!-- Intersection -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label" th:text="#{addTrafficLight.form.intersection}">Intersection:</label>
+                                        <select class="form-select" th:field="*{intersectionId}"
+                                                th:classappend="${#fields.hasErrors('intersectionId')} ? 'is-invalid' : ''" required>
+                                            <option value="">Choose...</option>
+                                            <option th:each="intersection : ${intersections}"
+                                                    th:value="${intersection.id}"
+                                                    th:text="${'ID: ' + intersection.id + ' - ' + intersection.type}"></option>
+                                        </select>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('intersectionId')}" th:errors="*{intersectionId}">
+                                            Please select an intersection.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Right Arrow -->
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" th:field="*{rightArrow}">
+                                        <label class="form-check-label" th:text="#{addTrafficLight.form.rightArrow}">
+                                            Right Arrow
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Buttons -->
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <a th:href="@{/trafficLights(status='ACTIVE')}" class="btn btn-secondary">
+                                        <i class="bi bi-x-circle"></i> Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle"></i>
+                                        <span th:text="#{addTrafficLight.form.submit}">Add Traffic Light</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/navigation :: footer}"></div>
+
+    <!-- Bootstrap JS -->
+    <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
+
+    <!-- Client-side Validation Script -->
+    <script>
+        // Only validate on first submit attempt, don't block re-submission
+        (function () {
+            'use strict'
+            var form = document.querySelector('form')
+            if (form) {
+                form.addEventListener('submit', function (event) {
+                    // Check HTML5 validity
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    // Add Bootstrap validation classes
+                    form.classList.add('was-validated')
+                }, false)
+            }
+        })()
+    </script>
+</body>
+</html>

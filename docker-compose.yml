@@ -1,0 +1,14 @@
+services:
+    postgres_programming_5:
+        image: postgres:18.1-alpine
+        restart: always
+        environment:
+            POSTGRES_DB: 'programming5'
+            POSTGRES_USER: 'student'
+            POSTGRES_PASSWORD: 'Student_1234'
+        ports:
+            - '9432:5432'
+        volumes:
+            - db-data:/var/lib/postgresql/data
+volumes:
+    db-data:

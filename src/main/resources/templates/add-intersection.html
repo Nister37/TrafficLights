@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="#{addIntersection.title}">Add Intersection</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.1/font/bootstrap-icons.css}">
+</head>
+<body class="d-flex flex-column min-vh-100">
+<!-- Navbar -->
+<div th:replace="~{fragments/navigation :: navbar}"></div>
+
+<!-- Main Content -->
+<main class="flex-shrink-0">
+    <div class="container my-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">
+                            <i class="bi bi-signpost-2"></i>
+                            <span th:text="#{addIntersection.title}">Add New Intersection</span>
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Error Alert -->
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${errorMessage}">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <strong>Error:</strong> <span th:text="${errorMessage}">Error message</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+
+                        <form method="post" th:action="@{/addIntersection}" th:object="${intersection}">
+                            <div class="row">
+                                <!-- Type -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label" th:text="#{addIntersection.form.type}">Type:</label>
+                                    <select class="form-select" th:field="*{type}"
+                                            th:classappend="${#fields.hasErrors('type')} ? 'is-invalid' : ''" required>
+                                        <option value="">Choose...</option>
+                                        <option th:each="t : ${intersectionTypes}" th:value="${t}" th:text="${t}"></option>
+                                    </select>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('type')}" th:errors="*{type}">
+                                        Please select a type.
+                                    </div>
+                                </div>
+
+                                <!-- Road Count -->
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label" th:text="#{addIntersection.form.roadCount}">Road Count:</label>
+                                    <input type="number" class="form-control" th:field="*{roadCount}" min="2" max="8"
+                                           th:classappend="${#fields.hasErrors('roadCount')} ? 'is-invalid' : ''" required>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('roadCount')}" th:errors="*{roadCount}">
+                                        Please provide road count.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <!-- Latitude -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label" th:text="#{addIntersection.form.latitude}">Latitude:</label>
+                                    <input type="number" step="0.000001" class="form-control" th:field="*{latitude}"
+                                           min="-90" max="90" th:classappend="${#fields.hasErrors('latitude')} ? 'is-invalid' : ''" required>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('latitude')}" th:errors="*{latitude}">
+                                        Please provide latitude.
+                                    </div>
+                                </div>
+
+                                <!-- Longitude -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label" th:text="#{addIntersection.form.longitude}">Longitude:</label>
+                                    <input type="number" step="0.000001" class="form-control" th:field="*{longitude}"
+                                           min="-180" max="180" th:classappend="${#fields.hasErrors('longitude')} ? 'is-invalid' : ''" required>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('longitude')}" th:errors="*{longitude}">
+                                        Please provide longitude.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <!-- Opened On -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label" th:text="#{addIntersection.form.openedOn}">Opened On:</label>
+                                    <input type="date" class="form-control" th:field="*{openedOn}"
+                                           th:classappend="${#fields.hasErrors('openedOn')} ? 'is-invalid' : ''" required>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('openedOn')}" th:errors="*{openedOn}">
+                                        Please provide date.
+                                    </div>
+                                </div>
+
+                                <!-- Image Path -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label" th:text="#{addIntersection.form.imagePath}">Image Path:</label>
+                                    <input type="text" class="form-control" th:field="*{intersectionImage}" placeholder="/images/intersections/example.png">
+                                </div>
+                            </div>
+
+                            <!-- Checkboxes -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" th:field="*{smartEnabled}">
+                                        <label class="form-check-label" th:text="#{addIntersection.form.smartEnabled}">
+                                            Smart Enabled
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" th:field="*{hasPedestrianCrossing}">
+                                        <label class="form-check-label" th:text="#{addIntersection.form.pedestrianCrossing}">
+                                            Pedestrian Crossing
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a th:href="@{/intersections}" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle"></i>
+                                    <span th:text="#{addIntersection.form.submit}">Add Intersection</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<div th:replace="~{fragments/navigation :: footer}"></div>
+
+<!-- Bootstrap JS -->
+<script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
+
+<!-- Client-side Validation Script -->
+<script>
+    // Only validate on first submit attempt, don't block re-submission
+    (function () {
+        'use strict'
+        var form = document.querySelector('form')
+        if (form) {
+            form.addEventListener('submit', function (event) {
+                // Check HTML5 validity
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                // Add Bootstrap validation classes
+                form.classList.add('was-validated')
+            }, false)
+        }
+    })()
+</script>
+</body>
+</html>
+

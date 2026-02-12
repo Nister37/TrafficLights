@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <!-- Bootstrap Navbar Fragment -->
+    <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" th:href="@{/}">
+                <i class="bi bi-traffic-light"></i>
+                <span th:text="#{app.title}">Traffic Lights Management</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <!-- View Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="viewDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-eye"></i> View
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="viewDropdown">
+                            <li>
+                                <a class="dropdown-item" th:href="@{/trafficLights(status='ACTIVE')}">
+                                    <i class="bi bi-stoplights-fill"></i>
+                                    <span th:text="#{menu.trafficLights}">Traffic Lights</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" th:href="@{/intersections}">
+                                    <i class="bi bi-signpost-2"></i>
+                                    <span th:text="#{menu.intersections}">Intersections</span>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" th:href="@{/maintenanceLogs}">
+                                    <i class="bi bi-journal-text"></i>
+                                    <span th:text="#{menu.maintenanceLogs}">Maintenance Logs</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" th:href="@{/maintenanceCompanies}">
+                                    <i class="bi bi-building"></i>
+                                    <span th:text="#{menu.maintenanceCompanies}">Maintenance Companies</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Add Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="addDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-plus-circle"></i> Add New
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="addDropdown">
+                            <li>
+                                <a class="dropdown-item" th:href="@{/addTrafficLight}">
+                                    <i class="bi bi-stoplights-fill"></i>
+                                    <span th:text="#{menu.addTrafficLight}">Add Traffic Light</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" th:href="@{/addIntersection}">
+                                    <i class="bi bi-signpost-2"></i>
+                                    <span th:text="#{menu.addIntersection}">Add Intersection</span>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" th:href="@{/addMaintenanceLog}">
+                                    <i class="bi bi-journal-text"></i>
+                                    <span th:text="#{menu.addMaintenanceLog}">Add Maintenance Log</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" th:href="@{/addMaintenanceCompany}">
+                                    <i class="bi bi-building"></i>
+                                    <span th:text="#{menu.addMaintenanceCompany}">Add Maintenance Company</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Footer Fragment -->
+    <footer th:fragment="footer" class="footer mt-auto py-3 bg-dark text-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <h5><i class="bi bi-traffic-light"></i> <span th:text="#{app.title}">Traffic Lights Management</span></h5>
+                    <p class="text-muted">Professional traffic light and intersection management system.</p>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h6>Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li><a th:href="@{/trafficLights(status='ACTIVE')}" class="text-light text-decoration-none">
+                            <i class="bi bi-stoplights-fill"></i> <span th:text="#{menu.trafficLights}">Traffic Lights</span>
+                        </a></li>
+                        <li><a th:href="@{/intersections}" class="text-light text-decoration-none">
+                            <i class="bi bi-signpost-2-fill"></i> <span th:text="#{menu.intersections}">Intersections</span>
+                        </a></li>
+                        <li><a th:href="@{/maintenanceLogs}" class="text-light text-decoration-none">
+                            <i class="bi bi-journal-text"></i> <span th:text="#{menu.maintenanceLogs}">Maintenance Logs</span>
+                        </a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h6>Contact</h6>
+                    <p class="text-light mb-1">
+                        <i class="bi bi-envelope"></i> info@trafficlights.com
+                    </p>
+                    <p class="text-light mb-1">
+                        <i class="bi bi-telephone"></i> +1 234 567 890
+                    </p>
+                    <div class="mt-2">
+                        <a href="#" class="text-light me-3"><i class="bi bi-facebook fs-5"></i></a>
+                        <a href="#" class="text-light me-3"><i class="bi bi-twitter fs-5"></i></a>
+                        <a href="#" class="text-light me-3"><i class="bi bi-linkedin fs-5"></i></a>
+                        <a href="#" class="text-light"><i class="bi bi-github fs-5"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="border-secondary">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <small class="text-muted">© 2025 Traffic Lights Management System. All rights reserved.</small>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
+

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="#{app.title}">Traffic Lights Management System</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.1/font/bootstrap-icons.css}">
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <!-- Navbar -->
+    <div th:replace="~{fragments/navigation :: navbar}"></div>
+
+    <!-- Main Content -->
+    <main class="flex-shrink-0">
+        <div class="container my-5">
+            <!-- Hero Section -->
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="text-center mb-5">
+                        <i class="bi bi-stoplights-fill text-primary" style="font-size: 5rem;"></i>
+                        <h1 class="display-4 mt-3" th:text="#{app.title}">Traffic Lights Management System</h1>
+                        <p class="lead text-muted" th:text="#{app.welcome}">Welcome to the Traffic Lights Management System</p>
+                        <p class="text-muted" th:text="#{app.description}">Use the navigation below to manage traffic lights, intersections, maintenance logs, and companies.</p>
+                    </div>
+
+                    <!-- Quick Access Cards -->
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mt-4">
+                        <!-- Traffic Lights Card -->
+                        <div class="col">
+                            <div class="card h-100 shadow-sm hover-card" style="cursor: pointer;" onclick="window.location.href='/trafficLights?status=ACTIVE'">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-stoplights-fill text-primary" style="font-size: 3rem;"></i>
+                                    <h5 class="card-title mt-3" th:text="#{menu.trafficLights}">Traffic Lights</h5>
+                                    <p class="card-text text-muted">Manage all traffic lights</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Intersections Card -->
+                        <div class="col">
+                            <div class="card h-100 shadow-sm hover-card" style="cursor: pointer;" onclick="window.location.href='/intersections'">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-signpost-2 text-success" style="font-size: 3rem;"></i>
+                                    <h5 class="card-title mt-3" th:text="#{menu.intersections}">Intersections</h5>
+                                    <p class="card-text text-muted">Manage all intersections</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Maintenance Logs Card -->
+                        <div class="col">
+                            <div class="card h-100 shadow-sm hover-card" style="cursor: pointer;" onclick="window.location.href='/maintenanceLogs'">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-journal-text text-warning" style="font-size: 3rem;"></i>
+                                    <h5 class="card-title mt-3" th:text="#{menu.maintenanceLogs}">Maintenance Logs</h5>
+                                    <p class="card-text text-muted">View maintenance records</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Companies Card -->
+                        <div class="col">
+                            <div class="card h-100 shadow-sm hover-card" style="cursor: pointer;" onclick="window.location.href='/maintenanceCompanies'">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-building text-info" style="font-size: 3rem;"></i>
+                                    <h5 class="card-title mt-3" th:text="#{menu.maintenanceCompanies}">Companies</h5>
+                                    <p class="card-text text-muted">Manage service companies</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Add Section -->
+                    <div class="row mt-5">
+                        <div class="col-12">
+                            <div class="card shadow-sm">
+                                <div class="card-body">
+                                    <h4 class="card-title mb-3">
+                                        <i class="bi bi-plus-circle"></i> Quick Add
+                                    </h4>
+                                    <div class="d-grid gap-2 d-md-flex">
+                                        <a th:href="@{/addTrafficLight}" class="btn btn-outline-primary">
+                                            <i class="bi bi-stoplights-fill"></i>
+                                            <span th:text="#{menu.addTrafficLight}">Add Traffic Light</span>
+                                        </a>
+                                        <a th:href="@{/addIntersection}" class="btn btn-outline-success">
+                                            <i class="bi bi-signpost-2"></i>
+                                            <span th:text="#{menu.addIntersection}">Add Intersection</span>
+                                        </a>
+                                        <a th:href="@{/addMaintenanceLog}" class="btn btn-outline-warning">
+                                            <i class="bi bi-journal-text"></i>
+                                            <span th:text="#{menu.addMaintenanceLog}">Add Log</span>
+                                        </a>
+                                        <a th:href="@{/addMaintenanceCompany}" class="btn btn-outline-info">
+                                            <i class="bi bi-building"></i>
+                                            <span th:text="#{menu.addMaintenanceCompany}">Add Company</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/navigation :: footer}"></div>
+
+    <!-- Bootstrap JS -->
+    <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
+
+    <!-- Form Validation Script -->
+    <style>
+        .hover-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .hover-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
+    </style>
+</body>
+</html>
+

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="#{addMaintenanceCompany.title}">Add Maintenance Company</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.1/font/bootstrap-icons.css}">
+</head>
+<body class="d-flex flex-column min-vh-100">
+<!-- Navbar -->
+<div th:replace="~{fragments/navigation :: navbar}"></div>
+
+<!-- Main Content -->
+<main class="flex-shrink-0">
+    <div class="container my-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">
+                            <i class="bi bi-building"></i>
+                            <span th:text="#{addMaintenanceCompany.title}">Add New Maintenance Company</span>
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Error Alert -->
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${param.error}">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <strong>Error:</strong> <span th:text="${param.error}">Error message</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+
+                        <form method="post" th:action="@{/addMaintenanceCompany}">
+                            <div class="row">
+                                <!-- Name -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="name" class="form-label" th:text="#{addMaintenanceCompany.form.name}">Name:</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                    <div class="invalid-feedback">Please provide a company name.</div>
+                                </div>
+
+                                <!-- Contact Phone -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="contactPhone" class="form-label" th:text="#{addMaintenanceCompany.form.contactPhone}">Contact Phone:</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                                        <input type="tel" class="form-control" id="contactPhone" name="contactPhone" required>
+                                        <div class="invalid-feedback">Please provide a phone number.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <!-- Contact Email -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="contactEmail" class="form-label" th:text="#{addMaintenanceCompany.form.contactEmail}">Contact Email:</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                        <input type="email" class="form-control" id="contactEmail" name="contactEmail" required>
+                                        <div class="invalid-feedback">Please provide a valid email.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <!-- Since Date -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="since" class="form-label" th:text="#{addMaintenanceCompany.form.since}">Since:</label>
+                                    <input type="date" class="form-control" id="since" name="since" required>
+                                    <div class="invalid-feedback">Please provide a date.</div>
+                                </div>
+
+                                <!-- Active Checkbox -->
+                                <div class="col-md-6 mb-3 d-flex align-items-end">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="active" name="active">
+                                        <label class="form-check-label" for="active" th:text="#{addMaintenanceCompany.form.active}">
+                                            Active
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a th:href="@{/maintenanceCompanies}" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle"></i>
+                                    <span th:text="#{addMaintenanceCompany.form.submit}">Add Maintenance Company</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<div th:replace="~{fragments/navigation :: footer}"></div>
+
+<!-- Bootstrap JS -->
+<script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
+
+<!-- Client-side Validation Script -->
+<script>
+    // Only validate on first submit attempt, don't block re-submission
+    (function () {
+        'use strict'
+        var form = document.querySelector('form')
+        if (form) {
+            form.addEventListener('submit', function (event) {
+                // Check HTML5 validity
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                // Add Bootstrap validation classes
+                form.classList.add('was-validated')
+            }, false)
+        }
+    })()
+</script>
+</body>
+</html>
+

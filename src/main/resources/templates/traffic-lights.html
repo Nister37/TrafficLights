@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="#{trafficLights.title}">Traffic Lights</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.1/font/bootstrap-icons.css}">
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <!-- Navbar -->
+    <div th:replace="~{fragments/navigation :: navbar}"></div>
+
+    <!-- Main Content -->
+    <main class="flex-shrink-0">
+        <div class="container my-4">
+            <h2 class="mb-4" th:text="#{trafficLights.title}">Traffic Lights</h2>
+
+             <!-- Filters Accordion -->
+            <div class="accordion mb-4" id="filtersAccordion">
+                <!-- Basic Status Filter -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingBasic">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBasic" aria-expanded="true" aria-controls="collapseBasic">
+                            <i class="bi bi-funnel me-2"></i> <span th:text="#{trafficLights.filter.basicTitle}">Basic Filter - By Status</span>
+                        </button>
+                    </h2>
+                    <div id="collapseBasic" class="accordion-collapse collapse show" aria-labelledby="headingBasic" data-bs-parent="#filtersAccordion">
+                        <div class="accordion-body">
+                            <form method="get" th:action="@{/trafficLights}" class="row g-3">
+                                <div class="col-md-8">
+                                    <label for="status" class="form-label" th:text="#{trafficLights.filter.statusLabel}">Filter by Status:</label>
+                                    <select class="form-select" id="status" name="status" required>
+                                        <option value="" th:text="#{trafficLights.filter.chooseStatus}">Choose status...</option>
+                                        <option th:each="status : ${statuses}"
+                                                th:value="${status}"
+                                                th:text="${status}"
+                                                th:selected="${status == selectedStatus}"></option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="bi bi-search"></i> <span th:text="#{trafficLights.filter.searchButton}">Search</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Query Method: Installation Date Filter -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingDate">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDate" aria-expanded="false" aria-controls="collapseDate">
+                            <i class="bi bi-calendar-check me-2"></i> <span th:text="#{trafficLights.filter.dateTitle}">Filter by Installation Date</span>
+                        </button>
+                    </h2>
+                    <div id="collapseDate" class="accordion-collapse collapse" aria-labelledby="headingDate" data-bs-parent="#filtersAccordion">
+                        <div class="accordion-body">
+                            <form method="get" th:action="@{/trafficLights/byDate}" class="row g-3">
+                                <div class="col-md-8">
+                                    <label for="afterDate" class="form-label" th:text="#{trafficLights.filter.installedAfter}">Installed After:</label>
+                                    <input type="date" class="form-control" id="afterDate" name="afterDate" required>
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="bi bi-search"></i> <span th:text="#{trafficLights.filter.searchButton}">Search</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom @Query: Old Lights Filter -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingCustom">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCustom" aria-expanded="false" aria-controls="collapseCustom">
+                            <i class="bi bi-funnel-fill me-2"></i> <span th:text="#{trafficLights.filter.advancedTitle}">Advanced Filter - Status and Date</span>
+                        </button>
+                    </h2>
+                    <div id="collapseCustom" class="accordion-collapse collapse" aria-labelledby="headingCustom" data-bs-parent="#filtersAccordion">
+                        <div class="accordion-body">
+                            <form method="get" th:action="@{/trafficLights/oldByStatus}" class="row g-3">
+                                <div class="col-md-5">
+                                    <label for="customStatus" class="form-label" th:text="#{trafficLights.filter.statusLabel}">Status:</label>
+                                    <select class="form-select" id="customStatus" name="status" required>
+                                        <option value="" th:text="#{trafficLights.filter.chooseStatus}">Choose status...</option>
+                                        <option th:each="status : ${statuses}"
+                                                th:value="${status}"
+                                                th:text="${status}"></option>
+                                    </select>
+                                </div>
+                                <div class="col-md-5">
+                                    <label for="beforeDate" class="form-label" th:text="#{trafficLights.filter.installedBefore}">Installed Before:</label>
+                                    <input type="date" class="form-control" id="beforeDate" name="beforeDate" required>
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-warning w-100">
+                                        <i class="bi bi-search"></i> <span th:text="#{trafficLights.filter.searchButton}">Search</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Filter Info -->
+            <div class="alert alert-info" th:if="${filterInfo}">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong th:text="#{trafficLights.filter.activeFilter}">Active Filter:</strong> <span th:text="${filterInfo}">Filter details</span>
+            </div>
+
+    <!-- Bootstrap Cards Grid: 1 column on mobile, 2 on tablet, 4 on desktop -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+            <div class="col" th:each="light : ${trafficLights}">
+                <div class="card h-100 shadow-sm" style="cursor: pointer;" th:onclick="'window.location.href=\'/trafficLight/' + ${light.id} + '\''"
+                     th:classappend="${light.status.name() == 'BROKEN' ? 'border-danger' : (light.status.name() == 'MAINTENANCE' ? 'border-warning' : (light.status.name() == 'ACTIVE' ? 'border-success' : ''))}">
+
+                    <!-- Card Body -->
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${'ID: ' + light.id}">Traffic Light ID</h5>
+                        <p class="card-text">
+                            <strong th:text="#{trafficLights.table.status} + ':'">Status:</strong>
+                            <span class="badge"
+                                  th:classappend="${light.status.name() == 'BROKEN' ? 'bg-danger' : (light.status.name() == 'MAINTENANCE' ? 'bg-warning text-dark' : (light.status.name() == 'ACTIVE' ? 'bg-success' : 'bg-secondary'))}"
+                                  th:text="${light.status}">
+                                Status
+                            </span>
+                        </p>
+                        <p class="card-text">
+                            <strong th:text="#{trafficLights.table.type} + ':'">Type:</strong>
+                            <span th:text="${light.type}">Type</span>
+                        </p>
+                        <p class="card-text">
+                            <strong th:text="#{trafficLights.table.direction} + ':'">Direction:</strong>
+                            <span th:text="${light.direction}">Direction</span>
+                        </p>
+                        <p class="card-text">
+                            <strong th:text="#{trafficLights.filter.category}">Category:</strong>
+                            <span class="badge"
+                                  th:classappend="${light.category == 'SmartTrafficLight' ? 'bg-primary' :
+                                                   (light.category == 'PedestrianTrafficLight' ? 'bg-info' : 'bg-secondary')}"
+                                  th:text="${light.category}">
+                                Category
+                            </span>
+                        </p>
+                    </div>
+
+                    <!-- Card Footer -->
+                    <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
+                        <small class="text-muted" th:text="#{trafficLights.table.installationDate} + ': ' + ${light.installationDate}">
+                            Installed: 2020-01-01
+                        </small>
+                        <form th:action="@{/trafficLight/{id}/delete(id=${light.id})}" method="post" style="display: inline;"
+                              th:attr="onsubmit='event.stopPropagation(); return confirm(\'' + #{trafficLights.filter.deleteConfirm} + '\');'"
+                              onclick="event.stopPropagation();">
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="item-count mt-4 text-center">
+        <span th:text="#{trafficLights.count}">Total traffic lights displayed:</span>
+        <span th:text="${#lists.size(trafficLights)}">0</span>
+    </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/navigation :: footer}"></div>
+
+    <!-- Bootstrap JS -->
+    <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
+
+    <!-- Form Validation Script -->
+    <script>
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+    </script>
+</body>
+</html>
