@@ -1,11 +1,13 @@
 package be.kdg.programming5.exception;
 
+import be.kdg.programming5.controller.api.dto.ErrorDto;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -20,6 +22,7 @@ import java.time.format.DateTimeFormatter;
  * Global exception handler for the application.
  * Handles database exceptions and provides fallback error handling for unexpected exceptions.
  * Uses @ControllerAdvice to apply exception handling across all controllers.
+ * Differentiates between MVC and API requests to return appropriate responses.
  */
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -28,16 +31,25 @@ public class GlobalExceptionHandler {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     /**
+     * Checks if the request is an API request (starts with /api/).
+     */
+    private boolean isApiRequest(HttpServletRequest request) {
+        return request.getRequestURI().startsWith("/api");
+    }
+
+    /**
      * Handles all database-related exceptions globally.
-     * Logs the error and returns a custom database error page.
-     *
-     * @param req the HTTP request where the exception occurred
-     * @param ex the database exception that was thrown
-     * @return ModelAndView directing to the database error page (500.html)
+     * Returns JSON for API requests, HTML error page for MVC requests.
      */
     @ExceptionHandler({DataAccessException.class, SQLException.class})
-    public ModelAndView handleDatabaseException(HttpServletRequest req, Exception ex) {
+    public Object handleDatabaseException(HttpServletRequest req, Exception ex) {
         logger.error("Database error occurred at {}: {}", req.getRequestURL(), ex.getMessage(), ex);
+
+        if (isApiRequest(req)) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorDto("A database error occurred. Please try again later."));
+        }
 
         ModelAndView mav = new ModelAndView();
         mav.addObject("timestamp", LocalDateTime.now().format(FORMATTER));
@@ -52,19 +64,23 @@ public class GlobalExceptionHandler {
 
     /**
      * Handles missing static resources.
-     * Returns 404 page for normal requests, empty response for favicon.
+     * Returns JSON for API requests, 404 page for MVC requests.
      */
     @ExceptionHandler(NoResourceFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ModelAndView handleNoResourceFoundException(HttpServletRequest req) {
+    public Object handleNoResourceFoundException(HttpServletRequest req) {
         String path = req.getRequestURI();
 
         // Silently ignore favicon requests
         if (path.contains("favicon")) {
-            return null; // Empty response
+            return null;
         }
 
         logger.debug("Resource not found: {}", path);
+
+        if (isApiRequest(req)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorDto("Resource not found: " + path));
+        }
 
         ModelAndView mav = new ModelAndView();
         mav.addObject("path", path);
@@ -74,12 +90,16 @@ public class GlobalExceptionHandler {
 
     /**
      * Handles custom not found exceptions (TrafficLightNotFoundException, IntersectionNotFoundException).
-     * Returns user-friendly 404 page.
+     * Returns JSON for API requests, 404 page for MVC requests.
      */
     @ExceptionHandler({TrafficLightNotFoundException.class, IntersectionNotFoundException.class})
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ModelAndView handleNotFoundException(HttpServletRequest req, RuntimeException ex) {
+    public Object handleNotFoundException(HttpServletRequest req, RuntimeException ex) {
         logger.warn("Not found: {} at {}", ex.getMessage(), req.getRequestURL());
+
+        if (isApiRequest(req)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorDto(ex.getMessage()));
+        }
 
         ModelAndView mav = new ModelAndView();
         mav.addObject("message", ex.getMessage());
@@ -90,16 +110,10 @@ public class GlobalExceptionHandler {
 
     /**
      * Fallback handler for all unexpected exceptions.
-     * If the exception has @ResponseStatus annotation, rethrows it to let Spring handle it.
-     * Otherwise, logs the error and returns a generic error page.
-     *
-     * @param req the HTTP request where the exception occurred
-     * @param ex the exception that was thrown
-     * @return ModelAndView directing to the generic error page
-     * @throws Exception if the exception has @ResponseStatus annotation (rethrown)
+     * Returns JSON for API requests, error page for MVC requests.
      */
     @ExceptionHandler(Exception.class)
-    public ModelAndView handleGenericException(HttpServletRequest req, Exception ex) throws Exception {
+    public Object handleGenericException(HttpServletRequest req, Exception ex) throws Exception {
 
         // If exception has @ResponseStatus, rethrow and let Spring handle it
         if (AnnotationUtils.findAnnotation(ex.getClass(), ResponseStatus.class) != null) {
@@ -107,6 +121,11 @@ public class GlobalExceptionHandler {
         }
 
         logger.error("Unexpected error occurred at {}: {}", req.getRequestURL(), ex.getMessage(), ex);
+
+        if (isApiRequest(req)) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorDto(ex.getMessage() != null ? ex.getMessage() : "An unexpected error occurred"));
+        }
 
         ModelAndView mav = new ModelAndView();
         mav.addObject("timestamp", LocalDateTime.now().format(FORMATTER));
