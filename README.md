@@ -1,6 +1,6 @@
 # Traffic Lights Management System
 
-**Author:** Paweł Ryfiak ACS202  
+**Author:** Paweł Ryfiak ACS202
 **Email:** pawel.ryfiak@student.kdg.be  
 **Course:** Programming 5
 
@@ -193,5 +193,175 @@ src/main/
 
 ---
 
+## Week 2
 
-**Last Updated:** February 12, 2026
+### REST API Endpoints
+
+The application exposes a REST API for traffic light management.
+
+#### GET All Traffic Lights - 200 OK
+
+**Request:**
+```http
+GET /api/traffic-lights HTTP/1.1
+Host: localhost:8080
+Accept: application/json
+```
+
+**Response:**
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[
+  {
+    "id": 1,
+    "status": "ACTIVE",
+    "installationDate": "2020-01-15",
+    "direction": "NE",
+    "type": "COLLISION",
+    "rightArrow": true,
+    "intersectionId": 1,
+    "category": "SmartTrafficLight"
+  },
+  {
+    "id": 2,
+    "status": "BROKEN",
+    "installationDate": "2019-05-20",
+    "direction": "E",
+    "type": "COLLISION",
+    "rightArrow": false,
+    "intersectionId": 1,
+    "category": "TrafficLight"
+  }
+]
+```
+
+#### GET Single Traffic Light - 200 OK
+
+**Request:**
+```http
+GET /api/traffic-lights/1 HTTP/1.1
+Host: localhost:8080
+Accept: application/json
+```
+
+**Response:**
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "id": 1,
+  "status": "ACTIVE",
+  "installationDate": "2020-01-15",
+  "direction": "NE",
+  "type": "COLLISION",
+  "rightArrow": true,
+  "intersectionId": 1,
+  "category": "SmartTrafficLight"
+}
+```
+
+#### GET Single Traffic Light - 404 Not Found
+
+**Request:**
+```http
+GET /api/traffic-lights/9999 HTTP/1.1
+Host: localhost:8080
+Accept: application/json
+```
+
+**Response:**
+```http
+HTTP/1.1 404 Not Found
+Content-Type: application/json
+
+{
+  "message": "Traffic light with id 9999 not found"
+}
+```
+
+#### GET Traffic Lights for Intersection - 200 OK
+
+**Request:**
+```http
+GET /api/intersections/1/traffic-lights HTTP/1.1
+Host: localhost:8080
+Accept: application/json
+```
+
+**Response:**
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[
+  {
+    "id": 1,
+    "status": "ACTIVE",
+    "installationDate": "2020-01-15",
+    "direction": "NE",
+    "type": "COLLISION",
+    "rightArrow": true,
+    "intersectionId": 1,
+    "category": "SmartTrafficLight"
+  }
+]
+```
+
+#### GET Traffic Lights for Intersection - 404 Not Found
+
+**Request:**
+```http
+GET /api/intersections/9999/traffic-lights HTTP/1.1
+Host: localhost:8080
+Accept: application/json
+```
+
+**Response:**
+```http
+HTTP/1.1 404 Not Found
+Content-Type: application/json
+
+{
+  "message": "Intersection with id 9999 not found"
+}
+```
+
+#### DELETE Traffic Light - 204 No Content
+
+**Request:**
+```http
+DELETE /api/traffic-lights/5 HTTP/1.1
+Host: localhost:8080
+Accept: application/json
+```
+
+**Response:**
+```http
+HTTP/1.1 204 No Content
+```
+
+#### DELETE Traffic Light - 404 Not Found
+
+**Request:**
+```http
+DELETE /api/traffic-lights/9999 HTTP/1.1
+Host: localhost:8080
+Accept: application/json
+```
+
+**Response:**
+```http
+HTTP/1.1 404 Not Found
+Content-Type: application/json
+
+{
+  "message": "Traffic light with id 9999 not found"
+}
+```
+
+---
+
+**Last Updated:** February 22, 2026

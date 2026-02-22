@@ -103,32 +103,26 @@
             </div>
         </div>
 
-        <!-- Related Traffic Lights Section -->
-        <div class="row mt-4" th:if="${trafficLights != null && !trafficLights.isEmpty()}">
+        <!-- Related Traffic Lights Section - Loaded via AJAX -->
+        <div class="row mt-4">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                         <h5 class="mb-0"><i class="bi bi-traffic-light"></i> Traffic Lights at this Intersection</h5>
+                        <button class="btn btn-light btn-sm" onclick="refreshTrafficLights()">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                        </button>
                     </div>
                     <div class="card-body">
-                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-                            <div class="col" th:each="light : ${trafficLights}">
-                                <div class="card h-100 shadow-sm" style="cursor: pointer;" th:onclick="'window.location.href=\'/trafficLight/' + ${light.id} + '\''">
-                                    <div class="card-body">
-                                        <h6 class="card-title" th:text="'Traffic Light #' + ${light.id}">Light ID</h6>
-                                        <p class="card-text mb-1">
-                                            <strong>Status:</strong>
-                                            <span class="badge"
-                                                  th:classappend="${light.status.name() == 'BROKEN' ? 'bg-danger' : (light.status.name() == 'MAINTENANCE' ? 'bg-warning text-dark' : (light.status.name() == 'ACTIVE' ? 'bg-success' : 'bg-secondary'))}"
-                                                  th:text="${light.status}">Status</span>
-                                        </p>
-                                        <p class="card-text mb-1">
-                                            <strong>Direction:</strong> <span th:text="${light.direction}">N</span>
-                                        </p>
-                                        <p class="card-text mb-0">
-                                            <strong>Type:</strong> <span th:text="${light.type}">Type</span>
-                                        </p>
-                                    </div>
+                        <!-- Alert container for AJAX messages -->
+                        <div id="alert-container"></div>
+                        <!-- Traffic lights will be loaded here via AJAX -->
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3"
+                             id="traffic-lights-container"
+                             th:data-intersection-id="${intersection.id}">
+                            <div class="text-center w-100">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Loading...</span>
                                 </div>
                             </div>
                         </div>
@@ -146,22 +140,8 @@
     <!-- Bootstrap JS -->
     <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
 
-    <!-- Form Validation Script -->
-    <script>
-        (function () {
-            'use strict'
-            var forms = document.querySelectorAll('.needs-validation')
-            Array.prototype.slice.call(forms).forEach(function (form) {
-                form.addEventListener('submit', function (event) {
-                    if (!form.checkValidity()) {
-                        event.preventDefault()
-                        event.stopPropagation()
-                    }
-                    form.classList.add('was-validated')
-                }, false)
-            })
-        })()
-    </script>
+    <!-- Traffic Lights API JavaScript -->
+    <script th:src="@{/js/traffic-lights-api.js}"></script>
 </body>
 </html>
 

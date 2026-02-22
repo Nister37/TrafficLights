@@ -15,9 +15,9 @@ GET http://localhost:8080/api/traffic-lights/9999
 Accept: application/json
 
 ### DELETE traffic light - 204 No Content
-### (Uncomment to test - will actually delete!)
-# DELETE http://localhost:8080/api/traffic-lights/5
-# Accept: application/json
+### WARNING: This will actually delete the traffic light!
+DELETE http://localhost:8080/api/traffic-lights/5
+Accept: application/json
 
 ### DELETE non-existent traffic light - 404 Not Found
 DELETE http://localhost:8080/api/traffic-lights/9999
@@ -34,4 +34,5 @@ Accept: application/json
 ### GET traffic lights for non-existent intersection - 404 Not Found
 GET http://localhost:8080/api/intersections/9999/traffic-lights
 Accept: application/json
+
 
