@@ -1,6 +1,7 @@
 package be.kdg.programming5.controller;
 
 import be.kdg.programming5.business.domain.MaintenanceLog;
+import be.kdg.programming5.business.domain.TrafficLight;
 import be.kdg.programming5.business.services.MaintenanceLogService;
 import be.kdg.programming5.business.services.TrafficLightService;
 import be.kdg.programming5.enums.MaintenanceLogTypes;
@@ -78,8 +79,9 @@ public class MaintenanceLogController {
         );
 
         try {
-            // Service layer will handle traffic light relationship within transaction
-            maintenanceLogService.addMaintenanceLogWithTrafficLight(log, trafficLightId);
+            // Fetch traffic light first, then pass to service (proper 3-layer architecture)
+            TrafficLight trafficLight = trafficLightService.getTrafficLightById(trafficLightId);
+            maintenanceLogService.addMaintenanceLogWithTrafficLight(log, trafficLight);
             logger.debug("Maintenance log created and saved successfully");
             return "redirect:/maintenanceLogs";
         } catch (Exception e) {

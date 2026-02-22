@@ -1,6 +1,8 @@
 package be.kdg.programming5.business.services;
 
 import be.kdg.programming5.business.domain.MaintenanceLog;
+import be.kdg.programming5.business.domain.TrafficLight;
+import be.kdg.programming5.repository.MaintenanceLogCompanyRepository;
 import be.kdg.programming5.repository.MaintenanceLogRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,12 +19,12 @@ public class MaintenanceLogServiceImpl implements MaintenanceLogService {
     private static final Logger logger = LoggerFactory.getLogger(MaintenanceLogServiceImpl.class);
 
     private final MaintenanceLogRepository maintenanceLogRepository;
-    private final TrafficLightService trafficLightService;
+    private final MaintenanceLogCompanyRepository maintenanceLogCompanyRepository;
 
     public MaintenanceLogServiceImpl(MaintenanceLogRepository maintenanceLogRepository,
-                                     TrafficLightService trafficLightService) {
+                                     MaintenanceLogCompanyRepository maintenanceLogCompanyRepository) {
         this.maintenanceLogRepository = maintenanceLogRepository;
-        this.trafficLightService = trafficLightService;
+        this.maintenanceLogCompanyRepository = maintenanceLogCompanyRepository;
     }
 
     @Override
@@ -55,12 +57,9 @@ public class MaintenanceLogServiceImpl implements MaintenanceLogService {
 
     @Override
     @Transactional
-    public void addMaintenanceLogWithTrafficLight(MaintenanceLog maintenanceLog, int trafficLightId) {
-        logger.debug("Adding maintenance log with traffic light: {}", trafficLightId);
-        var trafficLight = trafficLightService.getTrafficLightById(trafficLightId);
-        if (trafficLight != null) {
-            maintenanceLog.setTrafficLight(trafficLight);
-        }
+    public void addMaintenanceLogWithTrafficLight(MaintenanceLog maintenanceLog, TrafficLight trafficLight) {
+        logger.debug("Adding maintenance log with traffic light: {}", trafficLight.getId());
+        maintenanceLog.setTrafficLight(trafficLight);
         maintenanceLogRepository.save(maintenanceLog);
     }
 
@@ -69,6 +68,14 @@ public class MaintenanceLogServiceImpl implements MaintenanceLogService {
     public void deleteMaintenanceLog(int id) {
         logger.debug("Deleting maintenance log: {}", id);
         maintenanceLogRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void deleteByTrafficLightId(int trafficLightId) {
+        logger.debug("Deleting all maintenance logs for traffic light: {}", trafficLightId);
+        maintenanceLogCompanyRepository.deleteByTrafficLightId(trafficLightId);
+        maintenanceLogRepository.deleteByTrafficLightId(trafficLightId);
     }
 
     /**

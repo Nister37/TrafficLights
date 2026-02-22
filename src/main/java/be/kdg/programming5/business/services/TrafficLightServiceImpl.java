@@ -22,11 +22,14 @@ public class TrafficLightServiceImpl implements TrafficLightService {
 
     private final TrafficLightRepository trafficLightRepository;
     private final IntersectionService intersectionService;
+    private final MaintenanceLogService maintenanceLogService;
 
     public TrafficLightServiceImpl(TrafficLightRepository trafficLightRepository,
-                                   IntersectionService intersectionService) {
+                                   IntersectionService intersectionService,
+                                   MaintenanceLogService maintenanceLogService) {
         this.trafficLightRepository = trafficLightRepository;
         this.intersectionService = intersectionService;
+        this.maintenanceLogService = maintenanceLogService;
     }
 
     /**
@@ -105,6 +108,7 @@ public class TrafficLightServiceImpl implements TrafficLightService {
 
     /**
      * Deletes a traffic light by its ID.
+     * First deletes all related maintenance logs via MaintenanceLogService.
      *
      * @param id the ID of the traffic light to delete
      */
@@ -112,6 +116,7 @@ public class TrafficLightServiceImpl implements TrafficLightService {
     @Transactional
     public void deleteTrafficLight(int id) {
         logger.debug("Deleting traffic light: {}", id);
+        maintenanceLogService.deleteByTrafficLightId(id);
         trafficLightRepository.deleteById(id);
     }
 

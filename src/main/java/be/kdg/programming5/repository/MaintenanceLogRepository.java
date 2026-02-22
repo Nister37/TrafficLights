@@ -2,6 +2,7 @@ package be.kdg.programming5.repository;
 
 import be.kdg.programming5.business.domain.MaintenanceLog;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -30,5 +31,12 @@ public interface MaintenanceLogRepository extends JpaRepository<MaintenanceLog, 
            "LEFT JOIN FETCH mlc.maintenanceCompany " +
            "WHERE m.id = :id")
     Optional<MaintenanceLog> findByIdWithCompanies(@Param("id") int id);
+
+    /**
+     * Delete all maintenance logs for a specific traffic light.
+     */
+    @Modifying
+    @Query("DELETE FROM MaintenanceLog m WHERE m.trafficLight.id = :trafficLightId")
+    void deleteByTrafficLightId(@Param("trafficLightId") int trafficLightId);
 }
 
