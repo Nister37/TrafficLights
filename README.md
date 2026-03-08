@@ -52,4 +52,23 @@ POST and PATCH REST endpoints for traffic lights with validation and AJAX integr
 
 ---
 
+## Week 4
+
+Spring Security with form-based login, BCrypt password hashing, and content-based authorization.
+
+### Users
+
+| Username | Password  |
+|----------|-----------|
+| `user`   | `user123` |
+
+### Pages
+
+- 🌍 **Public page** (accessible by anyone): [Traffic Light Details](http://localhost:8080/trafficLight/1)
+  - Anonymous users see basic traffic light info and a teaser prompting login to view the maintenance history.
+  - Authenticated users see the full maintenance log section.
+- 🔒 **Authenticated page** (login required): [Traffic Lights List](http://localhost:8080/trafficLights)
+
+---
+
 **Last Updated:** March 8, 2026
