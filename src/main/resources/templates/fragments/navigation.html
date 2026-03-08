@@ -52,8 +52,8 @@
                         </ul>
                     </li>
 
-                    <!-- Add Dropdown -->
-                    <li class="nav-item dropdown">
+                    <!-- Add Dropdown - only for authenticated users -->
+                    <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
                         <a class="nav-link dropdown-toggle" href="#" id="addDropdown" role="button"
                            data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-plus-circle"></i> Add New
@@ -87,6 +87,24 @@
                         </ul>
                     </li>
                 </ul>
+
+                <!-- User info + logout on the right -->
+                <div class="d-flex align-items-center gap-2" sec:authorize="isAuthenticated()">
+                    <span class="text-light">
+                        <i class="bi bi-person-circle"></i>
+                        <span sec:authentication="name"></span>
+                    </span>
+                    <form th:action="@{/logout}" method="post" class="m-0">
+                        <button type="submit" class="btn btn-outline-light btn-sm">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </button>
+                    </form>
+                </div>
+                <div sec:authorize="!isAuthenticated()">
+                    <a th:href="@{/login}" class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-box-arrow-in-right"></i> Login
+                    </a>
+                </div>
             </div>
         </div>
     </nav>

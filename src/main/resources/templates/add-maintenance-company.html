@@ -108,25 +108,9 @@
 <!-- Bootstrap JS -->
 <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
 
-<!-- Client-side Validation Script -->
-<script>
-    // Only validate on first submit attempt, don't block re-submission
-    (function () {
-        'use strict'
-        var form = document.querySelector('form')
-        if (form) {
-            form.addEventListener('submit', function (event) {
-                // Check HTML5 validity
-                if (!form.checkValidity()) {
-                    event.preventDefault()
-                    event.stopPropagation()
-                }
-                // Add Bootstrap validation classes
-                form.classList.add('was-validated')
-            }, false)
-        }
-    })()
-</script>
+<!-- Bootstrap JS -->
+<script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/js/form-validation.js}"></script>
 </body>
 </html>
 

@@ -9,14 +9,15 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.1/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100 bg-light">
     <!-- Navbar -->
     <div th:replace="~{fragments/navigation :: navbar}"></div>
 
     <!-- Main Content -->
     <main class="flex-shrink-0">
-        <div class="container my-5">
+        <div class="container my-4">
             <!-- Hero Section -->
             <div class="row justify-content-center">
                 <div class="col-lg-10">
@@ -112,19 +113,7 @@
     <!-- Footer -->
     <div th:replace="~{fragments/navigation :: footer}"></div>
 
-    <!-- Bootstrap JS -->
     <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
-
-    <!-- Form Validation Script -->
-    <style>
-        .hover-card {
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        }
-        .hover-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-        }
-    </style>
 </body>
 </html>
 
