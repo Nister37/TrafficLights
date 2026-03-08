@@ -131,6 +131,67 @@
             </div>
         </div>
 
+        <!-- Add Traffic Light Form - submits via AJAX (POST) -->
+        <div class="row mt-4 mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Add Traffic Light to this Intersection</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="add-traffic-light-form" th:data-intersection-id="${intersection.id}">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label for="new-status" class="form-label">Status</label>
+                                    <select class="form-select" id="new-status" required>
+                                        <option value="ACTIVE">ACTIVE</option>
+                                        <option value="MAINTENANCE">MAINTENANCE</option>
+                                        <option value="BROKEN">BROKEN</option>
+                                        <option value="PLANNED" selected>PLANNED</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="new-installation-date" class="form-label">Installation Date</label>
+                                    <input type="date" class="form-control" id="new-installation-date" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="new-direction" class="form-label">Direction</label>
+                                    <select class="form-select" id="new-direction" required>
+                                        <option value="N">N</option>
+                                        <option value="NE">NE</option>
+                                        <option value="E">E</option>
+                                        <option value="SE">SE</option>
+                                        <option value="S">S</option>
+                                        <option value="SW">SW</option>
+                                        <option value="W">W</option>
+                                        <option value="NW">NW</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="new-type" class="form-label">Type</label>
+                                    <select class="form-select" id="new-type" required>
+                                        <option value="COLLISION">COLLISION</option>
+                                        <option value="NON_COLLISION">NON_COLLISION</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" id="new-right-arrow">
+                                        <label class="form-check-label" for="new-right-arrow">Right Arrow</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-plus"></i> Add Traffic Light
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         </div>
     </main>
 
@@ -140,8 +201,10 @@
     <!-- Bootstrap JS -->
     <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
 
-    <!-- Traffic Lights API JavaScript -->
+    <!-- Traffic Lights API (fetch functions) -->
     <script th:src="@{/js/traffic-lights-api.js}"></script>
+    <!-- Intersection details page logic -->
+    <script th:src="@{/js/intersection-details.js}"></script>
 </body>
 </html>
 
