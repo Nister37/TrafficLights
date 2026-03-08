@@ -1,5 +1,6 @@
 package be.kdg.programming5.controller;
 
+import be.kdg.programming5.business.domain.MaintenanceCompany;
 import be.kdg.programming5.business.domain.MaintenanceLog;
 import be.kdg.programming5.business.domain.TrafficLight;
 import be.kdg.programming5.business.services.MaintenanceLogService;
@@ -113,7 +114,7 @@ public class MaintenanceLogController {
         logger.debug("Getting details for maintenance log id: {}", id);
 
         // Use JOIN FETCH method to load maintenance log with companies in single query
-        var log = maintenanceLogService.getMaintenanceLogByIdWithCompanies(id);
+        MaintenanceLog log = maintenanceLogService.getMaintenanceLogByIdWithCompanies(id);
 
         if (log == null) {
             logger.warn("Maintenance log with id {} not found", id);
@@ -121,7 +122,7 @@ public class MaintenanceLogController {
         }
 
         // Companies already loaded via JOIN FETCH - use convenience method
-        var maintenanceCompanies = log.getMaintenanceCompanies();
+        List<MaintenanceCompany> maintenanceCompanies = log.getMaintenanceCompanies();
 
         model.addAttribute("log", log);
         model.addAttribute("maintenanceCompanies", maintenanceCompanies);

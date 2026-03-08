@@ -8,6 +8,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.stream.Collectors;
 
 /**
  * Global exception handler for the application.
@@ -58,6 +60,34 @@ public class GlobalExceptionHandler {
         mav.addObject("message", "A database error occurred. Please try again later.");
         mav.addObject("path", req.getRequestURL().toString());
         mav.setViewName("error/500");
+
+        return mav;
+    }
+
+    /**
+     * Handles validation exceptions for API requests.
+     * Returns 400 Bad Request with validation error messages.
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Object handleValidationException(HttpServletRequest req, MethodArgumentNotValidException ex) {
+        String errors = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+
+        logger.warn("Validation failed at {}: {}", req.getRequestURL(), errors);
+
+        if (isApiRequest(req)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorDto("Validation failed: " + errors));
+        }
+
+        ModelAndView mav = new ModelAndView();
+        mav.addObject("timestamp", LocalDateTime.now().format(FORMATTER));
+        mav.addObject("status", 400);
+        mav.addObject("error", "Bad Request");
+        mav.addObject("message", "Validation failed: " + errors);
+        mav.addObject("path", req.getRequestURL().toString());
+        mav.setViewName("error");
 
         return mav;
     }

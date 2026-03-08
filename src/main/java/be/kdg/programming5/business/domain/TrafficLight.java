@@ -117,6 +117,10 @@ public class TrafficLight {
         return status;
     }
 
+    public void setStatus(TrafficLightStatus status) {
+        this.status = status;
+    }
+
     public LocalDate getInstallationDate() {
         return installationDate;
     }
@@ -125,12 +129,24 @@ public class TrafficLight {
         return direction;
     }
 
+    public void setDirection(Direction direction) {
+        this.direction = direction;
+    }
+
     public TrafficLightType getType() {
         return type;
     }
 
+    public void setType(TrafficLightType type) {
+        this.type = type;
+    }
+
     public boolean isRightArrow() {
         return rightArrow;
+    }
+
+    public void setRightArrow(boolean rightArrow) {
+        this.rightArrow = rightArrow;
     }
 
     /**

@@ -1,6 +1,7 @@
 package be.kdg.programming5.controller;
 
 import be.kdg.programming5.business.domain.Intersection;
+import be.kdg.programming5.business.domain.TrafficLight;
 import be.kdg.programming5.business.services.IntersectionService;
 import be.kdg.programming5.enums.IntersectionTypes;
 import be.kdg.programming5.exception.IntersectionNotFoundException;
@@ -116,13 +117,13 @@ public class IntersectionController {
     public String getIntersectionDetails(@PathVariable int id, Model model) {
         logger.debug("Getting details for intersection id: {}", id);
         // Use JOIN FETCH method to avoid N+1 queries - loads traffic lights in single query
-        var intersection = intersectionService.getIntersectionByIdWithTrafficLights(id);
+        Intersection intersection = intersectionService.getIntersectionByIdWithTrafficLights(id);
         if (intersection == null) {
             logger.warn("Intersection with id {} not found", id);
             return "redirect:/intersections";
         }
         // Traffic lights are already loaded via JOIN FETCH
-        var trafficLights = intersection.getTrafficLights();
+        List<TrafficLight> trafficLights = intersection.getTrafficLights();
         model.addAttribute("intersection", intersection);
         model.addAttribute("trafficLights", trafficLights);
         logger.debug("Displaying details for intersection: {} with {} traffic lights", intersection.getId(), trafficLights.size());

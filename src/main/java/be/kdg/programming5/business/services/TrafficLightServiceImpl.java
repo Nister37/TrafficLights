@@ -1,7 +1,10 @@
 package be.kdg.programming5.business.services;
 
+import be.kdg.programming5.business.domain.Intersection;
 import be.kdg.programming5.business.domain.TrafficLight;
+import be.kdg.programming5.enums.Direction;
 import be.kdg.programming5.enums.TrafficLightStatus;
+import be.kdg.programming5.enums.TrafficLightType;
 import be.kdg.programming5.exception.TrafficLightNotFoundException;
 import be.kdg.programming5.repository.TrafficLightRepository;
 import org.slf4j.Logger;
@@ -99,11 +102,44 @@ public class TrafficLightServiceImpl implements TrafficLightService {
     @Transactional
     public void addTrafficLightWithIntersection(TrafficLight trafficLight, int intersectionId) {
         logger.debug("Adding traffic light with intersection: {}", intersectionId);
-        var intersection = intersectionService.getIntersectionById(intersectionId);
+        Intersection intersection = intersectionService.getIntersectionById(intersectionId);
         if (intersection != null) {
             trafficLight.setIntersection(intersection);
         }
         trafficLightRepository.save(trafficLight);
+    }
+
+    /**
+     * Creates a new traffic light and returns the saved entity.
+     * The service is responsible for creating the domain entity.
+     */
+    @Override
+    @Transactional
+    public TrafficLight createTrafficLight(TrafficLightStatus status, LocalDate installationDate,
+                                           Direction direction, TrafficLightType type,
+                                           boolean rightArrow, int intersectionId) {
+        logger.debug("Creating traffic light for intersection: {}", intersectionId);
+        Intersection intersection = intersectionService.getIntersectionById(intersectionId);
+        TrafficLight trafficLight = new TrafficLight(status, installationDate, direction, type, rightArrow);
+        trafficLight.setIntersection(intersection);
+        return trafficLightRepository.save(trafficLight);
+    }
+
+    /**
+     * Partially updates a traffic light (merge patch).
+     * Only non-null fields are applied. The service fetches and mutates the entity.
+     */
+    @Override
+    @Transactional
+    public TrafficLight updateTrafficLight(int id, TrafficLightStatus status, Direction direction,
+                                           TrafficLightType type, Boolean rightArrow) {
+        logger.debug("Updating traffic light: {}", id);
+        TrafficLight trafficLight = getTrafficLightById(id);
+        if (status != null) trafficLight.setStatus(status);
+        if (direction != null) trafficLight.setDirection(direction);
+        if (type != null) trafficLight.setType(type);
+        if (rightArrow != null) trafficLight.setRightArrow(rightArrow);
+        return trafficLightRepository.save(trafficLight);
     }
 
     /**

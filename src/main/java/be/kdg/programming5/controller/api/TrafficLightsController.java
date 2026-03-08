@@ -2,10 +2,14 @@ package be.kdg.programming5.controller.api;
 
 import be.kdg.programming5.business.domain.TrafficLight;
 import be.kdg.programming5.business.services.TrafficLightService;
+import be.kdg.programming5.controller.api.dto.CreateTrafficLightDto;
 import be.kdg.programming5.controller.api.dto.TrafficLightDto;
+import be.kdg.programming5.controller.api.dto.UpdateTrafficLightDto;
 import be.kdg.programming5.controller.api.mapper.TrafficLightMapper;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +17,7 @@ import java.util.List;
 
 /**
  * REST API controller for TrafficLight resources.
- * Provides endpoints for retrieving and deleting traffic lights.
+ * Provides endpoints for CRUD operations on traffic lights.
  */
 @RestController
 @RequestMapping("/api/traffic-lights")
@@ -54,6 +58,50 @@ public class TrafficLightsController {
         logger.debug("REST: Getting traffic light with id: {}", id);
         TrafficLight trafficLight = trafficLightService.getTrafficLightById(id);
         return ResponseEntity.ok(trafficLightMapper.toTrafficLightDto(trafficLight));
+    }
+
+    /**
+     * POST /api/traffic-lights - Create a new traffic light.
+     * Returns 201 Created with the created traffic light, or 400 Bad Request if validation fails.
+     * Returns 404 Not Found if the intersection doesn't exist.
+     */
+    @PostMapping
+    public ResponseEntity<TrafficLightDto> createTrafficLight(
+            @RequestBody @Valid CreateTrafficLightDto createDto) {
+        logger.debug("REST: Creating traffic light for intersection: {}", createDto.getIntersectionId());
+
+        TrafficLight savedTrafficLight = trafficLightService.createTrafficLight(
+                createDto.getStatus(),
+                createDto.getInstallationDate(),
+                createDto.getDirection(),
+                createDto.getType(),
+                createDto.isRightArrow(),
+                createDto.getIntersectionId()
+        );
+
+        return new ResponseEntity<>(
+                trafficLightMapper.toTrafficLightDto(savedTrafficLight),
+                HttpStatus.CREATED);
+    }
+
+    /**
+     * PATCH /api/traffic-lights/{id} - Partially update a traffic light (merge patch).
+     * Only provided (non-null) fields are updated.
+     * Returns 204 No Content on success, 404 Not Found if not exists.
+     */
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> updateTrafficLight(
+            @PathVariable("id") int id,
+            @RequestBody UpdateTrafficLightDto updateDto) {
+        logger.debug("REST: Patching traffic light with id: {}", id);
+        trafficLightService.updateTrafficLight(
+                id,
+                updateDto.getStatus(),
+                updateDto.getDirection(),
+                updateDto.getType(),
+                updateDto.getRightArrow()
+        );
+        return ResponseEntity.noContent().build();
     }
 
     /**

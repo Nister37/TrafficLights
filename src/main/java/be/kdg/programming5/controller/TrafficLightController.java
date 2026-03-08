@@ -1,5 +1,6 @@
 package be.kdg.programming5.controller;
 
+import be.kdg.programming5.business.domain.MaintenanceLog;
 import be.kdg.programming5.business.domain.TrafficLight;
 import be.kdg.programming5.business.services.IntersectionService;
 import be.kdg.programming5.business.services.TrafficLightService;
@@ -145,7 +146,7 @@ public class TrafficLightController {
         }
 
         // Maintenance logs already loaded via JOIN FETCH
-        var maintenanceLogs = trafficLight.getMaintenanceLogs();
+        List<MaintenanceLog> maintenanceLogs = trafficLight.getMaintenanceLogs();
 
         model.addAttribute("trafficLight", trafficLight);
         model.addAttribute("maintenanceLogs", maintenanceLogs);

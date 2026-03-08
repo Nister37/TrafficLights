@@ -14,6 +14,58 @@ Accept: application/json
 GET http://localhost:8080/api/traffic-lights/9999
 Accept: application/json
 
+### POST create traffic light - 201 Created
+POST http://localhost:8080/api/traffic-lights
+Accept: application/json
+Content-Type: application/json
+
+{
+  "status": "PLANNED",
+  "installationDate": "2024-01-15",
+  "direction": "N",
+  "type": "COLLISION",
+  "rightArrow": false,
+  "intersectionId": 1
+}
+
+### POST create traffic light - 400 Bad Request (missing required fields)
+POST http://localhost:8080/api/traffic-lights
+Accept: application/json
+Content-Type: application/json
+
+{
+  "status": "ACTIVE",
+  "rightArrow": true
+}
+
+### POST create traffic light - 400 Bad Request (future installation date)
+POST http://localhost:8080/api/traffic-lights
+Accept: application/json
+Content-Type: application/json
+
+{
+  "status": "PLANNED",
+  "installationDate": "2030-12-31",
+  "direction": "S",
+  "type": "NON_COLLISION",
+  "rightArrow": false,
+  "intersectionId": 1
+}
+
+### POST create traffic light - 404 Not Found (non-existent intersection)
+POST http://localhost:8080/api/traffic-lights
+Accept: application/json
+Content-Type: application/json
+
+{
+  "status": "PLANNED",
+  "installationDate": "2024-01-15",
+  "direction": "E",
+  "type": "COLLISION",
+  "rightArrow": false,
+  "intersectionId": 9999
+}
+
 ### DELETE traffic light - 204 No Content
 ### WARNING: This will actually delete the traffic light!
 DELETE http://localhost:8080/api/traffic-lights/5
@@ -22,6 +74,32 @@ Accept: application/json
 ### DELETE non-existent traffic light - 404 Not Found
 DELETE http://localhost:8080/api/traffic-lights/9999
 Accept: application/json
+
+### PATCH traffic light - 204 No Content (update status only)
+PATCH http://localhost:8080/api/traffic-lights/1
+Content-Type: application/json
+
+{
+  "status": "MAINTENANCE"
+}
+
+### PATCH traffic light - 204 No Content (update multiple fields)
+PATCH http://localhost:8080/api/traffic-lights/1
+Content-Type: application/json
+
+{
+  "status": "ACTIVE",
+  "direction": "SW",
+  "rightArrow": true
+}
+
+### PATCH traffic light - 404 Not Found
+PATCH http://localhost:8080/api/traffic-lights/9999
+Content-Type: application/json
+
+{
+  "status": "ACTIVE"
+}
 
 ### ===========================================
 ### Intersections API Tests

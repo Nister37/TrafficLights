@@ -10,6 +10,7 @@ import java.util.List;
 
 /**
  * MapStruct mapper for TrafficLight entity to DTO conversions.
+ * Used for trivial mappings only. Complex mappings are handled manually.
  */
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface TrafficLightMapper {
