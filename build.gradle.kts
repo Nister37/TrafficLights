@@ -40,6 +40,10 @@ dependencies {
     // MapStruct for DTO mapping
     implementation("org.mapstruct:mapstruct:1.6.3")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
+
+    // Spring Security
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    runtimeOnly("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
 }
 
 tasks.withType<Test> {
