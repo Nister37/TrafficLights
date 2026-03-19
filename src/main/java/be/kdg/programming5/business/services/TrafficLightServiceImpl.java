@@ -6,6 +6,7 @@ import be.kdg.programming5.business.domain.TrafficLight;
 import be.kdg.programming5.enums.Direction;
 import be.kdg.programming5.enums.TrafficLightStatus;
 import be.kdg.programming5.enums.TrafficLightType;
+import be.kdg.programming5.exception.ForbiddenOperationException;
 import be.kdg.programming5.exception.TrafficLightNotFoundException;
 import be.kdg.programming5.repository.TrafficLightRepository;
 import org.slf4j.Logger;
@@ -147,6 +148,9 @@ public class TrafficLightServiceImpl implements TrafficLightService {
                                            TrafficLightType type, Boolean rightArrow) {
         logger.debug("Updating traffic light: {}", id);
         TrafficLight trafficLight = getTrafficLightById(id);
+
+        assertAuthenticatedUserCanModify(trafficLight);
+
         if (status != null) trafficLight.setStatus(status);
         if (direction != null) trafficLight.setDirection(direction);
         if (type != null) trafficLight.setType(type);
@@ -164,8 +168,26 @@ public class TrafficLightServiceImpl implements TrafficLightService {
     @Transactional
     public void deleteTrafficLight(int id) {
         logger.debug("Deleting traffic light: {}", id);
+
+        TrafficLight trafficLight = getTrafficLightById(id);
+        assertAuthenticatedUserCanModify(trafficLight);
+
         maintenanceLogService.deleteByTrafficLightId(id);
         trafficLightRepository.deleteById(id);
+    }
+
+    private void assertAuthenticatedUserCanModify(TrafficLight trafficLight) {
+        ApplicationUser currentUser = userService.getAuthenticatedUser()
+                .orElseThrow(() -> new ForbiddenOperationException("You must be logged in to perform this action."));
+
+        if (currentUser.getRole() == be.kdg.programming5.business.domain.UserRole.ADMIN) {
+            return;
+        }
+
+        ApplicationUser owner = trafficLight.getOwner();
+        if (owner == null || owner.getId() != currentUser.getId()) {
+            throw new ForbiddenOperationException("Only the owner or an admin can modify this traffic light.");
+        }
     }
 
     /**
