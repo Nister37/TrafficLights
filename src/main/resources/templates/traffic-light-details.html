@@ -49,6 +49,13 @@
                                     <td th:text="${trafficLight.installationDate}">2020-01-01</td>
                                 </tr>
                                 <tr>
+                                    <th>Owner</th>
+                                    <td>
+                                        <span th:if="${trafficLight.owner != null}" th:text="${trafficLight.owner.username}">owner</span>
+                                        <span th:if="${trafficLight.owner == null}" class="text-muted">(none)</span>
+                                    </td>
+                                </tr>
+                                <tr>
                                     <th th:text="#{trafficLights.table.direction}">Direction</th>
                                     <td>
                                         <span class="badge bg-info" th:text="${trafficLight.direction}">Direction</span>

@@ -9,12 +9,13 @@ INSERT INTO intersection (latitude, longitude, type, road_count, is_smart_enable
 -- Insert Traffic Lights (without explicit IDs - let SERIAL auto-generate)
 -- Note: dtype column required for JPA inheritance
 -- All columns included for SINGLE_TABLE inheritance: sensor_type, has_connectivity (SmartTrafficLight), has_audio_signal, has_button_request (PedestrianTrafficLight)
-INSERT INTO traffic_light (dtype, status, installation_date, direction, type, right_arrow, intersection_id, sensor_type, has_connectivity, has_audio_signal, has_button_request) VALUES
-('SmartTrafficLight', 'ACTIVE', '2020-01-15', 'NE', 'COLLISION', true, 1, 'Infrared', true, NULL, NULL),
-('TrafficLight', 'BROKEN', '2019-05-20', 'E', 'COLLISION', false, 1, NULL, NULL, NULL, NULL),
-('PedestrianTrafficLight', 'MAINTENANCE', '2021-03-10', 'N', 'COLLISION', true, 2, NULL, NULL, true, true),
-('TrafficLight', 'PLANNED', '2018-07-25', 'S', 'NON_COLLISION', false, 3, NULL, NULL, NULL, NULL),
-('SmartTrafficLight', 'ACTIVE', '2022-11-05', 'SW', 'NON_COLLISION', true, 4, 'Camera', true, NULL, NULL);
+-- Note: owner_id links to application_user.id (admin=1, user1=2, user2=3)
+INSERT INTO traffic_light (dtype, status, installation_date, direction, type, right_arrow, intersection_id, owner_id, sensor_type, has_connectivity, has_audio_signal, has_button_request) VALUES
+('SmartTrafficLight', 'ACTIVE', '2020-01-15', 'NE', 'COLLISION', true, 1, 2, 'Infrared', true, NULL, NULL),
+('TrafficLight', 'BROKEN', '2019-05-20', 'E', 'COLLISION', false, 1, 2, NULL, NULL, NULL, NULL),
+('PedestrianTrafficLight', 'MAINTENANCE', '2021-03-10', 'N', 'COLLISION', true, 2, 3, NULL, NULL, true, true),
+('TrafficLight', 'PLANNED', '2018-07-25', 'S', 'NON_COLLISION', false, 3, 3, NULL, NULL, NULL, NULL),
+('SmartTrafficLight', 'ACTIVE', '2022-11-05', 'SW', 'NON_COLLISION', true, 4, 1, 'Camera', true, NULL, NULL);
 
 -- Insert Maintenance Companies (without explicit IDs - let SERIAL auto-generate)
 INSERT INTO maintenance_company (name, contact_phone, contact_email, active, since) VALUES

@@ -56,6 +56,15 @@ public class TrafficLight {
     @JoinColumn(name = "intersection_id")
     private Intersection intersection;
 
+    /**
+     * The authenticated user who created/owns this traffic light.
+     *
+     * Nullable for existing seeded records (will be filled in seeding in a follow-up step).
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private ApplicationUser owner;
+
     protected TrafficLight() {
         // Required by JPA
     }
@@ -162,6 +171,14 @@ public class TrafficLight {
 
     public Intersection getIntersection() {
         return intersection;
+    }
+
+    public ApplicationUser getOwner() {
+        return owner;
+    }
+
+    public void setOwner(ApplicationUser owner) {
+        this.owner = owner;
     }
 
     /**
