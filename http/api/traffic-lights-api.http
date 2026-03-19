@@ -17,7 +17,9 @@ GET {{baseUrl}}/api/traffic-lights/9999
 Accept: application/json
 
 ### POST create traffic light - 201 Created
-### NOTE: If CSRF is enabled for /api/**, add XSRF cookie + header (X-XSRF-TOKEN) first.
+### NOTE: This endpoint requires authentication.
+### If CSRF is enabled for /api/** (default), include the CSRF token using the header name provided by Spring Security
+### (typically `X-CSRF-TOKEN`). When using the browser UI, the JS reads this from Thymeleaf meta tags.
 POST {{baseUrl}}/api/traffic-lights
 Accept: application/json
 Content-Type: application/json

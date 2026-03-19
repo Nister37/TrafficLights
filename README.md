@@ -77,14 +77,6 @@ Spring Security with form-based login, BCrypt password hashing, and content-base
 
 Complex authorization: roles (ADMIN/USER) + ownership-based permissions on traffic lights.
 
-### Users & roles
-
-| Username | Password   | Role    |
-|----------|------------|---------|
-| `admin`  | `admin123` | ADMIN   |
-| `user1`  | `user123`  | USER    |
-| `user2`  | `user123`  | USER    |
-
 ### Role overview (including anonymous)
 
 - **Anonymous (not logged in)**
@@ -110,6 +102,7 @@ Complex authorization: roles (ADMIN/USER) + ownership-based permissions on traff
 CSRF protection is enabled.
 
 - MVC forms include CSRF tokens automatically.
-- Ajax calls to the REST API send the CSRF token using the `X-XSRF-TOKEN` header.
+- Ajax calls to the REST API read the CSRF token + header name from Thymeleaf meta tags and send it as a request header
+  (Spring typically uses `X-CSRF-TOKEN`, but the client uses the server-provided header name).
 
-**Last Updated:** March 8, 2026
+**Last Updated:** March 19, 2026

@@ -109,7 +109,8 @@ public class TrafficLightServiceImpl implements TrafficLightService {
             trafficLight.setIntersection(intersection);
         }
 
-        ApplicationUser owner = userService.getAuthenticatedUser().orElse(null);
+        ApplicationUser owner = userService.getAuthenticatedUser()
+                .orElseThrow(() -> new ForbiddenOperationException("You must be logged in to create a traffic light."));
         trafficLight.setOwner(owner);
 
         trafficLightRepository.save(trafficLight);
@@ -129,7 +130,8 @@ public class TrafficLightServiceImpl implements TrafficLightService {
         TrafficLight trafficLight = new TrafficLight(status, installationDate, direction, type, rightArrow);
         trafficLight.setIntersection(intersection);
 
-        ApplicationUser owner = userService.getAuthenticatedUser().orElse(null);
+        ApplicationUser owner = userService.getAuthenticatedUser()
+                .orElseThrow(() -> new ForbiddenOperationException("You must be logged in to create a traffic light."));
         trafficLight.setOwner(owner);
 
         return trafficLightRepository.save(trafficLight);
