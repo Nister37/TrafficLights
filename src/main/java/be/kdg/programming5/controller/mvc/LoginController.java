@@ -1,4 +1,4 @@
-package be.kdg.programming5.controller;
+package be.kdg.programming5.controller.mvc;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

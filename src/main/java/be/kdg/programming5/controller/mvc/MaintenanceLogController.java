@@ -1,4 +1,4 @@
-package be.kdg.programming5.controller;
+package be.kdg.programming5.controller.mvc;
 
 import be.kdg.programming5.business.domain.MaintenanceCompany;
 import be.kdg.programming5.business.domain.MaintenanceLog;
