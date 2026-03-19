@@ -49,7 +49,7 @@ public class TrafficLightServiceImpl implements TrafficLightService {
     @Transactional(readOnly = true)
     public List<TrafficLight> getAllTrafficLights() {
         logger.debug("Fetching all traffic lights");
-        return trafficLightRepository.findAll();
+        return trafficLightRepository.findAllWithOwner();
     }
 
     /**
@@ -63,11 +63,8 @@ public class TrafficLightServiceImpl implements TrafficLightService {
     @Transactional(readOnly = true)
     public TrafficLight getTrafficLightById(int id) {
         logger.debug("Fetching traffic light by id: {}", id);
-        TrafficLight trafficLight = trafficLightRepository.findById(id).orElse(null);
-        if (trafficLight == null) {
-            throw new TrafficLightNotFoundException(id);
-        }
-        return trafficLight;
+        return trafficLightRepository.findById(id)
+                .orElseThrow(() -> new TrafficLightNotFoundException(id));
     }
 
     /**
@@ -244,10 +241,7 @@ public class TrafficLightServiceImpl implements TrafficLightService {
     @Transactional(readOnly = true)
     public TrafficLight getTrafficLightByIdWithMaintenanceLogs(int id) {
         logger.debug("Fetching traffic light by id with maintenance logs: {}", id);
-        TrafficLight trafficLight = trafficLightRepository.findByIdWithMaintenanceLogs(id).orElse(null);
-        if (trafficLight == null) {
-            throw new TrafficLightNotFoundException(id);
-        }
-        return trafficLight;
+        return trafficLightRepository.findByIdWithDetails(id)
+                .orElseThrow(() -> new TrafficLightNotFoundException(id));
     }
 }

@@ -1,5 +1,6 @@
-package be.kdg.programming5.controller;
+package be.kdg.programming5.controller.mvc;
 
+import be.kdg.programming5.config.security.AdminOnly;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -7,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class AdminController {
 
     @GetMapping("/admin")
+    @AdminOnly
     public String adminPage() {
         return "admin";
     }

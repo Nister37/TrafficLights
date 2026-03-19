@@ -3,7 +3,6 @@ package be.kdg.programming5.business.services;
 import be.kdg.programming5.business.domain.ApplicationUser;
 import be.kdg.programming5.config.security.CustomUserDetails;
 import be.kdg.programming5.repository.UserRepository;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,12 +27,12 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public Optional<ApplicationUser> getAuthenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             return Optional.empty();
         }
 
-        Object principal = authentication.getPrincipal();
+        var principal = authentication.getPrincipal();
         if (principal instanceof CustomUserDetails customUserDetails) {
             return userRepository.findById(customUserDetails.getUserId());
         }

@@ -6,6 +6,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -18,6 +19,7 @@ import org.springframework.security.web.SecurityFilterChain;
  */
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
@@ -26,7 +28,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) {
         // @formatter:off
         http
             .authorizeHttpRequests(auths -> auths
@@ -36,9 +38,6 @@ public class SecurityConfig {
                         "/trafficLight/**", "/intersection/**",
                         "/js/**", "/css/**", "/images/**", "/webjars/**")
                     .permitAll()
-                // Admin-only page (Week 5 roles demonstration)
-                .requestMatchers(HttpMethod.GET, "/admin")
-                    .hasRole("ADMIN")
                 // Everything else (MVC pages + REST API) requires authentication
                 .anyRequest()
                     .authenticated()

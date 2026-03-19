@@ -48,5 +48,23 @@ public interface TrafficLightRepository extends JpaRepository<TrafficLight, Inte
      */
     @Query("SELECT t FROM TrafficLight t LEFT JOIN FETCH t.maintenanceLogs WHERE t.id = :id")
     Optional<TrafficLight> findByIdWithMaintenanceLogs(@Param("id") int id);
+
+    /**
+     * Fetch all traffic lights with their owner eagerly loaded.
+     * Needed for rendering views when spring.jpa.open-in-view=false.
+     */
+    @Query("SELECT t FROM TrafficLight t LEFT JOIN FETCH t.owner")
+    List<TrafficLight> findAllWithOwner();
+
+    /**
+     * Fetch a traffic light with owner + intersection + maintenance logs.
+     * Used for the traffic light details page to avoid lazy loading issues.
+     */
+    @Query("SELECT t FROM TrafficLight t " +
+           "LEFT JOIN FETCH t.owner " +
+           "LEFT JOIN FETCH t.intersection " +
+           "LEFT JOIN FETCH t.maintenanceLogs " +
+           "WHERE t.id = :id")
+    Optional<TrafficLight> findByIdWithDetails(@Param("id") int id);
 }
 

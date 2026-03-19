@@ -1,6 +1,5 @@
 package be.kdg.programming5.config.security;
 
-import be.kdg.programming5.business.domain.ApplicationUser;
 import be.kdg.programming5.business.domain.UserRole;
 import be.kdg.programming5.business.services.UserService;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -27,19 +27,15 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        ApplicationUser user = userService.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException(
-                        "User not found: " + username));
-
-        List<GrantedAuthority> authorities = List.of(toAuthority(user.getRole()));
-
-        return new CustomUserDetails(
-                user.getUsername(),
-                user.getPasswordHash(),
-                authorities,
-                user.getId()
-        );
+    public UserDetails loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
+        var userOptional = userService.findByUsername(username);
+        return userOptional
+                .map(user -> new CustomUserDetails(
+                        user.getUsername(),
+                        user.getPasswordHash(),
+                        List.of(toAuthority(user.getRole())),
+                        user.getId()))
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 
     private static GrantedAuthority toAuthority(UserRole role) {
