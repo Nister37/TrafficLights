@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -155,7 +156,9 @@
                         <small class="text-muted" th:text="#{trafficLights.table.installationDate} + ': ' + ${light.installationDate}">
                             Installed: 2020-01-01
                         </small>
-                        <form th:action="@{/trafficLight/{id}/delete(id=${light.id})}" method="post" style="display: inline;"
+                        <form sec:authorize="isAuthenticated()"
+                              th:if="${#authorization.expression('hasRole(''ADMIN'')') || (light.owner != null && light.owner.username == #authentication.name)}"
+                              th:action="@{/trafficLight/{id}/delete(id=${light.id})}" method="post" style="display: inline;"
                               th:attr="onsubmit='event.stopPropagation(); return confirm(\'' + #{trafficLights.filter.deleteConfirm} + '\');'"
                               onclick="event.stopPropagation();">
                             <button type="submit" class="btn btn-sm btn-danger">

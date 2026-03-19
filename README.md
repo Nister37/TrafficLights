@@ -60,7 +60,9 @@ Spring Security with form-based login, BCrypt password hashing, and content-base
 
 | Username | Password  |
 |----------|-----------|
-| `user`   | `user123` |
+| `admin`  | `admin123` |
+| `user1`  | `user123` |
+| `user2`  | `user123` |
 
 ### Pages
 
@@ -70,5 +72,44 @@ Spring Security with form-based login, BCrypt password hashing, and content-base
 - 🔒 **Authenticated page** (login required): [Traffic Lights List](http://localhost:8080/trafficLights)
 
 ---
+
+## Week 5
+
+Complex authorization: roles (ADMIN/USER) + ownership-based permissions on traffic lights.
+
+### Users & roles
+
+| Username | Password   | Role    |
+|----------|------------|---------|
+| `admin`  | `admin123` | ADMIN   |
+| `user1`  | `user123`  | USER    |
+| `user2`  | `user123`  | USER    |
+
+### Role overview (including anonymous)
+
+- **Anonymous (not logged in)**
+  - Can visit the landing page and traffic light/intersection details.
+  - Cannot create, update or delete traffic lights.
+- **USER**
+  - Can create new traffic lights (the creator becomes the owner).
+  - Can update/delete only traffic lights they own.
+- **ADMIN**
+  - Can update/delete any traffic light.
+  - Can access the admin-only page.
+
+### Verification links
+
+- Public page: [Traffic Light Details](http://localhost:8080/trafficLight/1)
+- Admin-only page: [Admin](http://localhost:8080/admin)
+- Ownership rules (example): [Traffic Light Details #1](http://localhost:8080/trafficLight/1)
+  - The details page shows the traffic light owner.
+  - Delete actions are hidden unless you are the owner or an admin.
+
+### CSRF + REST/Ajax
+
+CSRF protection is enabled.
+
+- MVC forms include CSRF tokens automatically.
+- Ajax calls to the REST API send the CSRF token using the `X-XSRF-TOKEN` header.
 
 **Last Updated:** March 8, 2026
