@@ -68,15 +68,15 @@ public class TrafficLightsController {
     @PostMapping
     public ResponseEntity<TrafficLightDto> createTrafficLight(
             @RequestBody @Valid CreateTrafficLightDto createDto) {
-        logger.debug("REST: Creating traffic light for intersection: {}", createDto.getIntersectionId());
+        logger.debug("REST: Creating traffic light for intersection: {}", createDto.intersectionId());
 
         TrafficLight savedTrafficLight = trafficLightService.createTrafficLight(
-                createDto.getStatus(),
-                createDto.getInstallationDate(),
-                createDto.getDirection(),
-                createDto.getType(),
-                createDto.isRightArrow(),
-                createDto.getIntersectionId()
+                createDto.status(),
+                createDto.installationDate(),
+                createDto.direction(),
+                createDto.type(),
+                createDto.rightArrow(),
+                createDto.intersectionId()
         );
 
         return new ResponseEntity<>(
@@ -96,10 +96,10 @@ public class TrafficLightsController {
         logger.debug("REST: Patching traffic light with id: {}", id);
         trafficLightService.updateTrafficLight(
                 id,
-                updateDto.getStatus(),
-                updateDto.getDirection(),
-                updateDto.getType(),
-                updateDto.getRightArrow()
+                updateDto.status(),
+                updateDto.direction(),
+                updateDto.type(),
+                updateDto.rightArrow()
         );
         return ResponseEntity.noContent().build();
     }
