@@ -1,6 +1,7 @@
 package be.kdg.programming5.config.security;
 
 import be.kdg.programming5.business.domain.ApplicationUser;
+import be.kdg.programming5.business.domain.UserRole;
 import be.kdg.programming5.business.services.UserService;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -31,8 +32,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException(
                         "User not found: " + username));
 
-        // All persisted users get the same authority — authenticated access
-        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        List<GrantedAuthority> authorities = List.of(toAuthority(user.getRole()));
 
         return new CustomUserDetails(
                 user.getUsername(),
@@ -40,5 +40,12 @@ public class CustomUserDetailsService implements UserDetailsService {
                 authorities,
                 user.getId()
         );
+    }
+
+    private static GrantedAuthority toAuthority(UserRole role) {
+        if (role == UserRole.ADMIN) {
+            return new SimpleGrantedAuthority("ROLE_ADMIN");
+        }
+        return new SimpleGrantedAuthority("ROLE_USER");
     }
 }

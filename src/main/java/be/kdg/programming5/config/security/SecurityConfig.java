@@ -36,6 +36,9 @@ public class SecurityConfig {
                         "/trafficLight/**", "/intersection/**",
                         "/js/**", "/css/**", "/images/**", "/webjars/**")
                     .permitAll()
+                // Admin-only page (Week 5 roles demonstration)
+                .requestMatchers(HttpMethod.GET, "/admin")
+                    .hasRole("ADMIN")
                 // Everything else (MVC pages + REST API) requires authentication
                 .anyRequest()
                     .authenticated()

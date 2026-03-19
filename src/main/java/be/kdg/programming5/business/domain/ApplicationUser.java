@@ -20,12 +20,22 @@ public class ApplicationUser {
     @Column(nullable = false)
     private String passwordHash;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole role = UserRole.USER;
+
     protected ApplicationUser() {
     }
 
     public ApplicationUser(String username, String passwordHash) {
         this.username = username;
         this.passwordHash = passwordHash;
+    }
+
+    public ApplicationUser(String username, String passwordHash, UserRole role) {
+        this.username = username;
+        this.passwordHash = passwordHash;
+        this.role = role;
     }
 
     public int getId() {
@@ -38,5 +48,9 @@ public class ApplicationUser {
 
     public String getPasswordHash() {
         return passwordHash;
+    }
+
+    public UserRole getRole() {
+        return role;
     }
 }

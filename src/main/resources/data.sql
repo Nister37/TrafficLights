@@ -48,7 +48,11 @@ INSERT INTO maintenance_log_company (maintenance_log_id, maintenance_company_id,
 (6, 5, '2023-06-22');
 
 -- Insert application users (BCrypt hashed passwords, strength 10)
--- user / user123
-INSERT INTO application_user (username, password_hash) VALUES
-('user', '$2a$10$NFAFc4Z7lPAXNpSBM66Jbe9JLmV738kQDYoxdsYRJZLCZZPIlRpsa');
+-- admin / admin123
+-- user1 / user123
+-- user2 / user123
+INSERT INTO application_user (username, password_hash, role) VALUES
+('admin', '$2a$10$NFAFc4Z7lPAXNpSBM66Jbe9JLmV738kQDYoxdsYRJZLCZZPIlRpsa', 'ADMIN'),
+('user1', '$2a$10$NFAFc4Z7lPAXNpSBM66Jbe9JLmV738kQDYoxdsYRJZLCZZPIlRpsa', 'USER'),
+('user2', '$2a$10$NFAFc4Z7lPAXNpSBM66Jbe9JLmV738kQDYoxdsYRJZLCZZPIlRpsa', 'USER');
 
