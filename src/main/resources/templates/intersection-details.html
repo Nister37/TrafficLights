@@ -1,15 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title th:text="#{intersections.title} + ' - Details'">Intersection Details</title>
-
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.1/font/bootstrap-icons.css}">
-</head>
+<head th:replace="~{fragments/head :: head(#{intersections.title} + ' - Details')}"></head>
 <body class="d-flex flex-column min-vh-100">
     <!-- Navbar -->
     <div th:replace="~{fragments/navigation :: navbar}"></div>
@@ -211,9 +203,9 @@
     <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
 
     <!-- Traffic Lights API (fetch functions) -->
-    <script th:src="@{/js/traffic-lights-api.js}"></script>
+    <script type="module" th:src="@{/js/traffic-lights-api.js}"></script>
     <!-- Intersection details page logic -->
-    <script th:src="@{/js/intersection-details.js}"></script>
+    <script type="module" th:src="@{/js/intersection-details.js}"></script>
 </body>
 </html>
 

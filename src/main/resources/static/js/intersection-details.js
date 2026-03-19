@@ -3,6 +3,13 @@
  * Page-specific DOM logic for the intersection details page.
  * Depends on: traffic-lights-api.js
  */
+import {
+    createTrafficLight,
+    deleteTrafficLight,
+    fetchTrafficLightsForIntersection,
+    patchTrafficLight
+} from './traffic-lights-api.js';
+
 function renderTrafficLightCard(trafficLight) {
     const statusClass = getStatusClass(trafficLight.status);
     return `

@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
@@ -62,10 +61,6 @@ public class SecurityConfig {
                         response.sendRedirect(request.getContextPath() + "/login");
                     }
                 })
-            )
-            .csrf(csrf -> csrf
-                // Expose CSRF token in a cookie so fetch() can send it back for API mutations.
-                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             );
         // @formatter:on
         return http.build();

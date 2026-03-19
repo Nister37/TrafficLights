@@ -2,32 +2,14 @@
  * Traffic Lights API - fetch functions for HTTP requests.
  * Reusable across pages.
  */
+import { withCsrf } from './util/csrf.js';
+
 const API_BASE_URL = '/api';
 
-function getCookieValue(cookieName) {
-    const cookies = document.cookie ? document.cookie.split(';') : [];
-    for (const cookie of cookies) {
-        const [name, ...valueParts] = cookie.trim().split('=');
-        if (name === cookieName) {
-            return decodeURIComponent(valueParts.join('='));
-        }
-    }
-    return null;
-}
-
-function getCsrfToken() {
-    // Default cookie name used by Spring Security's CookieCsrfTokenRepository
-    return getCookieValue('XSRF-TOKEN');
-}
-
 function withCsrfHeaders(headers) {
-    const csrfToken = getCsrfToken();
-    if (!csrfToken) {
-        return headers;
-    }
-    return { ...headers, 'X-XSRF-TOKEN': csrfToken };
+    return withCsrf(headers);
 }
-async function fetchTrafficLightsForIntersection(intersectionId) {
+export async function fetchTrafficLightsForIntersection(intersectionId) {
     const response = await fetch(`${API_BASE_URL}/intersections/${intersectionId}/traffic-lights`, {
         method: 'GET',
         headers: { 'Accept': 'application/json' }
@@ -39,7 +21,7 @@ async function fetchTrafficLightsForIntersection(intersectionId) {
     }
     return await response.json();
 }
-async function createTrafficLight(status, installationDate, direction, type, rightArrow, intersectionId) {
+export async function createTrafficLight(status, installationDate, direction, type, rightArrow, intersectionId) {
     const response = await fetch(`${API_BASE_URL}/traffic-lights`, {
         method: 'POST',
         headers: withCsrfHeaders({ 'Accept': 'application/json', 'Content-Type': 'application/json' }),
@@ -51,7 +33,7 @@ async function createTrafficLight(status, installationDate, direction, type, rig
     }
     return await response.json();
 }
-async function patchTrafficLight(trafficLightId, fields) {
+export async function patchTrafficLight(trafficLightId, fields) {
     const response = await fetch(`${API_BASE_URL}/traffic-lights/${trafficLightId}`, {
         method: 'PATCH',
         headers: withCsrfHeaders({ 'Content-Type': 'application/json' }),
@@ -63,7 +45,7 @@ async function patchTrafficLight(trafficLightId, fields) {
     }
     return true;
 }
-async function deleteTrafficLight(trafficLightId) {
+export async function deleteTrafficLight(trafficLightId) {
     const response = await fetch(`${API_BASE_URL}/traffic-lights/${trafficLightId}`, {
         method: 'DELETE',
         headers: withCsrfHeaders({ 'Accept': 'application/json' })
