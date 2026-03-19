@@ -1,0 +1,22 @@
+### ===========================================
+### MVC Pages (Manual smoke)
+### ===========================================
+
+@baseUrl = http://localhost:8080
+
+### Home
+GET {{baseUrl}}/
+
+### Login page
+GET {{baseUrl}}/login
+
+### Traffic lights list
+GET {{baseUrl}}/trafficLights
+
+### Intersections list
+GET {{baseUrl}}/intersections
+
+### Example detail pages (IDs depend on seed data)
+GET {{baseUrl}}/trafficLight/1
+GET {{baseUrl}}/intersection/1
+

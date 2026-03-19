@@ -2,20 +2,23 @@
 ### Traffic Lights API Tests
 ### ===========================================
 
+@baseUrl = http://localhost:8080
+
 ### GET all traffic lights - 200 OK
-GET http://localhost:8080/api/traffic-lights
+GET {{baseUrl}}/api/traffic-lights
 Accept: application/json
 
 ### GET single traffic light - 200 OK
-GET http://localhost:8080/api/traffic-lights/1
+GET {{baseUrl}}/api/traffic-lights/1
 Accept: application/json
 
 ### GET single traffic light - 404 Not Found
-GET http://localhost:8080/api/traffic-lights/9999
+GET {{baseUrl}}/api/traffic-lights/9999
 Accept: application/json
 
 ### POST create traffic light - 201 Created
-POST http://localhost:8080/api/traffic-lights
+### NOTE: If CSRF is enabled for /api/**, add XSRF cookie + header (X-XSRF-TOKEN) first.
+POST {{baseUrl}}/api/traffic-lights
 Accept: application/json
 Content-Type: application/json
 
@@ -29,7 +32,7 @@ Content-Type: application/json
 }
 
 ### POST create traffic light - 400 Bad Request (missing required fields)
-POST http://localhost:8080/api/traffic-lights
+POST {{baseUrl}}/api/traffic-lights
 Accept: application/json
 Content-Type: application/json
 
@@ -39,7 +42,7 @@ Content-Type: application/json
 }
 
 ### POST create traffic light - 400 Bad Request (future installation date)
-POST http://localhost:8080/api/traffic-lights
+POST {{baseUrl}}/api/traffic-lights
 Accept: application/json
 Content-Type: application/json
 
@@ -53,7 +56,7 @@ Content-Type: application/json
 }
 
 ### POST create traffic light - 404 Not Found (non-existent intersection)
-POST http://localhost:8080/api/traffic-lights
+POST {{baseUrl}}/api/traffic-lights
 Accept: application/json
 Content-Type: application/json
 
@@ -68,15 +71,15 @@ Content-Type: application/json
 
 ### DELETE traffic light - 204 No Content
 ### WARNING: This will actually delete the traffic light!
-DELETE http://localhost:8080/api/traffic-lights/5
+DELETE {{baseUrl}}/api/traffic-lights/5
 Accept: application/json
 
 ### DELETE non-existent traffic light - 404 Not Found
-DELETE http://localhost:8080/api/traffic-lights/9999
+DELETE {{baseUrl}}/api/traffic-lights/9999
 Accept: application/json
 
 ### PATCH traffic light - 204 No Content (update status only)
-PATCH http://localhost:8080/api/traffic-lights/1
+PATCH {{baseUrl}}/api/traffic-lights/1
 Content-Type: application/json
 
 {
@@ -84,7 +87,7 @@ Content-Type: application/json
 }
 
 ### PATCH traffic light - 204 No Content (update multiple fields)
-PATCH http://localhost:8080/api/traffic-lights/1
+PATCH {{baseUrl}}/api/traffic-lights/1
 Content-Type: application/json
 
 {
@@ -94,23 +97,10 @@ Content-Type: application/json
 }
 
 ### PATCH traffic light - 404 Not Found
-PATCH http://localhost:8080/api/traffic-lights/9999
+PATCH {{baseUrl}}/api/traffic-lights/9999
 Content-Type: application/json
 
 {
   "status": "ACTIVE"
 }
-
-### ===========================================
-### Intersections API Tests
-### ===========================================
-
-### GET traffic lights for intersection - 200 OK
-GET http://localhost:8080/api/intersections/1/traffic-lights
-Accept: application/json
-
-### GET traffic lights for non-existent intersection - 404 Not Found
-GET http://localhost:8080/api/intersections/9999/traffic-lights
-Accept: application/json
-
 
