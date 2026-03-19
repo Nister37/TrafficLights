@@ -42,7 +42,9 @@ public class TrafficLightController {
     private final IntersectionService intersectionService;
     private final MaintenanceLogService maintenanceLogService;
 
-    public TrafficLightController(TrafficLightService trafficLightService, IntersectionService intersectionService, be.kdg.programming5.business.services.MaintenanceLogService maintenanceLogService) {
+    public TrafficLightController(TrafficLightService trafficLightService,
+                                 IntersectionService intersectionService,
+                                 MaintenanceLogService maintenanceLogService) {
         this.trafficLightService = trafficLightService;
         this.intersectionService = intersectionService;
         this.maintenanceLogService = maintenanceLogService;

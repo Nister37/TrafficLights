@@ -1,6 +1,7 @@
 package be.kdg.programming5.business.services;
 
 import be.kdg.programming5.business.domain.Intersection;
+import be.kdg.programming5.business.domain.ApplicationUser;
 import be.kdg.programming5.business.domain.TrafficLight;
 import be.kdg.programming5.enums.Direction;
 import be.kdg.programming5.enums.TrafficLightStatus;
@@ -26,13 +27,16 @@ public class TrafficLightServiceImpl implements TrafficLightService {
     private final TrafficLightRepository trafficLightRepository;
     private final IntersectionService intersectionService;
     private final MaintenanceLogService maintenanceLogService;
+    private final UserService userService;
 
     public TrafficLightServiceImpl(TrafficLightRepository trafficLightRepository,
                                    IntersectionService intersectionService,
-                                   MaintenanceLogService maintenanceLogService) {
+                                   MaintenanceLogService maintenanceLogService,
+                                   UserService userService) {
         this.trafficLightRepository = trafficLightRepository;
         this.intersectionService = intersectionService;
         this.maintenanceLogService = maintenanceLogService;
+        this.userService = userService;
     }
 
     /**
@@ -106,6 +110,10 @@ public class TrafficLightServiceImpl implements TrafficLightService {
         if (intersection != null) {
             trafficLight.setIntersection(intersection);
         }
+
+        ApplicationUser owner = userService.getAuthenticatedUser().orElse(null);
+        trafficLight.setOwner(owner);
+
         trafficLightRepository.save(trafficLight);
     }
 
@@ -122,6 +130,10 @@ public class TrafficLightServiceImpl implements TrafficLightService {
         Intersection intersection = intersectionService.getIntersectionById(intersectionId);
         TrafficLight trafficLight = new TrafficLight(status, installationDate, direction, type, rightArrow);
         trafficLight.setIntersection(intersection);
+
+        ApplicationUser owner = userService.getAuthenticatedUser().orElse(null);
+        trafficLight.setOwner(owner);
+
         return trafficLightRepository.save(trafficLight);
     }
 
