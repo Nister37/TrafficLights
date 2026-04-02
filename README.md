@@ -103,6 +103,46 @@ CSRF protection is enabled.
 
 - MVC forms include CSRF tokens automatically.
 - Ajax calls to the REST API read the CSRF token + header name from Thymeleaf meta tags and send it as a request header
-  (Spring typically uses `X-CSRF-TOKEN`, but the client uses the server-provided header name).
+   (Spring typically uses `X-CSRF-TOKEN`, but the client uses the server-provided header name).
 
-**Last Updated:** March 19, 2026
+---
+
+## Week 6
+
+Spring profiles for test isolation and integration tests for the repository and service layers.
+
+### Spring profiles
+
+| Profile | Database | Seeding | Purpose |
+|---------|----------|---------|---------|
+| *(default)* | PostgreSQL (`trafficlights`) | `data.sql` | Development / production |
+| `test` | H2 in-memory (`testdb`) | `@BeforeEach` only | Automated tests |
+
+The `test` profile (`application-test.properties`) disables `data.sql` via `spring.sql.init.mode=never` and uses `ddl-auto=create-drop` so every test run starts with a clean schema. Tests seed their own data in `@BeforeEach` and clean up in `@AfterEach`.
+
+### Running tests from the command line
+
+```bash
+# Windows
+.\gradlew.bat test
+
+# Linux / macOS
+./gradlew test
+```
+
+Test reports are generated at `build/reports/tests/test/index.html`.
+
+### Test overview
+
+**Repository layer** (`TrafficLightRepositoryTest` — 5 tests):
+- Delete cascade: FK constraint prevents orphan deletion; manual child removal allows it
+- Nullability: `@Column(nullable = false)` on `status` enforced at DB level
+- Lazy/eager loading: `findById` keeps `maintenanceLogs` lazy; `findByIdWithMaintenanceLogs` (JOIN FETCH) loads them eagerly
+
+**Service layer** (`TrafficLightServiceIntegrationTest` — 8 tests):
+- `deleteTrafficLight`: owner success, admin success, non-owner forbidden, not-found
+- `updateTrafficLight`: owner partial update, admin multi-field update, non-owner forbidden, not-found
+
+---
+
+**Last Updated:** April 2, 2026
