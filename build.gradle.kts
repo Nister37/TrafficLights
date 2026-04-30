@@ -45,6 +45,7 @@ dependencies {
     // Spring Security
     implementation("org.springframework.boot:spring-boot-starter-security")
     runtimeOnly("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
+    testImplementation("org.springframework.security:spring-security-test")
 }
 
 tasks.withType<Test> {

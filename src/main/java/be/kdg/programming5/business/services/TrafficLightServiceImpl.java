@@ -11,6 +11,7 @@ import be.kdg.programming5.exception.TrafficLightNotFoundException;
 import be.kdg.programming5.repository.TrafficLightRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -143,6 +144,7 @@ public class TrafficLightServiceImpl implements TrafficLightService {
      */
     @Override
     @Transactional
+    @PreAuthorize("isAuthenticated()")
     public TrafficLight updateTrafficLight(int id, TrafficLightStatus status, Direction direction,
                                            TrafficLightType type, Boolean rightArrow) {
         logger.debug("Updating traffic light: {}", id);
@@ -165,6 +167,7 @@ public class TrafficLightServiceImpl implements TrafficLightService {
      */
     @Override
     @Transactional
+    @PreAuthorize("isAuthenticated()")
     public void deleteTrafficLight(int id) {
         logger.debug("Deleting traffic light: {}", id);
 

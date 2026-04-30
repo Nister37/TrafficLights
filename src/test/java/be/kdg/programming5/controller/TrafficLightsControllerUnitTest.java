@@ -22,6 +22,9 @@ import org.springframework.web.context.WebApplicationContext;
 import java.time.LocalDate;
 import java.util.List;
 
+import be.kdg.programming5.exception.TrafficLightNotFoundException;
+
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -105,6 +108,53 @@ class TrafficLightsControllerUnitTest {
         mockMvc.perform(get("/api/traffic-lights"))
                 .andExpect(status().isUnauthorized());
     }
+
+    // =====================================================================
+    // GET /api/traffic-lights/{id}
+    // =====================================================================
+
+    @Test
+    @WithMockUser
+    void getTrafficLightByIdWhenFoundShouldReturn200WithBody() throws Exception {
+        // Arrange
+        TrafficLight trafficLight = new TrafficLight(
+                TrafficLightStatus.ACTIVE, LocalDate.of(2021, 6, 15),
+                Direction.N, TrafficLightType.COLLISION, false
+        );
+        TrafficLightDto dto = new TrafficLightDto(
+                1, TrafficLightStatus.ACTIVE, LocalDate.of(2021, 6, 15),
+                Direction.N, TrafficLightType.COLLISION, false, 10, "TrafficLight"
+        );
+        given(trafficLightService.getTrafficLightById(1)).willReturn(trafficLight);
+        given(trafficLightMapper.toTrafficLightDto(any(TrafficLight.class))).willReturn(dto);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/traffic-lights/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.status").value("ACTIVE"));
+    }
+
+    @Test
+    @WithMockUser
+    void getTrafficLightByIdWhenNotFoundShouldReturn404() throws Exception {
+        // Arrange — service throws when the ID doesn't exist in the system
+        given(trafficLightService.getTrafficLightById(999))
+                .willThrow(new TrafficLightNotFoundException(999));
+
+        // Act & Assert — GlobalExceptionHandler maps the exception to 404 for API requests
+        mockMvc.perform(get("/api/traffic-lights/999"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getTrafficLightByIdWhenUnauthenticatedShouldReturn401() throws Exception {
+        // Act & Assert
+        mockMvc.perform(get("/api/traffic-lights/1"))
+                .andExpect(status().isUnauthorized());
+    }
 }
+
+
 
 
