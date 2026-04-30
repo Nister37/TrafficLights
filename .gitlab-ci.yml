@@ -1,0 +1,47 @@
+stages:
+  - build
+  - test
+
+# Disable the Gradle daemon — it is not useful in a short-lived CI container
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+build-job:
+  stage: build
+  image: eclipse-temurin:21-jdk-alpine
+  script:
+    - ./gradlew build -x test
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: push
+    paths:
+      - build
+      - .gradle
+
+test-job:
+  stage: test
+  image: eclipse-temurin:21-jdk-alpine
+  services:
+    - postgres:16.1-alpine
+  variables:
+    # PostgreSQL service credentials — must match application-test.properties
+    POSTGRES_DB: "programming5"
+    POSTGRES_USER: "student"
+    POSTGRES_PASSWORD: "Student_1234"
+    # Overrides the localhost:9432 fallback in application-test.properties
+    # GitLab CI resolves the service by its image name: "postgres"
+    CI_DB_HOST_PORT: "postgres:5432"
+  script:
+    - ./gradlew test
+  artifacts:
+    # Publish the JUnit report even when tests fail so failures are visible in the pipeline
+    when: always
+    reports:
+      junit: build/test-results/test/**/TEST-*.xml
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: pull
+    paths:
+      - build
+      - .gradle
+
