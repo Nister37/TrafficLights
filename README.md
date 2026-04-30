@@ -115,12 +115,28 @@ Spring profiles for test isolation and integration tests for the repository and 
 
 | Profile | Database | Seeding | Purpose |
 |---------|----------|---------|---------|
-| *(default)* | PostgreSQL (`trafficlights`) | `data.sql` | Development / production |
-| `test` | H2 in-memory (`testdb`) | `@BeforeEach` only | Automated tests |
+| *(default)* | PostgreSQL `localhost:5432/trafficlights` | `data.sql` | Development / production |
+| `test` | PostgreSQL `localhost:9432/programming5` | `@BeforeEach` only | Automated tests |
 
 The `test` profile (`application-test.properties`) disables `data.sql` via `spring.sql.init.mode=never` and uses `ddl-auto=create-drop` so every test run starts with a clean schema. Tests seed their own data in `@BeforeEach` and clean up in `@AfterEach`.
 
-### Running tests from the command line
+The test database host is configurable via the `CI_DB_HOST_PORT` environment variable (defaults to `localhost:9432`), so the same profile works locally and in CI.
+
+---
+
+## Week 8 & 9
+
+Presentation layer integration tests and CI pipeline.
+
+### Running all tests
+
+Make sure Docker is running and the test database container is up before executing:
+
+```bash
+docker-compose up -d
+```
+
+Then run all tests with a single command:
 
 ```bash
 # Windows
@@ -130,19 +146,31 @@ The `test` profile (`application-test.properties`) disables `data.sql` via `spri
 ./gradlew test
 ```
 
+The `test` Spring profile is activated automatically via `@ActiveProfiles("test")` on every test class — no extra flags needed.
+
 Test reports are generated at `build/reports/tests/test/index.html`.
 
-### Test overview
+### Test classes
 
-**Repository layer** (`TrafficLightRepositoryTest` — 5 tests):
-- Delete cascade: FK constraint prevents orphan deletion; manual child removal allows it
-- Nullability: `@Column(nullable = false)` on `status` enforced at DB level
-- Lazy/eager loading: `findById` keeps `maintenanceLogs` lazy; `findByIdWithMaintenanceLogs` (JOIN FETCH) loads them eagerly
+| Category | Class | Tests |
+|---|---|---|
+| API integration tests (mocking) | `TrafficLightsControllerUnitTest` | `GET /api/traffic-lights` (200, 204, 401), `GET /api/traffic-lights/{id}` (200, 404, 401) |
+| MVC integration tests (mocking) | `TrafficLightMvcControllerTest` | `GET /trafficLights?status` (200 with filter, 302 redirect), `GET /trafficLight/{id}` (200 found, 200 not-found error view) |
+| Service unit tests (mocking + verify) | `TrafficLightServiceUnitTest` | `getAllTrafficLights` (list, empty, verify repo call), `getTrafficLightById` (found, not-found, verify ID arg) |
+| Role verification tests | `TrafficLightServiceIntegrationTest` | `deleteTrafficLight` (owner ✓, admin ✓, non-owner ✗, not-found ✗), `updateTrafficLight` (owner ✓, admin ✓, non-owner ✗, not-found ✗) |
+| Repository tests | `TrafficLightRepositoryTest` | Delete cascade, nullability, lazy vs eager loading |
 
-**Service layer** (`TrafficLightServiceIntegrationTest` — 8 tests):
-- `deleteTrafficLight`: owner success, admin success, non-owner forbidden, not-found
-- `updateTrafficLight`: owner partial update, admin multi-field update, non-owner forbidden, not-found
+### CI Pipeline
+
+The project uses a GitLab CI pipeline defined in `.gitlab-ci.yml` with two stages:
+
+- **build** — compiles the project and caches dependencies (`./gradlew build -x test`)
+- **test** — runs all tests against a PostgreSQL service container (`./gradlew test`), publishes JUnit XML results to the GitLab Tests tab
+
+**TODO: add pipeline screenshot after pushing to GitLab.**
+### Code coverage
+![Home Page](docs/resources/tests.png)
 
 ---
 
-**Last Updated:** April 2, 2026
+**Last Updated:** April 30, 2026
