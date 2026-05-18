@@ -6,6 +6,7 @@ import be.kdg.programming5.controller.api.dto.CreateTrafficLightDto;
 import be.kdg.programming5.controller.api.dto.TrafficLightDto;
 import be.kdg.programming5.controller.api.dto.UpdateTrafficLightDto;
 import be.kdg.programming5.controller.api.mapper.TrafficLightMapper;
+import be.kdg.programming5.enums.TrafficLightStatus;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,24 @@ public class TrafficLightsController {
                                    TrafficLightMapper trafficLightMapper) {
         this.trafficLightService = trafficLightService;
         this.trafficLightMapper = trafficLightMapper;
+    }
+
+    /**
+     * GET /api/traffic-lights/search?status= - Search traffic lights by status.
+     * Returns 200 OK with matching list, or 204 No Content if none match.
+     * Permitted without authentication so the standalone client repo can call it.
+     */
+    @GetMapping("/search")
+    public ResponseEntity<List<TrafficLightDto>> searchByStatus(
+            @RequestParam("status") TrafficLightStatus status) {
+        logger.debug("REST: Searching traffic lights by status: {}", status);
+        List<TrafficLight> results = trafficLightService.getTrafficLightsByStatus(status);
+
+        if (results.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(trafficLightMapper.toTrafficLightDtoList(results));
     }
 
     /**

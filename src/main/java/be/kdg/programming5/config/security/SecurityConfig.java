@@ -4,11 +4,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 /**
  * Spring Security configuration.
@@ -28,9 +34,16 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // @formatter:off
         http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf
+                // Disable CSRF only for the public API path — the client repo can't carry CSRF tokens
+                .ignoringRequestMatchers(
+                    PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/api/public/**")
+                )
+            )
             .authorizeHttpRequests(auths -> auths
                 // Public pages — accessible without login
                 .requestMatchers(HttpMethod.GET,
@@ -38,6 +51,9 @@ public class SecurityConfig {
                         "/trafficLight/**", "/intersection/**",
                         "/js/**", "/css/**", "/images/**", "/webjars/**")
                     .permitAll()
+                // Public API — search (GET) and create (POST) for the standalone client repo
+                .requestMatchers(HttpMethod.GET,  "/api/traffic-lights/search").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/public/traffic-lights").permitAll()
                 // Everything else (MVC pages + REST API) requires authentication
                 .anyRequest()
                     .authenticated()
@@ -52,7 +68,7 @@ public class SecurityConfig {
                 .permitAll()
             )
             .exceptionHandling(ex -> ex
-                // REST API: return 403 instead of redirect to login
+                // REST API: return 401 instead of redirect to login
                 .authenticationEntryPoint((request, response, exception) -> {
                     if (request.getRequestURI().startsWith("/api")) {
                         response.setStatus(HttpStatus.UNAUTHORIZED.value());
@@ -63,5 +79,22 @@ public class SecurityConfig {
             );
         // @formatter:on
         return http.build();
+    }
+
+    /**
+     * Allow the standalone client repo (webpack-dev-server on port 9000) to call our REST API
+     * even though it is served from a different origin.
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:9000"));
+        config.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(false);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/api/**", config);
+        return source;
     }
 }
