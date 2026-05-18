@@ -1,0 +1,32 @@
+{
+    "typescript": {
+        "bracePosition": "sameLine",
+        "indentWidth": 4,
+        "lineWidth": 120,
+        "newLineKind": "lf",
+        "nextControlFlowPosition": "sameLine",
+        "quoteProps": "consistent",
+        "quoteStyle": "alwaysSingle",
+        "semiColons": "asi",
+        "singleBodyPosition": "nextLine",
+        "arrayExpression.spaceAround": true,
+        "trailingCommas": "never",
+        "useBraces": "always",
+        "useTabs": false
+    },
+    "json": {
+        "indentWidth": 4,
+        "newLineKind": "lf",
+        "useTabs": false
+    },
+    "excludes": [
+        "**/node_modules",
+        "**/src/main/resources/static/js",
+        "**/*-lock.json"
+    ],
+    "plugins": [
+        "https://plugins.dprint.dev/typescript-0.95.1.wasm",
+        "https://plugins.dprint.dev/json-0.20.0.wasm"
+    ]
+}
+

@@ -2,6 +2,7 @@ plugins {
     java
     id("org.springframework.boot") version "4.0.2"
     id("io.spring.dependency-management") version "1.1.7"
+    id("com.github.node-gradle.node") version "7.1.0"
 }
 
 group = "be.kdg.programming5"
@@ -27,10 +28,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-web")
 
-    // Bootstrap WebJars
-    implementation("org.webjars:bootstrap:5.3.2")
-    implementation("org.webjars.npm:bootstrap-icons:1.11.1")
-    implementation("org.webjars:webjars-locator-lite:1.0.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -51,3 +48,10 @@ dependencies {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+// Run webpack before Spring copies resources into the build — ensures
+// bundles in static/js/ and static/css/ are up-to-date on every build.
+tasks.named<Copy>("processResources") {
+    dependsOn("npm_run_build")
+}
+

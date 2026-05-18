@@ -11,7 +11,10 @@
         "bootstrap-icons": "^1.11.3"
     },
     "devDependencies": {
+        "@eslint/js": "^10.0.1",
         "css-loader": "^7.1.4",
+        "eslint": "^10.4.0",
+        "globals": "^17.6.0",
         "mini-css-extract-plugin": "^2.10.2",
         "sass": "1.78.0",
         "sass-loader": "^16.0.8",
