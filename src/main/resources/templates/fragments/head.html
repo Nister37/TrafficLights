@@ -12,10 +12,9 @@
 
     <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.1/font/bootstrap-icons.css}">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- Webpack bundle: Bootstrap + Bootstrap Icons + project SCSS -->
+    <link rel="stylesheet" th:href="@{/css/bundle-site.css}">
+    <script th:src="@{/js/bundle-site.js}" defer></script>
 </head>
 </html>
 

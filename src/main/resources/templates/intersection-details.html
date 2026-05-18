@@ -199,13 +199,8 @@
     <!-- Footer -->
     <div th:replace="~{fragments/navigation :: footer}"></div>
 
-    <!-- Bootstrap JS -->
-    <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
-
-    <!-- Traffic Lights API (fetch functions) -->
-    <script type="module" th:src="@{/js/traffic-lights-api.js}"></script>
-    <!-- Intersection details page logic -->
-    <script type="module" th:src="@{/js/intersection-details.js}"></script>
+    <!-- Page-specific bundle (imports traffic-lights-api + intersection-details logic) -->
+    <script th:src="@{/js/bundle-intersection-details.js}" defer></script>
 </body>
 </html>
 

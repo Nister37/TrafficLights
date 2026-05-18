@@ -7,8 +7,7 @@
     <title th:text="#{trafficLights.title} + ' - Details'">Traffic Light Details</title>
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.1/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/bundle-site.css}">
 </head>
 <body class="d-flex flex-column min-vh-100">
     <!-- Navbar -->
@@ -227,8 +226,8 @@
     <div th:replace="~{fragments/navigation :: footer}"></div>
 
     <!-- Bootstrap JS -->
-    <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
-    <script th:src="@{/js/form-validation.js}"></script>
+    <script th:src="@{/js/bundle-site.js}" defer></script>
+    <script th:src="@{/js/bundle-form-validation.js}" defer></script>
 </body>
 </html>
 
