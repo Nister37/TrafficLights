@@ -9,6 +9,7 @@ import {
     fetchTrafficLightsForIntersection,
     patchTrafficLight,
 } from './modules/traffic-lights-api.js'
+import dayjs from 'dayjs'
 
 function renderTrafficLightCard(trafficLight) {
     const statusClass = getStatusClass(trafficLight.status)
@@ -22,7 +23,7 @@ function renderTrafficLightCard(trafficLight) {
                         <strong>Type:</strong> ${trafficLight.type}<br>
                         <strong>Direction:</strong> ${trafficLight.direction}<br>
                         <strong>Category:</strong> ${trafficLight.category}<br>
-                        <strong>Installation Date:</strong> ${trafficLight.installationDate}
+                        <strong>Installation Date:</strong> ${dayjs(trafficLight.installationDate).format('DD MMM YYYY')}
                     </p>
                     <div class="d-flex gap-2 align-items-center">
                         <select class="form-select form-select-sm w-auto" id="edit-status-${trafficLight.id}">
