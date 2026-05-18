@@ -20,8 +20,7 @@ const config = {
     entry: entries,
     plugins: [
         new MiniCssExtractPlugin({
-            // Relative to output.path — places CSS one level up in /css/
-            filename: '../css/bundle-[name].css'
+            filename: 'css/bundle-[name].css'
         })
     ],
     module: {
@@ -35,22 +34,29 @@ const config = {
                 ]
             },
             {
-                // Font files imported by bootstrap-icons are copied to /fonts/
+                // Font files imported by bootstrap-icons — copied to /fonts/
                 test: /\.(woff2?|eot|ttf|otf|svg)$/i,
                 type: 'asset/resource',
                 generator: {
-                    filename: '../fonts/[name][ext]'
+                    filename: 'fonts/[name][ext]'
                 }
             }
         ]
     },
     output: {
-        filename: 'bundle-[name].js',
-        // Thymeleaf serves static content from src/main/resources/static
-        path: path.resolve(__dirname, 'src/main/resources/static/js'),
-        clean: true
+        filename: 'js/bundle-[name].js',
+        // Root of Spring Boot's static resource directory — keeps all paths under one root
+        // so publicPath '/' produces /js/, /css/, /fonts/ without any '../' gymnastics
+        path: path.resolve(__dirname, 'src/main/resources/static'),
+        publicPath: '/',
+        clean: {
+            // Only clean generated bundles; leave images and other hand-crafted assets
+            keep: /^(images|fonts)\//
+        }
     }
 }
 
 export default config
+
+
 

@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>404 - Not Found</title>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.1/font/bootstrap-icons.css}">
+    <link rel="stylesheet" th:href="@{/css/bundle-site.css}">
+    <script th:src="@{/js/bundle-site.js}" defer></script>
 </head>
 <body class="d-flex flex-column min-vh-100 bg-light">
 <div th:replace="~{fragments/navigation :: navbar}"></div>
@@ -32,7 +32,6 @@
 </main>
 
 <div th:replace="~{fragments/navigation :: footer}"></div>
-<script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>
 

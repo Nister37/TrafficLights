@@ -16,11 +16,11 @@
 
 body {
     font-family: $font-family-sans-serif;
-    margin: 20px;
     background-color: $body-bg;
 }
 
-h1 {
+// Scoped to <main> so Bootstrap sizing classes (e.g. h1.h4 inside card headers) are not affected
+main h1 {
     color: #333;
     border-bottom: 2px solid $primary;
     padding-bottom: 10px;
@@ -67,7 +67,6 @@ table {
     border-collapse: collapse;
     width: 100%;
     background-color: white;
-    margin-top: 20px;
     box-shadow: $card-shadow;
 }
 
@@ -80,7 +79,7 @@ th {
 
 td {
     padding: 10px;
-    border-bottom: 1px solid #ddd;
+    // border-bottom omitted: .table-bordered provides all cell borders
 }
 
 tr:hover {
@@ -116,54 +115,6 @@ tr:hover {
     background-color: white;
     border-radius: 5px;
     box-shadow: $card-shadow;
-}
-
-// ---------------------------------------------------------------------------
-// Forms
-// ---------------------------------------------------------------------------
-
-form {
-    @include card-surface;
-    padding: 20px;
-    max-width: 600px;
-    margin: 20px 0;
-
-    label {
-        display: inline-block;
-        width: 150px;
-        margin: 10px 0;
-        font-weight: bold;
-    }
-
-    input[type='text'],
-    input[type='number'],
-    input[type='date'],
-    input[type='email'],
-    select {
-        padding: 8px;
-        margin: 10px 0;
-        width: 300px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-    }
-
-    input[type='checkbox'] {
-        margin: 10px 5px;
-    }
-
-    button {
-        background-color: $primary;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        margin-top: 10px;
-
-        &:hover {
-            background-color: #45a049;
-        }
-    }
 }
 
 // ---------------------------------------------------------------------------

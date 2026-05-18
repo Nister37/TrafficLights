@@ -49,7 +49,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET,
                         "/", "/login",
                         "/trafficLight/**", "/intersection/**",
-                        "/js/**", "/css/**", "/images/**", "/webjars/**")
+                        "/js/**", "/css/**", "/fonts/**", "/images/**", "/webjars/**")
                     .permitAll()
                 // Public API — search (GET) and create (POST) for the standalone client repo
                 .requestMatchers(HttpMethod.GET,  "/api/traffic-lights/search").permitAll()
