@@ -1,6 +1,9 @@
 // Variables must be declared before Bootstrap so they override defaults
 @use 'variables' as *;
 
+// flatpickr date-picker skin — loaded sitewide so it's available on all form pages
+@import 'flatpickr/dist/flatpickr.min.css';
+
 // Bootstrap SCSS — compiled here so we control the theme
 @import 'bootstrap/scss/bootstrap';
 
@@ -203,4 +206,5 @@ form {
         box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
     }
 }
+
 

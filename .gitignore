@@ -49,6 +49,16 @@ build/reports/
 build/test-results/
 
 # =============================================================================
+# Node / npm
+# =============================================================================
+node_modules/
+# package-lock.json is intentionally committed for reproducible installs
+
+# Webpack output — generated at build time, not versioned
+src/main/resources/static/js/
+src/main/resources/static/css/
+
+# =============================================================================
 # Others
 # =============================================================================
 lessons/

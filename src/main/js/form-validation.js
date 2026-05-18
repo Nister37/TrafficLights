@@ -2,13 +2,28 @@
  * Bootstrap form validation — activates validation styles on submit.
  * Works for any form on the page that has the HTML5 constraint API.
  *
+ * flatpickr replaces native <input type="date"> with a polished calendar picker.
+ *
  * Extended with validator.js for add-intersection (/addIntersection):
  * validates latitude (-90..90) and longitude (-180..180) before submit.
  */
 import validator from 'validator'
+import flatpickr from 'flatpickr'
 
 document.addEventListener('DOMContentLoaded', function () {
     'use strict'
+
+    // --- flatpickr: replace every date input with a calendar picker --------
+    document.querySelectorAll('input[type="date"]').forEach(input => {
+        flatpickr(input, {
+            // Y-m-d matches the Java LocalDate pattern Spring expects
+            dateFormat: 'Y-m-d',
+            // Allow typing a date directly — accessibility
+            allowInput: true,
+        })
+    })
+
+    // --- Bootstrap HTML5 validation + validator.js coordinate check --------
     const forms = document.querySelectorAll('form')
     Array.prototype.slice.call(forms).forEach(function (form) {
         form.addEventListener(
@@ -61,5 +76,7 @@ function showFieldError(input, message) {
 function clearFieldError(input) {
     input.classList.remove('is-invalid')
 }
+
+
 
 

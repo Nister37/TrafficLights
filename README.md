@@ -25,6 +25,75 @@ The system allows users to:
 - Schedule and record maintenance activities
 - Manage relationships with maintenance companies
 
+### Domain Model
+
+```mermaid
+erDiagram
+    Intersection {
+        long id
+        double latitude
+        double longitude
+        enum type
+        int numberOfRoads
+        boolean smartEnabled
+        date openedDate
+        boolean hasPedestrianCrossing
+    }
+    TrafficLight {
+        long id
+        enum status
+        date installationDate
+        string direction
+        enum type
+        boolean rightArrow
+    }
+    MaintenanceLog {
+        long id
+        date date
+        string description
+        enum kind
+        decimal cost
+        boolean completed
+        string invoiceNumber
+    }
+    MaintenanceCompany {
+        long id
+        string name
+        string email
+        string phoneNumber
+        boolean active
+        date since
+    }
+    MaintenanceLogCompany {
+        long id
+        date assignedDate
+    }
+
+    Intersection ||--o{ TrafficLight : "has many"
+    TrafficLight ||--o{ MaintenanceLog : "has many"
+    MaintenanceLog ||--o{ MaintenanceLogCompany : "linked via"
+    MaintenanceCompany ||--o{ MaintenanceLogCompany : "linked via"
+```
+
+### Application Architecture
+
+```mermaid
+flowchart TD
+    Browser(["🌐 Browser"])
+    MVC["MVC Controllers\n(Thymeleaf views)"]
+    REST["REST Controllers\n(/api/…)"]
+    Service["Service Layer\n(business logic, @Transactional)"]
+    Repo["Repository Layer\n(Spring Data JPA)"]
+    DB[("PostgreSQL")]
+
+    Browser -- "page requests" --> MVC
+    Browser -- "AJAX / fetch" --> REST
+    MVC --> Service
+    REST --> Service
+    Service --> Repo
+    Repo -- "SQL / Hibernate" --> DB
+```
+
 ---
 
 ## 📸 Application Screenshots
@@ -56,6 +125,27 @@ POST and PATCH REST endpoints for traffic lights with validation and AJAX integr
 
 Spring Security with form-based login, BCrypt password hashing, and content-based authorization.
 
+### Authentication Flow
+
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant Spring Security
+    participant DB as User Store (DB)
+
+    Browser->>Spring Security: GET /login
+    Spring Security-->>Browser: Login form + CSRF token
+    Browser->>Spring Security: POST /login (username, password, _csrf)
+    Spring Security->>DB: Load UserDetails by username
+    DB-->>Spring Security: Hashed password + roles
+    Spring Security->>Spring Security: BCrypt verify
+    alt Credentials valid
+        Spring Security-->>Browser: 302 → / (session cookie)
+    else Invalid
+        Spring Security-->>Browser: 302 → /login?error
+    end
+```
+
 ### Users
 
 | Username | Password  |
@@ -76,6 +166,34 @@ Spring Security with form-based login, BCrypt password hashing, and content-base
 ## Week 5
 
 Complex authorization: roles (ADMIN/USER) + ownership-based permissions on traffic lights.
+
+### Authorization Matrix
+
+```mermaid
+flowchart LR
+    subgraph Roles
+        A["👤 Anonymous"]
+        U["🔑 USER"]
+        AD["🛡️ ADMIN"]
+    end
+
+    subgraph Actions
+        V["View pages / details"]
+        C["Create traffic light\n(becomes owner)"]
+        UO["Update / Delete\n(own traffic lights)"]
+        UA["Update / Delete\n(any traffic light)"]
+        ADM["Access /admin"]
+    end
+
+    A --> V
+    U --> V
+    U --> C
+    U --> UO
+    AD --> V
+    AD --> C
+    AD --> UA
+    AD --> ADM
+```
 
 ### Role overview (including anonymous)
 
@@ -167,10 +285,110 @@ The project uses a GitLab CI pipeline defined in `.gitlab-ci.yml` with two stage
 - **build** — compiles the project and caches dependencies (`./gradlew build -x test`)
 - **test** — runs all tests against a PostgreSQL service container (`./gradlew test`), publishes JUnit XML results to the GitLab Tests tab
 
+```mermaid
+flowchart LR
+    Push["git push"] --> Build
+
+    subgraph build stage
+        Build["./gradlew build -x test\n+ npm run build"]
+    end
+
+    subgraph test stage
+        Test["./gradlew test\n(PostgreSQL service container)"]
+        Report["JUnit XML\npublished to GitLab"]
+    end
+
+    Build -- "on success" --> Test
+    Test --> Report
+```
+
 **TODO: add pipeline screenshot after pushing to GitLab.**
 ### Code coverage
 ![Home Page](docs/resources/tests.png)
 
 ---
 
-**Last Updated:** April 30, 2026
+## Week 10 & 11
+
+Frontend integration: npm, webpack, and a rich client-side library stack served by Spring Boot.
+
+### Setup
+
+Node.js (v20+) is required to build the frontend assets.
+
+```bash
+# Install all JS/CSS dependencies
+npm install
+
+# Build all webpack bundles (outputs to src/main/resources/static)
+npm run build
+
+# Lint JavaScript source files
+npm run lint
+
+# Check code formatting (dprint)
+npm run format
+```
+
+### Webpack build pipeline
+
+```mermaid
+flowchart LR
+    subgraph Sources ["src/main/"]
+        JS["js/*.js\n(entry points)"]
+        SCSS["scss/site.scss"]
+        NM["node_modules\n(Bootstrap, icons, libs…)"]
+    end
+
+    Webpack(["webpack"])
+
+    subgraph Output ["src/main/resources/static/"]
+        BJS["js/bundle-*.js"]
+        BCSS["css/bundle-*.css"]
+        FONTS["fonts/*.woff2"]
+    end
+
+    JS --> Webpack
+    SCSS --> Webpack
+    NM --> Webpack
+    Webpack --> BJS
+    Webpack --> BCSS
+    Webpack --> FONTS
+```
+
+The Gradle build automatically runs `npm run build` via the `npmBuild` task, so running `./gradlew build` alone is sufficient for a full backend + frontend build.
+
+### Frontend library stack
+
+| Package | Purpose |
+|---|---|
+| **Bootstrap 5** | Responsive grid, components, and utility classes |
+| **Bootstrap Icons** | SVG icon set (edit, delete, status indicators) |
+| **@popperjs/core** | Tooltip/popover positioning — peer dep for Bootstrap |
+| **anime.js** | CSS animation for traffic-light status transitions |
+| **axios** | HTTP client with CSRF token interceptor for all REST calls |
+| **flatpickr** | Cross-browser calendar date-picker (replaces `<input type="date">`) |
+| **Quill** | Snow-themed rich-text editor for maintenance log descriptions |
+| **luxon** | Full date/time library with timezone support for the live refresh counter |
+| **RxJS** | `BehaviorSubject`-based auto-refresh interval on intersection details |
+| **Chart.js** | Canvas charting for the intersection statistics dashboard |
+| **dayjs** | Compact formatting utility for date values in list views |
+| **lodash** | Utility helpers: deep clone, `groupBy`, `debounce` |
+| **validator.js** | `isFloat` range checks for coordinate fields in form validation |
+| **zod** | Schema-based parsing and type-narrowing of API responses |
+
+### Webpack entry points
+
+Each entry generates one `.js` bundle and (where CSS is imported) one `.css` bundle under `src/main/resources/static/`:
+
+| Entry | Loaded on |
+|---|---|
+| `bundle-site` | Every page (Bootstrap, icons, shared styles) |
+| `bundle-form-validation` | All form pages — flatpickr date pickers + coordinate validation |
+| `bundle-quill-editor` | Add maintenance log page — Quill rich-text editor |
+| `bundle-intersection-details` | Intersection details page — Chart.js, luxon, RxJS auto-refresh |
+| `bundle-traffic-light-details` | Traffic light details page — anime.js status animation |
+
+---
+
+**Last Updated:** May 18, 2026
