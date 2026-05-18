@@ -363,19 +363,13 @@ The Gradle build automatically runs `npm run build` via the `npmBuild` task, so 
 | Package | Purpose |
 |---|---|
 | **Bootstrap 5** | Responsive grid, components, and utility classes |
-| **Bootstrap Icons** | SVG icon set (edit, delete, status indicators) |
-| **@popperjs/core** | Tooltip/popover positioning — peer dep for Bootstrap |
-| **anime.js** | CSS animation for traffic-light status transitions |
-| **axios** | HTTP client with CSRF token interceptor for all REST calls |
-| **flatpickr** | Cross-browser calendar date-picker (replaces `<input type="date">`) |
-| **Quill** | Snow-themed rich-text editor for maintenance log descriptions |
-| **luxon** | Full date/time library with timezone support for the live refresh counter |
-| **RxJS** | `BehaviorSubject`-based auto-refresh interval on intersection details |
-| **Chart.js** | Canvas charting for the intersection statistics dashboard |
-| **dayjs** | Compact formatting utility for date values in list views |
-| **lodash** | Utility helpers: deep clone, `groupBy`, `debounce` |
-| **validator.js** | `isFloat` range checks for coordinate fields in form validation |
-| **zod** | Schema-based parsing and type-narrowing of API responses |
+| **Bootstrap Icons** | SVG icon set (traffic light, navigation, edit, delete, status indicators) |
+| **@popperjs/core** | Tooltip/popover positioning — peer dependency for Bootstrap JS |
+| **anime.js** | Fade-in + slide-up animation for dashboard cards on the home page |
+| **dayjs** | Compact date formatting in intersection-details traffic light cards |
+| **flatpickr** | Cross-browser calendar date-picker on all form pages (replaces `<input type="date">`) |
+| **Quill** | Snow-themed rich-text editor for the maintenance log description field |
+| **validator.js** | `isFloat` range checks for latitude/longitude on the add-intersection form |
 
 ### Webpack entry points
 
@@ -383,11 +377,34 @@ Each entry generates one `.js` bundle and (where CSS is imported) one `.css` bun
 
 | Entry | Loaded on |
 |---|---|
-| `bundle-site` | Every page (Bootstrap, icons, shared styles) |
-| `bundle-form-validation` | All form pages — flatpickr date pickers + coordinate validation |
-| `bundle-quill-editor` | Add maintenance log page — Quill rich-text editor |
-| `bundle-intersection-details` | Intersection details page — Chart.js, luxon, RxJS auto-refresh |
-| `bundle-traffic-light-details` | Traffic light details page — anime.js status animation |
+| `bundle-site` | Every page — Bootstrap, Bootstrap Icons, shared SCSS, dashboard card animation (anime.js) |
+| `bundle-form-validation` | All form pages — flatpickr date pickers + validator.js coordinate checks |
+| `bundle-quill-editor` | Add Maintenance Log page — Quill rich-text editor for the description field |
+| `bundle-intersection-details` | Intersection details page — traffic light management, dayjs date formatting |
+
+### W11 Implementation Details
+
+#### Bootstrap Icon
+
+- **Icon used:** `bi-traffic-light`
+- **Where to find it:** [Home page / any page](http://localhost:8080/) — visible in the top-left navbar brand and footer on every page
+- **Source file:** `src/main/resources/templates/fragments/navigation.html` (line 12)
+
+#### Client-Side Form Validation
+
+- **Validated form:** Add Intersection
+- **URL:** [http://localhost:8080/addIntersection](http://localhost:8080/addIntersection) *(requires login)*
+- **Source file:** `src/main/js/form-validation.js`
+- **What is validated:** Latitude must be within −90 to 90; Longitude must be within −180 to 180, using `validator.isFloat` from the `validator` npm package. An inline error message appears on the field if the range is violated.
+
+#### JavaScript Dependencies
+
+| Package | Where to find it | URL | Source file | User action required |
+|---------|-----------------|-----|-------------|----------------------|
+| **anime.js** | Home page dashboard | [http://localhost:8080/](http://localhost:8080/) | `src/main/js/site.js` | Navigate to the home page — all statistic cards fade in and slide up on load |
+| **dayjs** | Intersection details page | [http://localhost:8080/intersection/1](http://localhost:8080/intersection/1) | `src/main/js/intersection-details.js` | Open any intersection details page — traffic light cards display formatted dates (e.g. "18 May 2026") |
+| **flatpickr** | Any form with a date field | [http://localhost:8080/addIntersection](http://localhost:8080/addIntersection) | `src/main/js/form-validation.js` | Click the date input on any add form — a calendar picker replaces the native browser date control |
+| **Quill** | Add Maintenance Log | [http://localhost:8080/addMaintenanceLog](http://localhost:8080/addMaintenanceLog) | `src/main/js/quill-editor.js` | Open the Add Maintenance Log page — the description field is a Snow-themed rich-text editor with bold / italic / list toolbar |
 
 ---
 
