@@ -1,0 +1,206 @@
+// Variables must be declared before Bootstrap so they override defaults
+@use 'variables' as *;
+
+// Bootstrap SCSS — compiled here so we control the theme
+@import 'bootstrap/scss/bootstrap';
+
+// Bootstrap Icons font
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+// ---------------------------------------------------------------------------
+// Base
+// ---------------------------------------------------------------------------
+
+body {
+    font-family: $font-family-sans-serif;
+    margin: 20px;
+    background-color: $body-bg;
+}
+
+h1 {
+    color: #333;
+    border-bottom: 2px solid $primary;
+    padding-bottom: 10px;
+}
+
+// ---------------------------------------------------------------------------
+// Navigation menu (legacy custom nav, still used on some pages)
+// ---------------------------------------------------------------------------
+
+.navigation-menu {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+    background-color: #333;
+    overflow: hidden;
+
+    li {
+        float: left;
+
+        a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+
+            &:hover {
+                background-color: $primary;
+            }
+        }
+
+        &.separator {
+            color: white;
+            padding: 14px 5px;
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Tables
+// ---------------------------------------------------------------------------
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    background-color: white;
+    margin-top: 20px;
+    box-shadow: $card-shadow;
+}
+
+th {
+    background-color: $primary;
+    color: white;
+    padding: 12px;
+    text-align: left;
+}
+
+td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+tr:hover {
+    background-color: $body-bg;
+}
+
+// Status-based row highlighting
+.status-broken {
+    background-color: $table-accent-broken !important;
+}
+
+.status-maintenance {
+    background-color: $table-accent-maintenance !important;
+}
+
+.status-active {
+    background-color: $table-accent-active !important;
+}
+
+.inactive-company {
+    background-color: #f8d7da !important;
+}
+
+.incomplete-log {
+    background-color: $table-accent-maintenance !important;
+}
+
+// ---------------------------------------------------------------------------
+// Card surface — reusable mixin for white raised sections
+// ---------------------------------------------------------------------------
+
+@mixin card-surface {
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: $card-shadow;
+}
+
+// ---------------------------------------------------------------------------
+// Forms
+// ---------------------------------------------------------------------------
+
+form {
+    @include card-surface;
+    padding: 20px;
+    max-width: 600px;
+    margin: 20px 0;
+
+    label {
+        display: inline-block;
+        width: 150px;
+        margin: 10px 0;
+        font-weight: bold;
+    }
+
+    input[type='text'],
+    input[type='number'],
+    input[type='date'],
+    input[type='email'],
+    select {
+        padding: 8px;
+        margin: 10px 0;
+        width: 300px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    input[type='checkbox'] {
+        margin: 10px 5px;
+    }
+
+    button {
+        background-color: $primary;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 10px;
+
+        &:hover {
+            background-color: #45a049;
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Filter section
+// ---------------------------------------------------------------------------
+
+.filter-section {
+    @include card-surface;
+    padding: 15px;
+    margin-bottom: 20px;
+
+    label {
+        margin-right: 10px;
+        font-weight: bold;
+    }
+
+    select,
+    input {
+        margin-right: 15px;
+        padding: 5px;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Misc
+// ---------------------------------------------------------------------------
+
+.item-count {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #666;
+}
+
+// Hover card animation — used on the index.html dashboard cards
+.hover-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+}
+
