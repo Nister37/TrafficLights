@@ -17,6 +17,7 @@ build-job:
     paths:
       - build
       - .gradle
+      - .node         # node-gradle downloads Node.js here when download=true
 
 test-job:
   stage: test
@@ -44,4 +45,5 @@ test-job:
     paths:
       - build
       - .gradle
+      - .node
 

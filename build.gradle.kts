@@ -49,6 +49,14 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+// Tell the node-gradle plugin to download Node.js automatically.
+// This is required in CI where the Docker image (eclipse-temurin:21-jdk-alpine)
+// does not have Node.js / npm installed.
+node {
+    download.set(true)
+    version.set("20.19.1")
+}
+
 // Run webpack before Spring copies resources into the build — ensures
 // bundles in static/js/ and static/css/ are up-to-date on every build.
 tasks.named<Copy>("processResources") {
