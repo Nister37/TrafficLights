@@ -8,7 +8,9 @@ variables:
 
 build-job:
   stage: build
-  image: eclipse-temurin:21-jdk-alpine
+  # eclipse-temurin:21-jdk-alpine (musl libc) cannot run the glibc-compiled Node.js
+  # binaries that node-gradle downloads. Switched to the Ubuntu (jammy) variant
+  image: eclipse-temurin:21-jdk-jammy
   script:
     - ./gradlew build -x test
   cache:
@@ -21,7 +23,7 @@ build-job:
 
 test-job:
   stage: test
-  image: eclipse-temurin:21-jdk-alpine
+  image: eclipse-temurin:21-jdk-jammy
   services:
     - postgres:16.1-alpine
   variables:
