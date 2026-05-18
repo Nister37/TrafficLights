@@ -1,3 +1,10 @@
+-- Insert application users first — traffic_light.owner_id references this table
+-- admin / admin123 | user1 / user123 | user2 / user123
+INSERT INTO application_user (username, password_hash, role) VALUES
+('admin', '$2a$10$NFAFc4Z7lPAXNpSBM66Jbe9JLmV738kQDYoxdsYRJZLCZZPIlRpsa', 'ADMIN'),
+('user1', '$2a$10$NFAFc4Z7lPAXNpSBM66Jbe9JLmV738kQDYoxdsYRJZLCZZPIlRpsa', 'USER'),
+('user2', '$2a$10$NFAFc4Z7lPAXNpSBM66Jbe9JLmV738kQDYoxdsYRJZLCZZPIlRpsa', 'USER');
+
 -- Insert Intersections (without explicit IDs - let SERIAL auto-generate)
 INSERT INTO intersection (latitude, longitude, type, road_count, is_smart_enabled, opened_on, has_pedestrian_crossing, intersection_image) VALUES
 (42.6977, 23.3219, 'CROSSROADS', 4, true, '2020-01-15', true, '/images/intersections/intersection1.png'),
@@ -47,13 +54,4 @@ INSERT INTO maintenance_log_company (maintenance_log_id, maintenance_company_id,
 (5, 4, '2023-05-18'),
 (6, 2, '2023-06-22'),
 (6, 5, '2023-06-22');
-
--- Insert application users (BCrypt hashed passwords, strength 10)
--- admin / admin123
--- user1 / user123
--- user2 / user123
-INSERT INTO application_user (username, password_hash, role) VALUES
-('admin', '$2a$10$NFAFc4Z7lPAXNpSBM66Jbe9JLmV738kQDYoxdsYRJZLCZZPIlRpsa', 'ADMIN'),
-('user1', '$2a$10$NFAFc4Z7lPAXNpSBM66Jbe9JLmV738kQDYoxdsYRJZLCZZPIlRpsa', 'USER'),
-('user2', '$2a$10$NFAFc4Z7lPAXNpSBM66Jbe9JLmV738kQDYoxdsYRJZLCZZPIlRpsa', 'USER');
 

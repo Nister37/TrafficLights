@@ -53,6 +53,7 @@ public class SecurityConfig {
                     .permitAll()
                 // Public API — search (GET) and create (POST) for the standalone client repo
                 .requestMatchers(HttpMethod.GET,  "/api/traffic-lights/search").permitAll()
+                .requestMatchers(HttpMethod.GET,  "/api/public/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/public/traffic-lights").permitAll()
                 // Everything else (MVC pages + REST API) requires authentication
                 .anyRequest()
@@ -94,7 +95,8 @@ public class SecurityConfig {
         config.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", config);
+        // Register on /** so that even redirect responses (e.g. 302 → /login) carry the header
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
 }

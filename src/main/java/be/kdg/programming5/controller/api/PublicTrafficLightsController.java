@@ -10,10 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * Public REST endpoints accessible without authentication.
@@ -33,6 +36,20 @@ public class PublicTrafficLightsController {
                                          TrafficLightMapper trafficLightMapper) {
         this.trafficLightService = trafficLightService;
         this.trafficLightMapper = trafficLightMapper;
+    }
+
+    /**
+     * GET /api/public/traffic-lights - List all traffic lights without authentication.
+     * Intended for the standalone client SPA (W10).
+     */
+    @GetMapping
+    public ResponseEntity<List<TrafficLightDto>> getAllTrafficLights() {
+        List<TrafficLightDto> dtos = trafficLightService.getAllTrafficLights().stream()
+                .map(trafficLightMapper::toTrafficLightDto)
+                .toList();
+        return dtos.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(dtos);
     }
 
     /**
@@ -57,4 +74,6 @@ public class PublicTrafficLightsController {
         return new ResponseEntity<>(trafficLightMapper.toTrafficLightDto(saved), HttpStatus.CREATED);
     }
 }
+
+
 
