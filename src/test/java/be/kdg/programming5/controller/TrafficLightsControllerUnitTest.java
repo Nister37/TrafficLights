@@ -25,11 +25,19 @@ import java.util.List;
 import be.kdg.programming5.exception.TrafficLightNotFoundException;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.springframework.http.MediaType;
 
 /**
  * Unit tests for TrafficLightsController — GET /api/traffic-lights.
@@ -151,6 +159,156 @@ class TrafficLightsControllerUnitTest {
     void getTrafficLightByIdWhenUnauthenticatedShouldReturn401() throws Exception {
         // Act & Assert
         mockMvc.perform(get("/api/traffic-lights/1"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    // =====================================================================
+    // POST /api/traffic-lights
+    // =====================================================================
+
+    @Test
+    @WithMockUser
+    void createTrafficLightWithValidBodyShouldReturn201WithCreatedLight() throws Exception {
+        // Arrange
+        TrafficLight saved = new TrafficLight(
+                TrafficLightStatus.ACTIVE, LocalDate.of(2021, 6, 15),
+                Direction.N, TrafficLightType.COLLISION, false
+        );
+        TrafficLightDto dto = new TrafficLightDto(
+                5, TrafficLightStatus.ACTIVE, LocalDate.of(2021, 6, 15),
+                Direction.N, TrafficLightType.COLLISION, false, 1, "TrafficLight"
+        );
+        given(trafficLightService.createTrafficLight(
+                any(), any(), any(), any(), anyBoolean(), anyInt())).willReturn(saved);
+        given(trafficLightMapper.toTrafficLightDto(any(TrafficLight.class))).willReturn(dto);
+
+        String body = """
+                {
+                  "status": "ACTIVE",
+                  "installationDate": "2021-06-15",
+                  "direction": "N",
+                  "type": "COLLISION",
+                  "rightArrow": false,
+                  "intersectionId": 1
+                }
+                """;
+
+        // Act & Assert
+        mockMvc.perform(post("/api/traffic-lights")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body)
+                        .with(csrf()))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(5))
+                .andExpect(jsonPath("$.status").value("ACTIVE"));
+    }
+
+    @Test
+    @WithMockUser
+    void createTrafficLightWithMissingRequiredFieldsShouldReturn400() throws Exception {
+        // Arrange — status and installationDate are @NotNull in CreateTrafficLightDto
+        String invalidBody = """
+                {
+                  "rightArrow": false,
+                  "intersectionId": 1
+                }
+                """;
+
+        // Act & Assert — @Valid on the controller triggers MethodArgumentNotValidException → 400
+        mockMvc.perform(post("/api/traffic-lights")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidBody)
+                        .with(csrf()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createTrafficLightWhenUnauthenticatedShouldReturn401() throws Exception {
+        String body = """
+                {
+                  "status": "ACTIVE",
+                  "installationDate": "2021-06-15",
+                  "direction": "N",
+                  "type": "COLLISION",
+                  "rightArrow": false,
+                  "intersectionId": 1
+                }
+                """;
+
+        mockMvc.perform(post("/api/traffic-lights")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body)
+                        .with(csrf()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    // =====================================================================
+    // PATCH /api/traffic-lights/{id}
+    // =====================================================================
+
+    @Test
+    @WithMockUser
+    void updateTrafficLightWithValidBodyShouldReturn204() throws Exception {
+        // Arrange — updateTrafficLight returns the updated entity; controller ignores it and returns 204
+        TrafficLight updated = new TrafficLight(
+                TrafficLightStatus.MAINTENANCE, LocalDate.of(2021, 6, 15),
+                Direction.N, TrafficLightType.COLLISION, false
+        );
+        given(trafficLightService.updateTrafficLight(anyInt(), any(), any(), any(), any()))
+                .willReturn(updated);
+
+        String body = """
+                {"status": "MAINTENANCE"}
+                """;
+
+        mockMvc.perform(patch("/api/traffic-lights/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body)
+                        .with(csrf()))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void updateTrafficLightWhenUnauthenticatedShouldReturn401() throws Exception {
+        mockMvc.perform(patch("/api/traffic-lights/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"status\": \"MAINTENANCE\"}")
+                        .with(csrf()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    // =====================================================================
+    // DELETE /api/traffic-lights/{id}
+    // =====================================================================
+
+    @Test
+    @WithMockUser
+    void deleteTrafficLightWhenFoundShouldReturn204() throws Exception {
+        // Arrange — controller calls getById first to verify existence, then deletes
+        TrafficLight light = new TrafficLight(
+                TrafficLightStatus.ACTIVE, LocalDate.of(2021, 6, 15),
+                Direction.N, TrafficLightType.COLLISION, false
+        );
+        given(trafficLightService.getTrafficLightById(1)).willReturn(light);
+
+        mockMvc.perform(delete("/api/traffic-lights/1").with(csrf()))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @WithMockUser
+    void deleteTrafficLightWhenNotFoundShouldReturn404() throws Exception {
+        // Arrange — getById throws; the delete call is never reached
+        given(trafficLightService.getTrafficLightById(404))
+                .willThrow(new TrafficLightNotFoundException(404));
+
+        mockMvc.perform(delete("/api/traffic-lights/404").with(csrf()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deleteTrafficLightWhenUnauthenticatedShouldReturn401() throws Exception {
+        mockMvc.perform(delete("/api/traffic-lights/1").with(csrf()))
                 .andExpect(status().isUnauthorized());
     }
 }

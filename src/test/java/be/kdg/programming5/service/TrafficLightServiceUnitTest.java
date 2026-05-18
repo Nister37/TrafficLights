@@ -1,13 +1,16 @@
 package be.kdg.programming5.service;
 
+import be.kdg.programming5.business.domain.Intersection;
 import be.kdg.programming5.business.domain.TrafficLight;
 import be.kdg.programming5.business.services.IntersectionService;
 import be.kdg.programming5.business.services.MaintenanceLogService;
 import be.kdg.programming5.business.services.TrafficLightService;
 import be.kdg.programming5.business.services.UserService;
 import be.kdg.programming5.enums.Direction;
+import be.kdg.programming5.enums.IntersectionTypes;
 import be.kdg.programming5.enums.TrafficLightStatus;
 import be.kdg.programming5.enums.TrafficLightType;
+import be.kdg.programming5.exception.ForbiddenOperationException;
 import be.kdg.programming5.exception.TrafficLightNotFoundException;
 import be.kdg.programming5.repository.TrafficLightRepository;
 import org.junit.jupiter.api.Test;
@@ -21,6 +24,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
@@ -144,6 +149,80 @@ class TrafficLightServiceUnitTest {
 
         // Assert — verify that findById was called with exactly the ID that was passed in
         then(trafficLightRepository).should().findById(42);
+    }
+
+    // =====================================================================
+    // getTrafficLightsByStatus
+    // =====================================================================
+
+    @Test
+    void getTrafficLightsByStatusShouldReturnOnlyLightsWithMatchingStatus() {
+        // Arrange
+        TrafficLight activeLight = new TrafficLight(
+                TrafficLightStatus.ACTIVE, LocalDate.of(2021, 6, 15),
+                Direction.N, TrafficLightType.COLLISION, false
+        );
+        given(trafficLightRepository.findByStatus(TrafficLightStatus.ACTIVE))
+                .willReturn(List.of(activeLight));
+
+        // Act
+        List<TrafficLight> result = trafficLightService.getTrafficLightsByStatus(TrafficLightStatus.ACTIVE);
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals(TrafficLightStatus.ACTIVE, result.get(0).getStatus());
+    }
+
+    @Test
+    void getTrafficLightsByStatusShouldDelegateToFindByStatusWithCorrectArgument() {
+        // Arrange
+        given(trafficLightRepository.findByStatus(TrafficLightStatus.MAINTENANCE))
+                .willReturn(List.of());
+
+        // Act
+        trafficLightService.getTrafficLightsByStatus(TrafficLightStatus.MAINTENANCE);
+
+        // Assert — verify the correct query method was called with the exact status argument
+        then(trafficLightRepository).should().findByStatus(TrafficLightStatus.MAINTENANCE);
+    }
+
+    // =====================================================================
+    // getTrafficLightsInstalledAfter
+    // =====================================================================
+
+    @Test
+    void getTrafficLightsInstalledAfterShouldDelegateToFindByInstallationDateAfter() {
+        // Arrange
+        LocalDate cutoff = LocalDate.of(2020, 1, 1);
+        given(trafficLightRepository.findByInstallationDateAfter(cutoff)).willReturn(List.of());
+
+        // Act
+        trafficLightService.getTrafficLightsInstalledAfter(cutoff);
+
+        // Assert — verify the correct repo method was called with the exact date
+        then(trafficLightRepository).should().findByInstallationDateAfter(cutoff);
+    }
+
+    // =====================================================================
+    // createTrafficLight — auth guard
+    // =====================================================================
+
+    @Test
+    void createTrafficLightWhenNoAuthenticatedUserShouldThrowForbiddenOperationException() {
+        // Arrange — intersection lookup succeeds, but no one is logged in
+        Intersection intersection = new Intersection(
+                50.0, 4.0, IntersectionTypes.CROSSROADS, 4,
+                true, LocalDate.of(2020, 1, 1), true, "/images/test.png"
+        );
+        given(intersectionService.getIntersectionById(1)).willReturn(intersection);
+        given(userService.getAuthenticatedUser()).willReturn(Optional.empty());
+
+        // Act & Assert — the service must reject creation when authentication is missing
+        assertThrows(ForbiddenOperationException.class,
+                () -> trafficLightService.createTrafficLight(
+                        TrafficLightStatus.ACTIVE, LocalDate.of(2023, 1, 1),
+                        Direction.N, TrafficLightType.COLLISION, false, 1),
+                "Creating a traffic light without an authenticated user should throw ForbiddenOperationException");
     }
 }
 
