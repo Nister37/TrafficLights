@@ -11,6 +11,8 @@ import be.kdg.programming5.exception.TrafficLightNotFoundException;
 import be.kdg.programming5.repository.TrafficLightRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -103,6 +105,7 @@ public class TrafficLightServiceImpl implements TrafficLightService {
      */
     @Override
     @Transactional
+    @CacheEvict(value = "trafficLightSearch", allEntries = true)
     public void addTrafficLightWithIntersection(TrafficLight trafficLight, int intersectionId) {
         logger.debug("Adding traffic light with intersection: {}", intersectionId);
         Intersection intersection = intersectionService.getIntersectionById(intersectionId);
@@ -123,6 +126,7 @@ public class TrafficLightServiceImpl implements TrafficLightService {
      */
     @Override
     @Transactional
+    @CacheEvict(value = "trafficLightSearch", allEntries = true)
     public TrafficLight createTrafficLight(TrafficLightStatus status, LocalDate installationDate,
                                            Direction direction, TrafficLightType type,
                                            boolean rightArrow, int intersectionId) {
@@ -145,6 +149,7 @@ public class TrafficLightServiceImpl implements TrafficLightService {
     @Override
     @Transactional
     @PreAuthorize("isAuthenticated()")
+    @CacheEvict(value = "trafficLightSearch", allEntries = true)
     public TrafficLight updateTrafficLight(int id, TrafficLightStatus status, Direction direction,
                                            TrafficLightType type, Boolean rightArrow) {
         logger.debug("Updating traffic light: {}", id);
@@ -168,6 +173,7 @@ public class TrafficLightServiceImpl implements TrafficLightService {
     @Override
     @Transactional
     @PreAuthorize("isAuthenticated()")
+    @CacheEvict(value = "trafficLightSearch", allEntries = true)
     public void deleteTrafficLight(int id) {
         logger.debug("Deleting traffic light: {}", id);
 
@@ -201,6 +207,7 @@ public class TrafficLightServiceImpl implements TrafficLightService {
      */
     @Override
     @Transactional(readOnly = true)
+    @Cacheable("trafficLightSearch")
     public List<TrafficLight> getTrafficLightsByStatus(TrafficLightStatus status) {
         logger.debug("Fetching traffic lights by status: {}", status);
         return trafficLightRepository.findByStatus(status);

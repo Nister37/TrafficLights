@@ -43,6 +43,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     runtimeOnly("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
     testImplementation("org.springframework.security:spring-security-test")
+
+    // Caching
+    implementation("org.springframework.boot:spring-boot-starter-cache")
 }
 
 tasks.withType<Test> {
@@ -62,4 +65,3 @@ node {
 tasks.named<Copy>("processResources") {
     dependsOn("npm_run_build")
 }
-
