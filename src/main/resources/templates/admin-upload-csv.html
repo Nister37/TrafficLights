@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Upload CSV - Traffic Lights Management</title>
+    <link rel="stylesheet" th:href="@{/css/bundle-site.css}">
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="h4 mb-0">Upload Traffic Lights CSV</h1>
+        </div>
+        <div class="card-body">
+
+            <!-- In-progress banner shown after a successful upload submission -->
+            <div th:if="${inProgress}" class="alert alert-info" role="alert">
+                <strong>Import started.</strong>
+                The file is being processed in the background. New traffic lights will appear once the import finishes.
+            </div>
+
+            <!-- Validation error (e.g. empty file selected) -->
+            <div th:if="${error}" class="alert alert-danger" role="alert">
+                <span th:text="${error}"></span>
+            </div>
+
+            <p class="mb-3 text-muted">
+                Upload a CSV file to bulk-import traffic lights.
+                Expected columns (with header row):
+                <code>status, installationDate, direction, type, rightArrow, intersectionId</code>
+            </p>
+
+            <form th:action="@{/admin/upload-csv}" method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="file" class="form-label">CSV File</label>
+                    <input type="file" id="file" name="file" accept=".csv" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Upload &amp; Import</button>
+            </form>
+
+        </div>
+    </div>
+
+    <a class="btn btn-link mt-3" th:href="@{/admin}">Back to Admin</a>
+</div>
+
+<script th:src="@{/js/bundle-site.js}" defer></script>
+</body>
+</html>
+
