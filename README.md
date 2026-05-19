@@ -408,4 +408,58 @@ Each entry generates one `.js` bundle and (where CSS is imported) one `.css` bun
 
 ---
 
-**Last Updated:** May 18, 2026
+## Week 12
+
+Async CSV file upload and Spring `@Cacheable` search caching.
+
+### Async CSV Upload
+
+An admin-only page at `/admin/upload-csv` accepts a CSV file and bulk-imports traffic lights
+without blocking the HTTP request thread.
+
+**How it works:**
+
+```mermaid
+sequenceDiagram
+    participant Admin as Admin Browser
+    participant Controller as AdminController
+    participant Service as CsvImportService (@Async)
+    participant DB as PostgreSQL
+
+    Admin->>Controller: POST /admin/upload-csv (multipart)
+    Controller->>Service: importTrafficLightsAsync(inputStream)
+    Note over Controller,Service: Spring submits task to thread pool
+    Controller-->>Admin: 200 — "Import started" message
+    Service->>DB: INSERT traffic lights (background thread)
+    Note over Service: Logs imported / skipped counts on completion
+```
+
+- The Spring task executor picks up the `@Async` method on a separate thread.
+- The HTTP response is sent **before** any rows are processed.
+- Rows with parse errors are skipped with a warning log; the import continues.
+
+**CSV format** (`src/main/resources/traffic-lights-sample.csv`):
+
+```
+status,installationDate,direction,type,rightArrow,intersectionId
+ACTIVE,2023-03-15,N,COLLISION,false,1
+MAINTENANCE,2021-11-05,E,COLLISION,false,2
+```
+
+**Try it:** Log in as `admin` / `admin123`, go to [Admin page](http://localhost:8080/admin), click **Upload Traffic Lights CSV**, and upload the sample file.
+
+### Search Caching
+
+`getTrafficLightsByStatus(status)` is annotated with `@Cacheable("trafficLightSearch")`.
+Spring uses the `status` value as the cache key, so the same query is served from memory
+on subsequent calls without hitting the database.
+
+Cache is evicted on every mutating operation (`create`, `update`, `delete`, `addWithIntersection`)
+via `@CacheEvict(value = "trafficLightSearch", allEntries = true)`, preventing stale results
+when the data changes.
+
+`@EnableCaching` and `@EnableAsync` are declared together in `ApplicationConfig`.
+
+---
+
+**Last Updated:** May 19, 2026
