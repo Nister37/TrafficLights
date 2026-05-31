@@ -159,6 +159,9 @@ sequenceDiagram
 - 🌍 **Public page** (accessible by anyone): [Traffic Light Details](http://localhost:8080/trafficLight/1)
   - Anonymous users see basic traffic light info and a teaser prompting login to view the maintenance history.
   - Authenticated users see the full maintenance log section.
+- 🌍 **Public page with AJAX data**: [Intersection Details](http://localhost:8080/intersection/1)
+  - Anonymous users can load the related traffic-light cards.
+  - Creating, updating and deleting traffic lights still requires authentication.
 - 🔒 **Authenticated page** (login required): [Traffic Lights List](http://localhost:8080/trafficLights)
 
 ---

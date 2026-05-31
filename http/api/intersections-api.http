@@ -5,6 +5,7 @@
 @baseUrl = http://localhost:8080
 
 ### GET traffic lights for intersection - 200 OK
+### Public read-only endpoint used by the intersection details page.
 GET {{baseUrl}}/api/intersections/1/traffic-lights
 Accept: application/json
 

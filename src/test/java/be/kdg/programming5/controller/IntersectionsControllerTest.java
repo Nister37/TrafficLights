@@ -114,10 +114,25 @@ class IntersectionsControllerTest {
     }
 
     @Test
-    void getTrafficLightsByIntersectionWhenUnauthenticatedShouldReturn401() throws Exception {
-        // Act & Assert — security config requires authentication for all /api/** endpoints
+    void getTrafficLightsByIntersectionWhenUnauthenticatedShouldReturn200WithBody() throws Exception {
+        // Arrange — the public intersection details page loads these cards through AJAX
+        TrafficLight light = new TrafficLight(
+                TrafficLightStatus.ACTIVE, LocalDate.of(2022, 4, 10),
+                Direction.E, TrafficLightType.COLLISION, false
+        );
+        IntersectionTrafficLightDto dto = new IntersectionTrafficLightDto(
+                3, TrafficLightStatus.ACTIVE, LocalDate.of(2022, 4, 10),
+                Direction.E, TrafficLightType.COLLISION, false, 1, "TrafficLight", "user1"
+        );
+        given(intersectionService.getIntersectionById(1)).willReturn(null);
+        given(intersectionService.getTrafficLightsByIntersectionId(1)).willReturn(List.of(light));
+        given(trafficLightMapper.toIntersectionTrafficLightDtoList(anyList())).willReturn(List.of(dto));
+
+        // Act & Assert — GET is public, but modifying traffic lights still requires authentication
         mockMvc.perform(get("/api/intersections/1/traffic-lights"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(3))
+                .andExpect(jsonPath("$[0].status").value("ACTIVE"));
     }
 }
 

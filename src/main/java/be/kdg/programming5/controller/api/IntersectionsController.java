@@ -33,6 +33,7 @@ public class IntersectionsController {
      * GET /api/intersections/{id}/traffic-lights - Retrieve all traffic lights of an intersection.
      * Returns 200 OK with list, or 204 No Content if empty.
      * Returns 404 Not Found if intersection doesn't exist.
+     * Permitted without authentication so the public intersection details page can load its cards.
      */
     @GetMapping("/{id}/traffic-lights")
     public ResponseEntity<List<IntersectionTrafficLightDto>> getTrafficLightsForIntersection(@PathVariable("id") int intersectionId) {

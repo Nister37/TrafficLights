@@ -95,6 +95,9 @@ Content-Type: application/json
 
 ### GET Traffic Lights for Intersection - 200 OK
 
+This read-only endpoint is public because the anonymous intersection details page loads
+its traffic-light cards through AJAX. Traffic-light modifications still require authentication.
+
 **Request:**
 ```http
 GET /api/intersections/1/traffic-lights HTTP/1.1

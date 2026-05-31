@@ -51,9 +51,11 @@ public class SecurityConfig {
                         "/trafficLight/**", "/intersection/**",
                         "/js/**", "/css/**", "/fonts/**", "/images/**", "/webjars/**")
                     .permitAll()
-                // Public API — search (GET) and create (POST) for the standalone client repo
+                // Public API — read-only endpoints used by public pages and the standalone client repo
                 .requestMatchers(HttpMethod.GET,  "/api/traffic-lights/search").permitAll()
+                .requestMatchers(HttpMethod.GET,  "/api/intersections/*/traffic-lights").permitAll()
                 .requestMatchers(HttpMethod.GET,  "/api/public/**").permitAll()
+                // Public API — create endpoint used only by the standalone client repo
                 .requestMatchers(HttpMethod.POST, "/api/public/traffic-lights").permitAll()
                 // Everything else (MVC pages + REST API) requires authentication
                 .anyRequest()
