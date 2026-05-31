@@ -39,9 +39,10 @@ public class SecurityConfig {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf
-                // Disable CSRF only for the public API path — the client repo can't carry CSRF tokens
+                // Disable CSRF only for the W10 standalone client create endpoint
                 .ignoringRequestMatchers(
-                    PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/api/public/**")
+                    PathPatternRequestMatcher.withDefaults()
+                        .matcher(HttpMethod.POST, "/api/public/maintenance-companies")
                 )
             )
             .authorizeHttpRequests(auths -> auths
@@ -56,7 +57,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET,  "/api/intersections/*/traffic-lights").permitAll()
                 .requestMatchers(HttpMethod.GET,  "/api/public/**").permitAll()
                 // Public API — create endpoint used only by the standalone client repo
-                .requestMatchers(HttpMethod.POST, "/api/public/traffic-lights").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/public/maintenance-companies").permitAll()
                 // Everything else (MVC pages + REST API) requires authentication
                 .anyRequest()
                     .authenticated()

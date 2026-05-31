@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,6 +67,16 @@ public class MaintenanceCompanyServiceImpl implements MaintenanceCompanyService 
     public void addMaintenanceCompany(MaintenanceCompany company) {
         logger.debug("Adding maintenance company: {}", company.getId());
         maintenanceCompanyRepository.save(company);
+    }
+
+    @Override
+    @Transactional
+    public MaintenanceCompany createMaintenanceCompany(String name, String contactPhone, String contactEmail,
+                                                       boolean active, LocalDate since) {
+        logger.debug("Creating maintenance company: {}", name);
+        return maintenanceCompanyRepository.save(
+                new MaintenanceCompany(name, contactPhone, contactEmail, active, since)
+        );
     }
 
     @Override

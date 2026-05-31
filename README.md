@@ -203,7 +203,7 @@ flowchart LR
 - **Anonymous (not logged in)**
   - Can visit the landing page and traffic light/intersection details.
   - Cannot create, update or delete traffic lights through the browser-session management flow.
-  - Can use the dedicated Week 10 standalone client endpoint to create an ownerless traffic light.
+  - Can use the dedicated Week 10 standalone client endpoint to create a maintenance company.
 - **USER**
   - Can create new traffic lights (the creator becomes the owner).
   - Can update/delete only traffic lights they own.
@@ -226,7 +226,7 @@ CSRF protection is enabled.
 - MVC forms include CSRF tokens automatically.
 - Ajax calls to the REST API read the CSRF token + header name from Thymeleaf meta tags and send it as a request header
    (Spring typically uses `X-CSRF-TOKEN`, but the client uses the server-provided header name).
-- Only `POST /api/public/traffic-lights` is exempt from CSRF protection. This endpoint supports the separate
+- Only `POST /api/public/maintenance-companies` is exempt from CSRF protection. This endpoint supports the separate
   Week 10 standalone client project, which does not use the browser-session management flow.
 
 ---
@@ -279,7 +279,7 @@ Test reports are generated at `build/reports/tests/test/index.html`.
 | Category | Class | Tests |
 |---|---|---|
 | API integration tests (mocking) | `TrafficLightsControllerUnitTest` | CRUD responses, validation failures and unauthenticated `401` responses |
-| Public API tests | `PublicTrafficLightsControllerTest` | Standalone client creation without authentication or CSRF, validation failure |
+| Public API tests | `PublicMaintenanceCompaniesControllerTest`, `PublicTrafficLightsControllerTest` | Standalone client creation without authentication or CSRF, validation failures, read-only traffic-light endpoint |
 | Public AJAX tests | `IntersectionsControllerTest` | Public intersection traffic-light cards (`200`, `204`, `404`) |
 | MVC integration tests (mocking) | `TrafficLightMvcControllerTest` | `GET /trafficLights?status` (200 with filter, 302 redirect), `GET /trafficLight/{id}` (200 found, 200 not-found error view) |
 | MVC authorization tests | `HomeControllerTest`, `AdminControllerTest` | Anonymous Quick Add visibility, admin-only CSV upload and copied upload bytes |
@@ -428,7 +428,7 @@ The separate Week 10 client repository can call these public backend endpoints:
 
 - `GET /api/traffic-lights/search?status=ACTIVE` searches by status.
 - `GET /api/public/traffic-lights` lists traffic lights.
-- `POST /api/public/traffic-lights` creates an ownerless traffic light without a session cookie or CSRF token.
+- `POST /api/public/maintenance-companies` creates a maintenance company without a session cookie or CSRF token.
 
 The public creation endpoint is intentionally separate from the authenticated browser-session management API.
 

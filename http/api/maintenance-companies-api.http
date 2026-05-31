@@ -1,0 +1,57 @@
+### ===========================================
+### Public Maintenance Companies API Tests
+### ===========================================
+
+@baseUrl = http://localhost:8080
+
+### POST public maintenance company - 201 Created
+### Used by the standalone Week 10 client. No session cookie or CSRF token is required.
+POST {{baseUrl}}/api/public/maintenance-companies
+Accept: application/json
+Content-Type: application/json
+
+{
+  "name": "Signal Support",
+  "contactPhone": "+32 123 45 67",
+  "contactEmail": "contact@signalsupport.example",
+  "active": true,
+  "since": "2024-01-15"
+}
+
+### POST public maintenance company - 400 Bad Request (missing name)
+POST {{baseUrl}}/api/public/maintenance-companies
+Accept: application/json
+Content-Type: application/json
+
+{
+  "contactPhone": "+32 123 45 67",
+  "contactEmail": "contact@signalsupport.example",
+  "active": true,
+  "since": "2024-01-15"
+}
+
+### POST public maintenance company - 400 Bad Request (invalid email)
+POST {{baseUrl}}/api/public/maintenance-companies
+Accept: application/json
+Content-Type: application/json
+
+{
+  "name": "Signal Support",
+  "contactPhone": "+32 123 45 67",
+  "contactEmail": "not-an-email",
+  "active": true,
+  "since": "2024-01-15"
+}
+
+### POST public maintenance company - 400 Bad Request (future since date)
+POST {{baseUrl}}/api/public/maintenance-companies
+Accept: application/json
+Content-Type: application/json
+
+{
+  "name": "Signal Support",
+  "contactPhone": "+32 123 45 67",
+  "contactEmail": "contact@signalsupport.example",
+  "active": true,
+  "since": "2099-01-15"
+}

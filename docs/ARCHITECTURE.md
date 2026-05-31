@@ -62,7 +62,7 @@ changing frontend source files. The Gradle build also invokes the webpack build 
 ## Security Boundaries
 
 Normal browser-session REST mutations require authentication and CSRF protection. The separate
-Week 10 client project uses the dedicated `POST /api/public/traffic-lights` endpoint, which is the
+Week 10 client project uses the dedicated `POST /api/public/maintenance-companies` endpoint, which is the
 only CSRF-exempt write path. Public intersection details load read-only cards through
 `GET /api/intersections/{id}/traffic-lights`.
 

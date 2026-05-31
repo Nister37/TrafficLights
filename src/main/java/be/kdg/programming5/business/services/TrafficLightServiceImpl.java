@@ -142,22 +142,6 @@ public class TrafficLightServiceImpl implements TrafficLightService {
         return trafficLightRepository.save(trafficLight);
     }
 
-    /**
-     * Creates a traffic light for the public client repo endpoint.
-     * The standalone client has no authenticated user, so the saved record has no owner.
-     */
-    @Override
-    @Transactional
-    @CacheEvict(value = "trafficLightSearch", allEntries = true)
-    public TrafficLight createPublicTrafficLight(TrafficLightStatus status, LocalDate installationDate,
-                                                 Direction direction, TrafficLightType type,
-                                                 boolean rightArrow, int intersectionId) {
-        logger.debug("Creating public traffic light for intersection: {}", intersectionId);
-        TrafficLight trafficLight = buildTrafficLight(
-                status, installationDate, direction, type, rightArrow, intersectionId);
-        return trafficLightRepository.save(trafficLight);
-    }
-
     private TrafficLight buildTrafficLight(TrafficLightStatus status, LocalDate installationDate,
                                            Direction direction, TrafficLightType type,
                                            boolean rightArrow, int intersectionId) {

@@ -19,21 +19,6 @@ Accept: application/json
 GET {{baseUrl}}/api/public/traffic-lights
 Accept: application/json
 
-### POST public traffic light for the standalone Week 10 client - 201 Created
-### This dedicated endpoint intentionally requires neither a session cookie nor a CSRF token.
-POST {{baseUrl}}/api/public/traffic-lights
-Accept: application/json
-Content-Type: application/json
-
-{
-  "status": "PLANNED",
-  "installationDate": "2024-01-15",
-  "direction": "N",
-  "type": "COLLISION",
-  "rightArrow": false,
-  "intersectionId": 1
-}
-
 ### GET all traffic lights while signed in - 200 OK
 GET {{baseUrl}}/api/traffic-lights
 Accept: application/json

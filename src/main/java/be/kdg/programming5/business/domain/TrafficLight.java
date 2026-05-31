@@ -59,7 +59,7 @@ public class TrafficLight {
     /**
      * The authenticated user who created/owns this traffic light.
      *
-     * Nullable for records created through public client or CSV import flows.
+     * Nullable for records created through CSV import flows.
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
