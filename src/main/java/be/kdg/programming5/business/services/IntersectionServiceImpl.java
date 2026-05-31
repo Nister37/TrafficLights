@@ -21,11 +21,14 @@ public class IntersectionServiceImpl implements IntersectionService {
 
     private final IntersectionRepository intersectionRepository;
     private final TrafficLightRepository trafficLightRepository;
+    private final MaintenanceLogService maintenanceLogService;
 
     public IntersectionServiceImpl(IntersectionRepository intersectionRepository,
-                                   TrafficLightRepository trafficLightRepository) {
+                                   TrafficLightRepository trafficLightRepository,
+                                   MaintenanceLogService maintenanceLogService) {
         this.intersectionRepository = intersectionRepository;
         this.trafficLightRepository = trafficLightRepository;
+        this.maintenanceLogService = maintenanceLogService;
     }
 
     @Override
@@ -82,6 +85,11 @@ public class IntersectionServiceImpl implements IntersectionService {
     @Transactional
     public void deleteIntersection(int id) {
         logger.debug("Deleting intersection: {}", id);
+        List<TrafficLight> trafficLights = trafficLightRepository.findByIntersectionId(id);
+        for (TrafficLight trafficLight : trafficLights) {
+            maintenanceLogService.deleteByTrafficLightId(trafficLight.getId());
+            trafficLightRepository.deleteById(trafficLight.getId());
+        }
         intersectionRepository.deleteById(id);
     }
 }

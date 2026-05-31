@@ -19,5 +19,19 @@ public interface MaintenanceLogCompanyRepository extends JpaRepository<Maintenan
     @Modifying
     @Query("DELETE FROM MaintenanceLogCompany mlc WHERE mlc.maintenanceLog.trafficLight.id = :trafficLightId")
     void deleteByTrafficLightId(@Param("trafficLightId") int trafficLightId);
+
+    /**
+     * Delete all log associations for a specific maintenance company.
+     */
+    @Modifying
+    @Query("DELETE FROM MaintenanceLogCompany mlc WHERE mlc.maintenanceCompany.id = :maintenanceCompanyId")
+    void deleteByMaintenanceCompanyId(@Param("maintenanceCompanyId") int maintenanceCompanyId);
+
+    /**
+     * Delete all company associations for a specific maintenance log.
+     */
+    @Modifying
+    @Query("DELETE FROM MaintenanceLogCompany mlc WHERE mlc.maintenanceLog.id = :maintenanceLogId")
+    void deleteByMaintenanceLogId(@Param("maintenanceLogId") int maintenanceLogId);
 }
 

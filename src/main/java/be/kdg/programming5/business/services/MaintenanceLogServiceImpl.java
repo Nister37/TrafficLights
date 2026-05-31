@@ -67,6 +67,7 @@ public class MaintenanceLogServiceImpl implements MaintenanceLogService {
     @Transactional
     public void deleteMaintenanceLog(int id) {
         logger.debug("Deleting maintenance log: {}", id);
+        maintenanceLogCompanyRepository.deleteByMaintenanceLogId(id);
         maintenanceLogRepository.deleteById(id);
     }
 

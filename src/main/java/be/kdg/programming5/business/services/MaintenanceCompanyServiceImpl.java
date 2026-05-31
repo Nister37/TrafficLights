@@ -2,6 +2,7 @@ package be.kdg.programming5.business.services;
 
 import be.kdg.programming5.business.domain.MaintenanceCompany;
 import be.kdg.programming5.repository.MaintenanceCompanyRepository;
+import be.kdg.programming5.repository.MaintenanceLogCompanyRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,9 +20,12 @@ public class MaintenanceCompanyServiceImpl implements MaintenanceCompanyService 
     private static final Logger logger = LoggerFactory.getLogger(MaintenanceCompanyServiceImpl.class);
 
     private final MaintenanceCompanyRepository maintenanceCompanyRepository;
+    private final MaintenanceLogCompanyRepository maintenanceLogCompanyRepository;
 
-    public MaintenanceCompanyServiceImpl(MaintenanceCompanyRepository maintenanceCompanyRepository) {
+    public MaintenanceCompanyServiceImpl(MaintenanceCompanyRepository maintenanceCompanyRepository,
+                                         MaintenanceLogCompanyRepository maintenanceLogCompanyRepository) {
         this.maintenanceCompanyRepository = maintenanceCompanyRepository;
+        this.maintenanceLogCompanyRepository = maintenanceLogCompanyRepository;
     }
 
     @Override
@@ -83,6 +87,7 @@ public class MaintenanceCompanyServiceImpl implements MaintenanceCompanyService 
     @Transactional
     public void deleteMaintenanceCompany(int id) {
         logger.debug("Deleting maintenance company: {}", id);
+        maintenanceLogCompanyRepository.deleteByMaintenanceCompanyId(id);
         maintenanceCompanyRepository.deleteById(id);
     }
 }

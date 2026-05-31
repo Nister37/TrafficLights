@@ -17,8 +17,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return
     }
 
-    // Hide original textarea — it stays in the DOM so its name attribute submits
+    // Hide original textarea — it stays in the DOM so its name attribute submits.
+    // Quill takes over required validation because browsers cannot focus a hidden
+    // invalid field.
     textarea.style.display = 'none'
+    textarea.removeAttribute('required')
 
     // Insert the Quill editor container directly before the hidden textarea
     const editorDiv = document.createElement('div')
@@ -42,14 +45,25 @@ document.addEventListener('DOMContentLoaded', () => {
         quill.setText(textarea.value)
     }
 
+    const syncDescription = () => {
+        // getText() returns plain text — keeps the backend model as String
+        textarea.value = quill.getText().trim()
+        textarea.classList.toggle('is-invalid', !textarea.value)
+    }
+
+    quill.on('text-change', syncDescription)
+
     // Sync plain text to the real textarea before the form is submitted
     const form = textarea.closest('form')
     if (form) {
         form.addEventListener(
             'submit',
-            () => {
-                // getText() returns plain text — keeps the backend model as String
-                textarea.value = quill.getText().trim()
+            event => {
+                syncDescription()
+                if (!textarea.value) {
+                    event.preventDefault()
+                    quill.focus()
+                }
             },
             { capture: true }
         )
