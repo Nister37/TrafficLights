@@ -165,7 +165,7 @@ public class TrafficLightController {
     }
 
     /**
-     * Search traffic lights installed after a specific date using derived query method.
+     * Search traffic lights installed after a specific date.
      * Uses: TrafficLightRepository.findByInstallationDateAfter(LocalDate date)
      */
     @GetMapping("/trafficLights/byDate")

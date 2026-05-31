@@ -1,7 +1,7 @@
 -- Insert application users first — traffic_light.owner_id references this table
 -- admin / admin123 | user1 / user123 | user2 / user123
 INSERT INTO application_user (username, password_hash, role) VALUES
-('admin', '$2a$10$NFAFc4Z7lPAXNpSBM66Jbe9JLmV738kQDYoxdsYRJZLCZZPIlRpsa', 'ADMIN'),
+('admin', '$2b$10$AjD69qZbAnF1.Dh0pcl8dO17utHnt4zZs9hlVEnIiVmBElibnYamW', 'ADMIN'),
 ('user1', '$2a$10$NFAFc4Z7lPAXNpSBM66Jbe9JLmV738kQDYoxdsYRJZLCZZPIlRpsa', 'USER'),
 ('user2', '$2a$10$NFAFc4Z7lPAXNpSBM66Jbe9JLmV738kQDYoxdsYRJZLCZZPIlRpsa', 'USER');
 

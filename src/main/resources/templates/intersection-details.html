@@ -120,7 +120,9 @@
                         <!-- Traffic lights will be loaded here via AJAX -->
                         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3"
                              id="traffic-lights-container"
-                             th:data-intersection-id="${intersection.id}">
+                             th:data-intersection-id="${intersection.id}"
+                             th:data-current-username="${#authentication.name}"
+                             th:data-is-admin="${#authorization.expression('hasRole(''ADMIN'')')}">
                             <div class="text-center w-100">
                                 <div class="spinner-border" role="status">
                                     <span class="visually-hidden">Loading...</span>

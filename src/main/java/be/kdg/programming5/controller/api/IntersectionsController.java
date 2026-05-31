@@ -2,7 +2,7 @@ package be.kdg.programming5.controller.api;
 
 import be.kdg.programming5.business.domain.TrafficLight;
 import be.kdg.programming5.business.services.IntersectionService;
-import be.kdg.programming5.controller.api.dto.TrafficLightDto;
+import be.kdg.programming5.controller.api.dto.IntersectionTrafficLightDto;
 import be.kdg.programming5.controller.api.mapper.TrafficLightMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ public class IntersectionsController {
      * Returns 404 Not Found if intersection doesn't exist.
      */
     @GetMapping("/{id}/traffic-lights")
-    public ResponseEntity<List<TrafficLightDto>> getTrafficLightsForIntersection(@PathVariable("id") int intersectionId) {
+    public ResponseEntity<List<IntersectionTrafficLightDto>> getTrafficLightsForIntersection(@PathVariable("id") int intersectionId) {
         logger.debug("REST: Getting traffic lights for intersection: {}", intersectionId);
 
         // Verify intersection exists (throws IntersectionNotFoundException if not found)
@@ -47,7 +47,7 @@ public class IntersectionsController {
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.ok(trafficLightMapper.toTrafficLightDtoList(trafficLights));
+        return ResponseEntity.ok(trafficLightMapper.toIntersectionTrafficLightDtoList(trafficLights));
     }
 }
 

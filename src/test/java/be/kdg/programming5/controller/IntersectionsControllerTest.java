@@ -2,7 +2,7 @@ package be.kdg.programming5.controller;
 
 import be.kdg.programming5.business.domain.TrafficLight;
 import be.kdg.programming5.business.services.IntersectionService;
-import be.kdg.programming5.controller.api.dto.TrafficLightDto;
+import be.kdg.programming5.controller.api.dto.IntersectionTrafficLightDto;
 import be.kdg.programming5.controller.api.mapper.TrafficLightMapper;
 import be.kdg.programming5.enums.Direction;
 import be.kdg.programming5.enums.TrafficLightStatus;
@@ -71,21 +71,22 @@ class IntersectionsControllerTest {
                 TrafficLightStatus.ACTIVE, LocalDate.of(2022, 4, 10),
                 Direction.E, TrafficLightType.COLLISION, false
         );
-        TrafficLightDto dto = new TrafficLightDto(
+        IntersectionTrafficLightDto dto = new IntersectionTrafficLightDto(
                 3, TrafficLightStatus.ACTIVE, LocalDate.of(2022, 4, 10),
-                Direction.E, TrafficLightType.COLLISION, false, 1, "TrafficLight"
+                Direction.E, TrafficLightType.COLLISION, false, 1, "TrafficLight", "user1"
         );
         // getIntersectionById is called first to verify existence — null return is fine here
         given(intersectionService.getIntersectionById(1)).willReturn(null);
         given(intersectionService.getTrafficLightsByIntersectionId(1)).willReturn(List.of(light));
-        given(trafficLightMapper.toTrafficLightDtoList(anyList())).willReturn(List.of(dto));
+        given(trafficLightMapper.toIntersectionTrafficLightDtoList(anyList())).willReturn(List.of(dto));
 
         // Act & Assert
         mockMvc.perform(get("/api/intersections/1/traffic-lights"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(3))
-                .andExpect(jsonPath("$[0].status").value("ACTIVE"));
+                .andExpect(jsonPath("$[0].status").value("ACTIVE"))
+                .andExpect(jsonPath("$[0].ownerUsername").value("user1"));
     }
 
     @Test

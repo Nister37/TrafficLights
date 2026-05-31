@@ -39,16 +39,22 @@ class TrafficLightRepositoryTest {
     @Autowired
     private MaintenanceLogCompanyRepository maintenanceLogCompanyRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     private Intersection seededIntersection;
     private TrafficLight seededTrafficLight;
     private MaintenanceLog seededMaintenanceLog;
     private MaintenanceCompany seededMaintenanceCompany;
     private MaintenanceLogCompany seededMaintenanceLogCompany;
+    private ApplicationUser seededOwner;
 
     @BeforeEach
     void setUp() {
         // Seed a complete entity graph:
         // Intersection -> TrafficLight -> MaintenanceLog -> MaintenanceLogCompany <- MaintenanceCompany
+        seededOwner = userRepository.save(new ApplicationUser("repository-owner", "hashedpw", UserRole.USER));
+
         seededIntersection = intersectionRepository.save(new Intersection(
                 50.0, 4.0, IntersectionTypes.CROSSROADS, 4,
                 true, LocalDate.of(2020, 1, 1), true, "/images/test.png"
@@ -59,6 +65,7 @@ class TrafficLightRepositoryTest {
                 Direction.N, TrafficLightType.COLLISION, false
         );
         seededTrafficLight.setIntersection(seededIntersection);
+        seededTrafficLight.setOwner(seededOwner);
         seededTrafficLight = trafficLightRepository.save(seededTrafficLight);
 
         seededMaintenanceLog = new MaintenanceLog(
@@ -86,6 +93,7 @@ class TrafficLightRepositoryTest {
         trafficLightRepository.deleteAllInBatch();
         intersectionRepository.deleteAllInBatch();
         maintenanceCompanyRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
     }
 
     // ==============================
@@ -161,5 +169,40 @@ class TrafficLightRepositoryTest {
                 "maintenanceLogs SHOULD be initialized when fetched via findByIdWithMaintenanceLogs (JOIN FETCH)");
         assertEquals(1, fetched.getMaintenanceLogs().size(),
                 "Should have exactly 1 maintenance log from seed data");
+    }
+
+    @Test
+    void findByIntersectionIdShouldEagerlyLoadOwner() {
+        // Act
+        TrafficLight fetched = trafficLightRepository
+                .findByIntersectionId(seededIntersection.getId()).getFirst();
+
+        // Assert â€” owner is needed by DTO mapping after the repository transaction closes
+        assertTrue(Hibernate.isInitialized(fetched.getOwner()),
+                "owner SHOULD be initialized when fetched via findByIntersectionId");
+        assertEquals("repository-owner", fetched.getOwner().getUsername());
+    }
+
+    @Test
+    void findByInstallationDateAfterShouldEagerlyLoadOwner() {
+        // Act
+        TrafficLight fetched = trafficLightRepository
+                .findByInstallationDateAfter(LocalDate.of(2020, 1, 1)).getFirst();
+
+        // Assert
+        assertTrue(Hibernate.isInitialized(fetched.getOwner()),
+                "owner SHOULD be initialized when fetched via findByInstallationDateAfter");
+    }
+
+    @Test
+    void findOldTrafficLightsByStatusShouldEagerlyLoadOwner() {
+        // Act
+        TrafficLight fetched = trafficLightRepository
+                .findOldTrafficLightsByStatus(TrafficLightStatus.ACTIVE, LocalDate.of(2022, 1, 1))
+                .getFirst();
+
+        // Assert
+        assertTrue(Hibernate.isInitialized(fetched.getOwner()),
+                "owner SHOULD be initialized when fetched via findOldTrafficLightsByStatus");
     }
 }

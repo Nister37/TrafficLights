@@ -11,8 +11,42 @@ import {
     patchTrafficLight
 } from './modules/traffic-lights-api.js'
 
-function renderTrafficLightCard(trafficLight) {
+function canModifyTrafficLight(trafficLight, container) {
+    return container.dataset.isAdmin === 'true'
+        || (container.dataset.currentUsername && container.dataset.currentUsername === trafficLight.ownerUsername)
+}
+
+function renderTrafficLightCard(trafficLight, canModify) {
     const statusClass = getStatusClass(trafficLight.status)
+    const updateControls = canModify
+        ? `
+                    <div class="d-flex gap-2 align-items-center">
+                        <select class="form-select form-select-sm w-auto" id="edit-status-${trafficLight.id}">
+                            <option value="ACTIVE" ${trafficLight.status === 'ACTIVE' ? 'selected' : ''}>ACTIVE</option>
+                            <option value="MAINTENANCE" ${
+            trafficLight.status === 'MAINTENANCE' ? 'selected' : ''
+        }>MAINTENANCE</option>
+                            <option value="BROKEN" ${trafficLight.status === 'BROKEN' ? 'selected' : ''}>BROKEN</option>
+                            <option value="PLANNED" ${
+            trafficLight.status === 'PLANNED' ? 'selected' : ''
+        }>PLANNED</option>
+                        </select>
+                        <button class="btn btn-warning btn-sm" onclick="handleUpdateStatus(${trafficLight.id})">
+                            <i class="bi bi-pencil"></i> Update
+                        </button>
+                    </div>
+        `
+        : ''
+    const deleteControls = canModify
+        ? `
+                <div class="card-footer">
+                    <button class="btn btn-danger btn-sm" onclick="handleDeleteTrafficLight(${trafficLight.id})">
+                        <i class="bi bi-trash"></i> Delete
+                    </button>
+                </div>
+        `
+        : ''
+
     return `
         <div class="col-md-6 col-lg-4 mb-3" id="traffic-light-${trafficLight.id}">
             <div class="card h-100">
@@ -24,30 +58,12 @@ function renderTrafficLightCard(trafficLight) {
                         <strong>Direction:</strong> ${trafficLight.direction}<br>
                         <strong>Category:</strong> ${trafficLight.category}<br>
                         <strong>Installation Date:</strong> ${
-                            dayjs(trafficLight.installationDate).format('DD MMM YYYY')
-                        }
+        dayjs(trafficLight.installationDate).format('DD MMM YYYY')
+    }
                     </p>
-                    <div class="d-flex gap-2 align-items-center">
-                        <select class="form-select form-select-sm w-auto" id="edit-status-${trafficLight.id}">
-                            <option value="ACTIVE" ${trafficLight.status === 'ACTIVE' ? 'selected' : ''}>ACTIVE</option>
-                            <option value="MAINTENANCE" ${
-                                trafficLight.status === 'MAINTENANCE' ? 'selected' : ''
-                            }>MAINTENANCE</option>
-                            <option value="BROKEN" ${trafficLight.status === 'BROKEN' ? 'selected' : ''}>BROKEN</option>
-                            <option value="PLANNED" ${
-                                trafficLight.status === 'PLANNED' ? 'selected' : ''
-                            }>PLANNED</option>
-                        </select>
-                        <button class="btn btn-warning btn-sm" onclick="handleUpdateStatus(${trafficLight.id})">
-                            <i class="bi bi-pencil"></i> Update
-                        </button>
-                    </div>
+                    ${updateControls}
                 </div>
-                <div class="card-footer">
-                    <button class="btn btn-danger btn-sm" onclick="handleDeleteTrafficLight(${trafficLight.id})">
-                        <i class="bi bi-trash"></i> Delete
-                    </button>
-                </div>
+                ${deleteControls}
             </div>
         </div>
     `
@@ -81,7 +97,9 @@ async function loadTrafficLightsForIntersection(intersectionId, containerId) {
             container.innerHTML = '<div class="alert alert-info">No traffic lights found for this intersection.</div>'
             return
         }
-        container.innerHTML = trafficLights.map(tl => renderTrafficLightCard(tl)).join('')
+        container.innerHTML = trafficLights
+            .map(tl => renderTrafficLightCard(tl, canModifyTrafficLight(tl, container)))
+            .join('')
     } catch (error) {
         console.error('Error loading traffic lights:', error)
         container.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`
@@ -150,7 +168,11 @@ async function handleAddTrafficLight(event) {
     try {
         const created = await createTrafficLight(status, installationDate, direction, type, rightArrow, intersectionId)
         const container = document.getElementById('traffic-lights-container')
-        container.insertAdjacentHTML('beforeend', renderTrafficLightCard(created))
+        // The service assigns the authenticated creator as owner.
+        container.insertAdjacentHTML(
+            'beforeend',
+            renderTrafficLightCard(created, true)
+        )
         form.reset()
         showAlert(`Traffic light #${created.id} added successfully`, 'success')
     } catch (error) {

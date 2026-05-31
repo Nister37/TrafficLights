@@ -215,7 +215,7 @@ public class TrafficLightServiceImpl implements TrafficLightService {
 
     /**
      * Retrieves traffic lights installed after a specific date.
-     * Uses Spring Data JPA method query (findBy...After).
+     * Uses a repository query that also fetches the owner for view authorization checks.
      *
      * @param date the date threshold
      * @return list of traffic lights installed after the specified date

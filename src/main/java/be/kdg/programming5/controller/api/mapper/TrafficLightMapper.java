@@ -1,6 +1,7 @@
 package be.kdg.programming5.controller.api.mapper;
 
 import be.kdg.programming5.business.domain.TrafficLight;
+import be.kdg.programming5.controller.api.dto.IntersectionTrafficLightDto;
 import be.kdg.programming5.controller.api.dto.TrafficLightDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,5 +20,11 @@ public interface TrafficLightMapper {
     TrafficLightDto toTrafficLightDto(TrafficLight trafficLight);
 
     List<TrafficLightDto> toTrafficLightDtoList(List<TrafficLight> trafficLights);
+
+    @Mapping(target = "intersectionId", source = "intersection.id")
+    @Mapping(target = "ownerUsername", source = "owner.username")
+    IntersectionTrafficLightDto toIntersectionTrafficLightDto(TrafficLight trafficLight);
+
+    List<IntersectionTrafficLightDto> toIntersectionTrafficLightDtoList(List<TrafficLight> trafficLights);
 }
 

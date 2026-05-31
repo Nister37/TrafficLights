@@ -20,9 +20,10 @@ public interface TrafficLightRepository extends JpaRepository<TrafficLight, Inte
 
     /**
      * Find all traffic lights belonging to a specific intersection.
-     * Spring Data JPA will generate the query automatically based on method name.
+     * Fetch the owner for DTO mapping after the service transaction closes.
      */
-    List<TrafficLight> findByIntersectionId(int intersectionId);
+    @Query("SELECT t FROM TrafficLight t LEFT JOIN FETCH t.owner WHERE t.intersection.id = :intersectionId")
+    List<TrafficLight> findByIntersectionId(@Param("intersectionId") int intersectionId);
 
     /**
      * Query Method 1: Find traffic lights by status.
@@ -31,16 +32,17 @@ public interface TrafficLightRepository extends JpaRepository<TrafficLight, Inte
     List<TrafficLight> findByStatus(TrafficLightStatus status);
 
     /**
-     * Query Method 2: Find traffic lights installed after a specific date.
-     * Derived query - Spring Data JPA generates implementation automatically.
+     * Find traffic lights installed after a specific date.
+     * Fetch the owner for Thymeleaf authorization checks after the service transaction closes.
      */
-    List<TrafficLight> findByInstallationDateAfter(LocalDate date);
+    @Query("SELECT t FROM TrafficLight t LEFT JOIN FETCH t.owner WHERE t.installationDate > :date")
+    List<TrafficLight> findByInstallationDateAfter(@Param("date") LocalDate date);
 
     /**
      * Custom Query: Find old traffic lights by status (installed before a specific date).
      * Uses @Query annotation with JPQL.
      */
-    @Query("SELECT tl FROM TrafficLight tl WHERE tl.status = :status AND tl.installationDate < :beforeDate ORDER BY tl.installationDate ASC")
+    @Query("SELECT tl FROM TrafficLight tl LEFT JOIN FETCH tl.owner WHERE tl.status = :status AND tl.installationDate < :beforeDate ORDER BY tl.installationDate ASC")
     List<TrafficLight> findOldTrafficLightsByStatus(@Param("status") TrafficLightStatus status, @Param("beforeDate") LocalDate beforeDate);
 
     /**
