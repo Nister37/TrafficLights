@@ -224,5 +224,28 @@ class TrafficLightServiceUnitTest {
                         Direction.N, TrafficLightType.COLLISION, false, 1),
                 "Creating a traffic light without an authenticated user should throw ForbiddenOperationException");
     }
+
+    @Test
+    void createPublicTrafficLightShouldSaveLightWithoutOwner() {
+        // Arrange
+        Intersection intersection = new Intersection(
+                50.0, 4.0, IntersectionTypes.CROSSROADS, 4,
+                true, LocalDate.of(2020, 1, 1), true, "/images/test.png"
+        );
+        given(intersectionService.getIntersectionById(1)).willReturn(intersection);
+        given(trafficLightRepository.save(any(TrafficLight.class)))
+                .willAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        TrafficLight result = trafficLightService.createPublicTrafficLight(
+                TrafficLightStatus.ACTIVE, LocalDate.of(2023, 1, 1),
+                Direction.N, TrafficLightType.COLLISION, false, 1);
+
+        // Assert
+        assertSame(intersection, result.getIntersection());
+        assertNull(result.getOwner());
+        then(userService).shouldHaveNoInteractions();
+        then(trafficLightRepository).should().save(result);
+    }
 }
 

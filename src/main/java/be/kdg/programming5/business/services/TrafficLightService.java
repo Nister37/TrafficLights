@@ -25,6 +25,14 @@ public interface TrafficLightService {
                                     boolean rightArrow, int intersectionId);
 
     /**
+     * Creates a traffic light without assigning an owner.
+     * Used only by the public endpoint for the standalone client repo application.
+     */
+    TrafficLight createPublicTrafficLight(TrafficLightStatus status, LocalDate installationDate,
+                                          Direction direction, TrafficLightType type,
+                                          boolean rightArrow, int intersectionId);
+
+    /**
      * Partially updates a traffic light (merge patch).
      * Only non-null fields are applied.
      */

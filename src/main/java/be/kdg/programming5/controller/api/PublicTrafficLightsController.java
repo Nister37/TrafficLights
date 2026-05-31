@@ -62,7 +62,7 @@ public class PublicTrafficLightsController {
             @RequestBody @Valid CreateTrafficLightDto createDto) {
         logger.debug("Public REST: Creating traffic light for intersection: {}", createDto.intersectionId());
 
-        TrafficLight saved = trafficLightService.createTrafficLight(
+        TrafficLight saved = trafficLightService.createPublicTrafficLight(
                 createDto.status(),
                 createDto.installationDate(),
                 createDto.direction(),
