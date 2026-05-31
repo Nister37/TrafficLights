@@ -20,8 +20,8 @@ import java.util.List;
  * Spring Security configuration.
  * - Public: home, login, static resources, traffic light and intersection detail pages
  *   (anonymous users can view basic info, authenticated users see full details)
- * - Authenticated: all other pages and REST write operations
- * - CSRF disabled for REST API usage
+ * - Authenticated: all remaining pages and REST endpoints
+ * - CSRF enabled for browser-session flows; only public standalone client creation is exempt
  */
 @Configuration
 @EnableWebSecurity

@@ -148,11 +148,11 @@ sequenceDiagram
 
 ### Users
 
-| Username | Password  |
-|----------|-----------|
-| `admin`  | `admin123` |
-| `user1`  | `user123` |
-| `user2`  | `user123` |
+| Username | Password   | Role    |
+|----------|------------|---------|
+| `admin`  | `admin123` | `ADMIN` |
+| `user1`  | `user123`  | `USER`  |
+| `user2`  | `user123`  | `USER`  |
 
 ### Pages
 
@@ -202,7 +202,8 @@ flowchart LR
 
 - **Anonymous (not logged in)**
   - Can visit the landing page and traffic light/intersection details.
-  - Cannot create, update or delete traffic lights.
+  - Cannot create, update or delete traffic lights through the browser-session management flow.
+  - Can use the dedicated Week 10 standalone client endpoint to create an ownerless traffic light.
 - **USER**
   - Can create new traffic lights (the creator becomes the owner).
   - Can update/delete only traffic lights they own.
@@ -225,6 +226,8 @@ CSRF protection is enabled.
 - MVC forms include CSRF tokens automatically.
 - Ajax calls to the REST API read the CSRF token + header name from Thymeleaf meta tags and send it as a request header
    (Spring typically uses `X-CSRF-TOKEN`, but the client uses the server-provided header name).
+- Only `POST /api/public/traffic-lights` is exempt from CSRF protection. This endpoint supports the separate
+  Week 10 standalone client project, which does not use the browser-session management flow.
 
 ---
 
@@ -275,11 +278,15 @@ Test reports are generated at `build/reports/tests/test/index.html`.
 
 | Category | Class | Tests |
 |---|---|---|
-| API integration tests (mocking) | `TrafficLightsControllerUnitTest` | `GET /api/traffic-lights` (200, 204, 401), `GET /api/traffic-lights/{id}` (200, 404, 401) |
+| API integration tests (mocking) | `TrafficLightsControllerUnitTest` | CRUD responses, validation failures and unauthenticated `401` responses |
+| Public API tests | `PublicTrafficLightsControllerTest` | Standalone client creation without authentication or CSRF, validation failure |
+| Public AJAX tests | `IntersectionsControllerTest` | Public intersection traffic-light cards (`200`, `204`, `404`) |
 | MVC integration tests (mocking) | `TrafficLightMvcControllerTest` | `GET /trafficLights?status` (200 with filter, 302 redirect), `GET /trafficLight/{id}` (200 found, 200 not-found error view) |
+| MVC authorization tests | `HomeControllerTest`, `AdminControllerTest` | Anonymous Quick Add visibility, admin-only CSV upload and copied upload bytes |
 | Service unit tests (mocking + verify) | `TrafficLightServiceUnitTest` | `getAllTrafficLights` (list, empty, verify repo call), `getTrafficLightById` (found, not-found, verify ID arg) |
 | Role verification tests | `TrafficLightServiceIntegrationTest` | `deleteTrafficLight` (owner ✓, admin ✓, non-owner ✗, not-found ✗), `updateTrafficLight` (owner ✓, admin ✓, non-owner ✗, not-found ✗) |
-| Repository tests | `TrafficLightRepositoryTest` | Delete cascade, nullability, lazy vs eager loading |
+| Repository tests | `TrafficLightRepositoryTest`, `IntersectionRepositoryTest` | Foreign keys, nullability, lazy vs eager loading and owner fetching |
+| Week 12 tests | `CsvImportServiceTest`, `TrafficLightCacheTest` | CSV row handling and cache eviction after raw additions |
 
 ### CI Pipeline
 
@@ -305,7 +312,8 @@ flowchart LR
     Test --> Report
 ```
 
-**TODO: add pipeline screenshot after pushing to GitLab.**
+**Hand-in step:** add a successful pipeline screenshot after pushing to GitLab.
+
 ### Code coverage
 ![Home Page](docs/resources/tests.png)
 
@@ -414,6 +422,18 @@ Each entry generates one `.js` bundle and (where CSS is imported) one `.css` bun
 
 ---
 
+### Standalone Week 10 Client API
+
+The separate Week 10 client repository can call these public backend endpoints:
+
+- `GET /api/traffic-lights/search?status=ACTIVE` searches by status.
+- `GET /api/public/traffic-lights` lists traffic lights.
+- `POST /api/public/traffic-lights` creates an ownerless traffic light without a session cookie or CSRF token.
+
+The public creation endpoint is intentionally separate from the authenticated browser-session management API.
+
+---
+
 ## Week 12
 
 Async CSV file upload and Spring `@Cacheable` search caching.
@@ -433,7 +453,7 @@ sequenceDiagram
     participant DB as PostgreSQL
 
     Admin->>Controller: POST /admin/upload-csv (multipart)
-    Controller->>Service: importTrafficLightsAsync(inputStream)
+    Controller->>Service: importTrafficLightsAsync(csvBytes)
     Note over Controller,Service: Spring submits task to thread pool
     Controller-->>Admin: 200 — "Import started" message
     Service->>DB: INSERT traffic lights (background thread)
@@ -469,4 +489,4 @@ path used by CSV imports. Completed background imports therefore cannot leave st
 
 ---
 
-**Last Updated:** May 19, 2026
+**Last Updated:** May 31, 2026

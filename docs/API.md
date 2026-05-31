@@ -1,5 +1,43 @@
 # REST API
 
+## Authentication and CSRF
+
+The browser-session management API uses Spring Security:
+
+- `GET /api/traffic-lights/search?status=...` and `GET /api/intersections/{id}/traffic-lights` are public read endpoints.
+- `GET` and mutation requests under `/api/traffic-lights` require a valid `JSESSIONID` cookie, except for the public search endpoint.
+- `POST`, `PATCH` and `DELETE` requests under `/api/traffic-lights` also require the CSRF token in the header name provided by Spring Security, normally `X-CSRF-TOKEN`.
+- Updating or deleting a traffic light is limited to its owner or an admin.
+- `GET` and `POST /api/public/traffic-lights` support the separate Week 10 client project. Public creation is intentionally ownerless and is the only CSRF-exempt write endpoint.
+
+The examples below use placeholder cookie and CSRF values. See `http/api/traffic-lights-api.http` for directly runnable request templates.
+
+## Public Client Endpoints
+
+The separate Week 10 client project can search and create traffic lights without a browser session:
+
+```http
+GET /api/traffic-lights/search?status=ACTIVE HTTP/1.1
+Host: localhost:8080
+Accept: application/json
+```
+
+```http
+POST /api/public/traffic-lights HTTP/1.1
+Host: localhost:8080
+Accept: application/json
+Content-Type: application/json
+
+{
+  "status": "PLANNED",
+  "installationDate": "2024-01-15",
+  "direction": "N",
+  "type": "COLLISION",
+  "rightArrow": false,
+  "intersectionId": 1
+}
+```
+
 ## Week 2 — GET & DELETE endpoints
 
 ---
@@ -11,6 +49,7 @@
 GET /api/traffic-lights HTTP/1.1
 Host: localhost:8080
 Accept: application/json
+Cookie: JSESSIONID=<session-cookie>
 ```
 
 **Response:**
@@ -51,6 +90,7 @@ Content-Type: application/json
 GET /api/traffic-lights/1 HTTP/1.1
 Host: localhost:8080
 Accept: application/json
+Cookie: JSESSIONID=<session-cookie>
 ```
 
 **Response:**
@@ -79,6 +119,7 @@ Content-Type: application/json
 GET /api/traffic-lights/9999 HTTP/1.1
 Host: localhost:8080
 Accept: application/json
+Cookie: JSESSIONID=<session-cookie>
 ```
 
 **Response:**
@@ -119,7 +160,8 @@ Content-Type: application/json
     "type": "COLLISION",
     "rightArrow": true,
     "intersectionId": 1,
-    "category": "SmartTrafficLight"
+    "category": "SmartTrafficLight",
+    "ownerUsername": "user1"
   }
 ]
 ```
@@ -154,6 +196,8 @@ Content-Type: application/json
 DELETE /api/traffic-lights/5 HTTP/1.1
 Host: localhost:8080
 Accept: application/json
+Cookie: JSESSIONID=<session-cookie>
+X-CSRF-TOKEN: <csrf-token>
 ```
 
 **Response:**
@@ -170,6 +214,8 @@ HTTP/1.1 204 No Content
 DELETE /api/traffic-lights/9999 HTTP/1.1
 Host: localhost:8080
 Accept: application/json
+Cookie: JSESSIONID=<session-cookie>
+X-CSRF-TOKEN: <csrf-token>
 ```
 
 **Response:**
@@ -202,6 +248,8 @@ POST /api/traffic-lights HTTP/1.1
 Host: localhost:8080
 Accept: application/json
 Content-Type: application/json
+Cookie: JSESSIONID=<session-cookie>
+X-CSRF-TOKEN: <csrf-token>
 
 {
   "status": "PLANNED",
@@ -240,6 +288,8 @@ POST /api/traffic-lights HTTP/1.1
 Host: localhost:8080
 Accept: application/json
 Content-Type: application/json
+Cookie: JSESSIONID=<session-cookie>
+X-CSRF-TOKEN: <csrf-token>
 
 {
   "status": "ACTIVE",
@@ -267,6 +317,8 @@ POST /api/traffic-lights HTTP/1.1
 Host: localhost:8080
 Accept: application/json
 Content-Type: application/json
+Cookie: JSESSIONID=<session-cookie>
+X-CSRF-TOKEN: <csrf-token>
 
 {
   "status": "PLANNED",
@@ -298,6 +350,8 @@ POST /api/traffic-lights HTTP/1.1
 Host: localhost:8080
 Accept: application/json
 Content-Type: application/json
+Cookie: JSESSIONID=<session-cookie>
+X-CSRF-TOKEN: <csrf-token>
 
 {
   "status": "PLANNED",
@@ -328,6 +382,8 @@ Content-Type: application/json
 PATCH /api/traffic-lights/1 HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
+Cookie: JSESSIONID=<session-cookie>
+X-CSRF-TOKEN: <csrf-token>
 
 {
   "status": "MAINTENANCE"
@@ -348,6 +404,8 @@ HTTP/1.1 204 No Content
 PATCH /api/traffic-lights/1 HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
+Cookie: JSESSIONID=<session-cookie>
+X-CSRF-TOKEN: <csrf-token>
 
 {
   "status": "ACTIVE",
@@ -370,6 +428,8 @@ HTTP/1.1 204 No Content
 PATCH /api/traffic-lights/9999 HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
+Cookie: JSESSIONID=<session-cookie>
+X-CSRF-TOKEN: <csrf-token>
 
 {
   "status": "ACTIVE"

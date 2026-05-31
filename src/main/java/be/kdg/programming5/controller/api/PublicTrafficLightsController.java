@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Public REST endpoints accessible without authentication.
  * Used by the standalone W10 client application.
- * CSRF protection is disabled for this path in SecurityConfig.
+ * CSRF protection is disabled only for its POST path in SecurityConfig.
  */
 @RestController
 @RequestMapping("/api/public/traffic-lights")
