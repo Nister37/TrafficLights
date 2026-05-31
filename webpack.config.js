@@ -1,6 +1,6 @@
+import fs from 'fs'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import path from 'path'
-import fs from 'fs'
 import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -11,7 +11,7 @@ const jsDir = path.resolve(__dirname, 'src/main/js')
 const entries = Object.fromEntries(
     fs.readdirSync(jsDir)
         .filter(f => f.endsWith('.js'))
-        .map(f => [path.basename(f, '.js'), path.join(jsDir, f)])
+        .map(f => [ path.basename(f, '.js'), path.join(jsDir, f) ])
 )
 
 const config = {
@@ -57,6 +57,3 @@ const config = {
 }
 
 export default config
-
-
-

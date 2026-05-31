@@ -12,6 +12,7 @@ build-job:
   # binaries that node-gradle downloads. Switched to the Ubuntu (jammy) variant
   image: eclipse-temurin:21-jdk-jammy
   script:
+    - ./gradlew npmInstall
     - ./gradlew build -x test
   cache:
     key: "$CI_COMMIT_REF_NAME"

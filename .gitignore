@@ -57,6 +57,7 @@ node_modules/
 # Webpack output — generated at build time, not versioned
 src/main/resources/static/js/
 src/main/resources/static/css/
+src/main/resources/static/fonts/
 
 # =============================================================================
 # Others

@@ -8,7 +8,7 @@ export function getCsrfConfig() {
 
     return {
         token: tokenMeta.getAttribute('content'),
-        headerName: headerMeta.getAttribute('content'),
+        headerName: headerMeta.getAttribute('content')
     }
 }
 
@@ -20,7 +20,6 @@ export function withCsrf(headers = {}) {
 
     return {
         ...headers,
-        [csrf.headerName]: csrf.token,
+        [csrf.headerName]: csrf.token
     }
 }
-

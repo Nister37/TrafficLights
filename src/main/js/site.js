@@ -10,15 +10,15 @@ import { animate, stagger } from 'animejs'
 // Only runs when .hover-card elements are present (index.html).
 document.addEventListener('DOMContentLoaded', () => {
     const cards = document.querySelectorAll('.hover-card')
-    if (cards.length === 0) return
+    if (cards.length === 0) {
+        return
+    }
 
     animate(cards, {
-        opacity: [0, 1],
-        translateY: [20, 0],
+        opacity: [ 0, 1 ],
+        translateY: [ 20, 0 ],
         duration: 600,
         delay: stagger(100),
-        ease: 'outQuad',
+        ease: 'outQuad'
     })
 })
-
-

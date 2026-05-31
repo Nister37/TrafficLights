@@ -13,7 +13,9 @@ import 'quill/dist/quill.snow.css'
 
 document.addEventListener('DOMContentLoaded', () => {
     const textarea = document.getElementById('description')
-    if (!textarea) return
+    if (!textarea) {
+        return
+    }
 
     // Hide original textarea — it stays in the DOM so its name attribute submits
     textarea.style.display = 'none'
@@ -27,12 +29,12 @@ document.addEventListener('DOMContentLoaded', () => {
         theme: 'snow',
         modules: {
             toolbar: [
-                ['bold', 'italic', 'underline'],
-                [{ list: 'ordered' }, { list: 'bullet' }],
-                ['clean'],
-            ],
+                [ 'bold', 'italic', 'underline' ],
+                [ { list: 'ordered' }, { list: 'bullet' } ],
+                [ 'clean' ]
+            ]
         },
-        placeholder: 'Describe the maintenance work performed…',
+        placeholder: 'Describe the maintenance work performed…'
     })
 
     // Pre-fill the editor when the form re-renders with a validation error
@@ -53,4 +55,3 @@ document.addEventListener('DOMContentLoaded', () => {
         )
     }
 })
-

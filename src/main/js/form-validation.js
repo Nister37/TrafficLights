@@ -7,10 +7,10 @@
  * Extended with validator.js for add-intersection (/addIntersection):
  * validates latitude (-90..90) and longitude (-180..180) before submit.
  */
-import validator from 'validator'
 import flatpickr from 'flatpickr'
+import validator from 'validator'
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function() {
     'use strict'
 
     // --- flatpickr: replace every date input with a calendar picker --------
@@ -19,16 +19,16 @@ document.addEventListener('DOMContentLoaded', function () {
             // Y-m-d matches the Java LocalDate pattern Spring expects
             dateFormat: 'Y-m-d',
             // Allow typing a date directly — accessibility
-            allowInput: true,
+            allowInput: true
         })
     })
 
     // --- Bootstrap HTML5 validation + validator.js coordinate check --------
     const forms = document.querySelectorAll('form')
-    Array.prototype.slice.call(forms).forEach(function (form) {
+    Array.prototype.slice.call(forms).forEach(function(form) {
         form.addEventListener(
             'submit',
-            function (event) {
+            function(event) {
                 // Custom coordinate validation for the add-intersection form
                 if (form.id === 'add-intersection-form') {
                     const latInput = document.getElementById('latitude')
@@ -76,7 +76,3 @@ function showFieldError(input, message) {
 function clearFieldError(input) {
     input.classList.remove('is-invalid')
 }
-
-
-
-

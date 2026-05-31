@@ -282,7 +282,7 @@ Test reports are generated at `build/reports/tests/test/index.html`.
 
 The project uses a GitLab CI pipeline defined in `.gitlab-ci.yml` with two stages:
 
-- **build** — compiles the project and caches dependencies (`./gradlew build -x test`)
+- **build** — installs frontend dependencies, compiles the project, and caches dependencies (`./gradlew npmInstall`, then `./gradlew build -x test`)
 - **test** — runs all tests against a PostgreSQL service container (`./gradlew test`), publishes JUnit XML results to the GitLab Tests tab
 
 ```mermaid
@@ -290,7 +290,7 @@ flowchart LR
     Push["git push"] --> Build
 
     subgraph build stage
-        Build["./gradlew build -x test\n+ npm run build"]
+        Build["./gradlew npmInstall\n./gradlew build -x test\n+ npm run build"]
     end
 
     subgraph test stage
@@ -317,8 +317,11 @@ Frontend integration: npm, webpack, and a rich client-side library stack served 
 Node.js (v20+) is required to build the frontend assets.
 
 ```bash
-# Install all JS/CSS dependencies
-npm install
+# Install all JS/CSS dependencies through Gradle
+.\gradlew.bat npmInstall
+
+# Linux / macOS
+./gradlew npmInstall
 
 # Build all webpack bundles (outputs to src/main/resources/static)
 npm run build
@@ -356,7 +359,7 @@ flowchart LR
     Webpack --> FONTS
 ```
 
-The Gradle build automatically runs `npm run build` via the `npmBuild` task, so running `./gradlew build` alone is sufficient for a full backend + frontend build.
+The Gradle build automatically runs `npm run build` through the `npm_run_build` task. Run `./gradlew npmInstall` after cloning the project and whenever the npm dependencies change.
 
 ### Frontend library stack
 
