@@ -441,6 +441,7 @@ sequenceDiagram
 ```
 
 - The Spring task executor picks up the `@Async` method on a separate thread.
+- The controller copies the uploaded bytes before returning, so the background task does not depend on the completed HTTP request.
 - The HTTP response is sent **before** any rows are processed.
 - Rows with parse errors are skipped with a warning log; the import continues.
 
@@ -460,9 +461,9 @@ MAINTENANCE,2021-11-05,E,COLLISION,false,2
 Spring uses the `status` value as the cache key, so the same query is served from memory
 on subsequent calls without hitting the database.
 
-Cache is evicted on every mutating operation (`create`, `update`, `delete`, `addWithIntersection`)
-via `@CacheEvict(value = "trafficLightSearch", allEntries = true)`, preventing stale results
-when the data changes.
+Cache is evicted on every mutating operation (`add`, `create`, `update`, `delete`, `addWithIntersection`).
+Each path uses `@CacheEvict(value = "trafficLightSearch", allEntries = true)`, including the raw `add`
+path used by CSV imports. Completed background imports therefore cannot leave stale search results.
 
 `@EnableCaching` and `@EnableAsync` are declared together in `ApplicationConfig`.
 

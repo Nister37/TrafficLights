@@ -8,6 +8,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -135,6 +136,30 @@ public class GlobalExceptionHandler {
         mav.addObject("message", ex.getMessage());
         mav.addObject("path", req.getRequestURL().toString());
         mav.setViewName("error/404");
+        return mav;
+    }
+
+    /**
+     * Handles method-level authorization failures.
+     * Returns JSON for API requests, HTML error page for MVC requests.
+     */
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public Object handleAuthorizationDeniedException(HttpServletRequest req, AuthorizationDeniedException ex) {
+        logger.warn("Access denied at {}: {}", req.getRequestURL(), ex.getMessage());
+
+        if (isApiRequest(req)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ErrorDto("You are not allowed to perform this action."));
+        }
+
+        ModelAndView mav = new ModelAndView();
+        mav.addObject("timestamp", LocalDateTime.now().format(FORMATTER));
+        mav.addObject("status", 403);
+        mav.addObject("error", "Forbidden");
+        mav.addObject("message", "You are not allowed to perform this action.");
+        mav.addObject("path", req.getRequestURL().toString());
+        mav.setStatus(HttpStatus.FORBIDDEN);
+        mav.setViewName("error");
         return mav;
     }
 

@@ -11,8 +11,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -42,16 +42,16 @@ public class CsvImportService {
      * Parses the CSV stream and persists each row as a new traffic light.
      * Runs on a separate thread — the HTTP response is returned before this method finishes.
      *
-     * @param csvStream raw bytes of the uploaded CSV file
+     * @param csvBytes copied bytes of the uploaded CSV file
      */
     @Async
-    public void importTrafficLightsAsync(InputStream csvStream) {
+    public void importTrafficLightsAsync(byte[] csvBytes) {
         logger.info("CSV import started on thread: {}", Thread.currentThread().getName());
 
         AtomicInteger imported = new AtomicInteger(0);
         AtomicInteger skipped = new AtomicInteger(0);
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(csvStream))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(csvBytes)))) {
             // Skip the header line
             String header = reader.readLine();
             if (header == null) {

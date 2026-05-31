@@ -45,7 +45,7 @@ public class AdminController {
             return "admin-upload-csv";
         }
 
-        csvImportService.importTrafficLightsAsync(file.getInputStream());
+        csvImportService.importTrafficLightsAsync(file.getBytes());
 
         model.addAttribute("inProgress", true);
         return "admin-upload-csv";

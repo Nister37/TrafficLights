@@ -90,6 +90,7 @@ public class TrafficLightServiceImpl implements TrafficLightService {
      */
     @Override
     @Transactional
+    @CacheEvict(value = "trafficLightSearch", allEntries = true)
     public void addTrafficLight(TrafficLight trafficLight) {
         logger.debug("Adding traffic light: {}", trafficLight.getId());
         trafficLightRepository.save(trafficLight);
