@@ -10,5 +10,17 @@ services:
             - '9432:5432'
         volumes:
             - db-data:/var/lib/postgresql/data
+    postgres_programming_5_test:
+        image: postgres:18.1-alpine
+        restart: always
+        environment:
+            POSTGRES_DB: 'programming5_test'
+            POSTGRES_USER: 'student'
+            POSTGRES_PASSWORD: 'Student_1234'
+        ports:
+            - '9433:5432'
+        volumes:
+            - db-test-data:/var/lib/postgresql/data
 volumes:
     db-data:
+    db-test-data:

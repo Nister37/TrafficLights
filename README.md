@@ -233,12 +233,12 @@ Spring profiles for test isolation and integration tests for the repository and 
 
 | Profile | Database | Seeding | Purpose |
 |---------|----------|---------|---------|
-| *(default)* | PostgreSQL `localhost:5432/trafficlights` | `data.sql` | Development / production |
-| `test` | PostgreSQL `localhost:9432/programming5` | `@BeforeEach` only | Automated tests |
+| *(default)* | PostgreSQL `localhost:9432/programming5` | `data.sql` | Development / production |
+| `test` | PostgreSQL `localhost:9433/programming5_test` | `@BeforeEach` only | Automated tests |
 
 The `test` profile (`application-test.properties`) disables `data.sql` via `spring.sql.init.mode=never` and uses `ddl-auto=create-drop` so every test run starts with a clean schema. Tests seed their own data in `@BeforeEach` and clean up in `@AfterEach`.
 
-The test database host is configurable via the `CI_DB_HOST_PORT` environment variable (defaults to `localhost:9432`), so the same profile works locally and in CI.
+The test database host is configurable via the `CI_DB_HOST_PORT` environment variable (defaults to `localhost:9433`), so the same profile works locally and in CI without recreating the development schema.
 
 ---
 

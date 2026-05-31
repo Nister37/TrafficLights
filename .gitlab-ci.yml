@@ -28,10 +28,10 @@ test-job:
     - postgres:16.1-alpine
   variables:
     # PostgreSQL service credentials — must match application-test.properties
-    POSTGRES_DB: "programming5"
+    POSTGRES_DB: "programming5_test"
     POSTGRES_USER: "student"
     POSTGRES_PASSWORD: "Student_1234"
-    # Overrides the localhost:9432 fallback in application-test.properties
+    # Overrides the localhost:9433 fallback in application-test.properties
     # GitLab CI resolves the service by its image name: "postgres"
     CI_DB_HOST_PORT: "postgres:5432"
   script:

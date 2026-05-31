@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Integration tests for TrafficLightService.
- * Uses @SpringBootTest with the test profile (H2 in-memory database).
+ * Uses @SpringBootTest with the test profile (isolated PostgreSQL database).
  * Tests service methods with real repositories — no mocking.
  * SecurityContext is set up manually to simulate authenticated users.
  */

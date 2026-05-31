@@ -19,7 +19,7 @@ cd Pawel-Ryfiak-Traffic-Lights-2
 docker-compose up -d
 ```
 
-This starts PostgreSQL on port 9432.
+This starts the development PostgreSQL database on port 9432 and the isolated test PostgreSQL database on port 9433.
 
 ## Step 3: Build the Project
 
@@ -65,4 +65,13 @@ Open your browser and go to: **http://localhost:8080**
 - `spring.jpa.hibernate.ddl-auto=create` — Code-first schema generation
 - `spring.sql.init.mode=always` — Data seeding from `data.sql`
 - SQL logging enabled for query verification
+
+### PostgreSQL Test Database (via Docker)
+
+Automated tests use a separate database so their `create-drop` schema lifecycle cannot remove development data.
+
+**Connection Parameters:**
+- **URL:** `jdbc:postgresql://localhost:9433/programming5_test`
+- **Username:** `student`
+- **Password:** `Student_1234`
 

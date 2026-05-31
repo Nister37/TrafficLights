@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Repository layer tests for TrafficLight and related entities.
- * Uses @SpringBootTest with H2 in-memory database via the test profile.
+ * Uses @SpringBootTest with the isolated PostgreSQL database via the test profile.
  * Data is seeded in @BeforeEach and cleaned up in @AfterEach.
  */
 @SpringBootTest
