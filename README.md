@@ -240,9 +240,9 @@ Spring profiles for test isolation and integration tests for the repository and 
 | Profile | Database | Seeding | Purpose |
 |---------|----------|---------|---------|
 | *(default)* | PostgreSQL `localhost:9432/programming5` | `data.sql` | Development / production |
-| `test` | PostgreSQL `localhost:9433/programming5_test` | `@BeforeEach` only | Automated tests |
+| `test` | PostgreSQL `localhost:9433/programming5_test` | `TestHelper`, lifecycle methods, or Arrange | Automated tests |
 
-The `test` profile (`application-test.properties`) disables `data.sql` via `spring.sql.init.mode=never` and uses `ddl-auto=create-drop` so every test run starts with a clean schema. Tests seed their own data in `@BeforeEach` and clean up in `@AfterEach`.
+The `test` profile (`application-test.properties`) disables `data.sql` via `spring.sql.init.mode=never` and uses `ddl-auto=create-drop` so every test run starts with a clean schema. Persistence-backed tests seed their own data with `TestHelper` and clean it up after each test.
 
 The test database host is configurable via the `CI_DB_HOST_PORT` environment variable (defaults to `localhost:9433`), so the same profile works locally and in CI without recreating the development schema.
 
@@ -250,7 +250,7 @@ The test database host is configurable via the `CI_DB_HOST_PORT` environment var
 
 ## Week 8 & 9
 
-Presentation layer integration tests and CI pipeline.
+Presentation-layer tests and CI pipeline.
 
 ### Running all tests
 
@@ -270,7 +270,7 @@ Then run all tests with a single command:
 ./gradlew test
 ```
 
-The `test` Spring profile is activated automatically via `@ActiveProfiles("test")` on every test class — no extra flags needed.
+The `test` Spring profile is activated automatically via `@ActiveProfiles("test")` on every Spring-backed test class — no extra flags needed.
 
 Test reports are generated at `build/reports/tests/test/index.html`.
 
@@ -278,10 +278,10 @@ Test reports are generated at `build/reports/tests/test/index.html`.
 
 | Category | Class | Tests |
 |---|---|---|
-| API integration tests (mocking) | `TrafficLightsControllerUnitTest` | CRUD responses, validation failures and unauthenticated `401` responses |
-| Public API tests | `PublicMaintenanceCompaniesControllerTest`, `PublicTrafficLightsControllerTest` | Standalone client creation without authentication or CSRF, validation failures, read-only traffic-light endpoint |
-| Public AJAX tests | `IntersectionsControllerTest` | Public intersection traffic-light cards (`200`, `204`, `404`) |
-| MVC integration tests (mocking) | `TrafficLightMvcControllerTest` | `GET /trafficLights?status` (200 with filter, 302 redirect), `GET /trafficLight/{id}` (200 found, 200 not-found error view) |
+| API controller unit tests (mocked dependencies) | `TrafficLightsControllerUnitTest` | CRUD responses, validation failures and unauthenticated `401` responses |
+| API controller integration tests (real dependencies) | `IntersectionsControllerTest`, `PublicMaintenanceCompaniesControllerTest` | Public intersection traffic-light cards (`200`, `204`, `404`) and persisted standalone-client creation with validation failures |
+| Public API security tests (mocked dependencies) | `PublicTrafficLightsControllerTest` | Read-only public endpoint and unauthenticated write rejection |
+| MVC controller integration tests (real dependencies) | `TrafficLightMvcControllerTest` | `GET /trafficLights?status` (200 with filter, 302 redirect), `GET /trafficLight/{id}` (200 found, 200 not-found error view) |
 | MVC authorization tests | `HomeControllerTest`, `AdminControllerTest` | Anonymous Quick Add visibility, admin-only CSV upload and copied upload bytes |
 | Service unit tests (mocking + verify) | `TrafficLightServiceUnitTest` | `getAllTrafficLights` (list, empty, verify repo call), `getTrafficLightById` (found, not-found, verify ID arg) |
 | Role verification tests | `TrafficLightServiceIntegrationTest` | `deleteTrafficLight` (owner ✓, admin ✓, non-owner ✗, not-found ✗), `updateTrafficLight` (owner ✓, admin ✓, non-owner ✗, not-found ✗) |
@@ -312,10 +312,10 @@ flowchart LR
     Test --> Report
 ```
 
-**Hand-in step:** add a successful pipeline screenshot after pushing to GitLab.
+**Hand-in step:** add a Markdown link to the test report from a recent successful GitLab pipeline.
 
-### Code coverage
-![Home Page](docs/resources/tests.png)
+### Gradle test report
+![Gradle test report](docs/resources/tests.png)
 
 ---
 

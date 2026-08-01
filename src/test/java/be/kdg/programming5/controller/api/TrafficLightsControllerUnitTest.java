@@ -7,7 +7,6 @@ import be.kdg.programming5.controller.api.mapper.TrafficLightMapper;
 import be.kdg.programming5.enums.Direction;
 import be.kdg.programming5.enums.TrafficLightStatus;
 import be.kdg.programming5.enums.TrafficLightType;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,7 +40,7 @@ import org.springframework.http.MediaType;
  * Unit tests for TrafficLightsController — GET /api/traffic-lights.
  *
  * Uses @SpringBootTest so the real controller and security config are loaded.
- * MockMvc is set up manually via webAppContextSetup with the security filter chain applied.
+ * MockMvc is provided by Spring Boot through @AutoConfigureMockMvc.
  * TrafficLightService and TrafficLightMapper are replaced with Mockito mocks (@MockitoBean)
  * so only the controller logic is under test.
  */

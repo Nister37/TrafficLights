@@ -1,127 +1,133 @@
 package be.kdg.programming5.controller.mvc;
 
+import be.kdg.programming5.TestHelper;
+import be.kdg.programming5.business.domain.ApplicationUser;
+import be.kdg.programming5.business.domain.Intersection;
 import be.kdg.programming5.business.domain.TrafficLight;
-import be.kdg.programming5.business.services.IntersectionService;
-import be.kdg.programming5.business.services.MaintenanceLogService;
-import be.kdg.programming5.business.services.TrafficLightService;
+import be.kdg.programming5.business.domain.UserRole;
 import be.kdg.programming5.enums.Direction;
+import be.kdg.programming5.enums.IntersectionTypes;
+import be.kdg.programming5.enums.MaintenanceLogTypes;
 import be.kdg.programming5.enums.TrafficLightStatus;
 import be.kdg.programming5.enums.TrafficLightType;
-import be.kdg.programming5.exception.TrafficLightNotFoundException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.TestExecutionEvent;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
-import java.util.List;
 
+import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.BDDMockito.given;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 /**
- * Integration tests for the MVC TrafficLightController — Thymeleaf view rendering.
- *
- * Uses @SpringBootTest so the real MVC controller and security config are loaded.
- * MockMvc is set up via webAppContextSetup with the security filter chain applied.
- * Service dependencies are replaced with Mockito mocks (@MockitoBean) so only
- * the controller and view-rendering logic are under test.
+ * Integration tests for the MVC TrafficLightController and its Thymeleaf views.
+ * The requests use real security, services, repositories, and test-database fixtures.
  */
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 class TrafficLightMvcControllerTest {
 
+    private static final String USERNAME = "mvc-user";
+
     @Autowired
     private MockMvc mockMvc;
 
-    @MockitoBean
-    private TrafficLightService trafficLightService;
+    @Autowired
+    private TestHelper testHelper;
 
-    @MockitoBean
-    private IntersectionService intersectionService;
+    private ApplicationUser applicationUser;
 
-    @MockitoBean
-    private MaintenanceLogService maintenanceLogService;
+    @BeforeEach
+    void setUp() {
+        applicationUser = testHelper.applicationUser(USERNAME, "test-password", UserRole.USER);
+    }
 
-    // =====================================================================
-    // GET /trafficLights?status=... (requires authentication)
-    // =====================================================================
+    @AfterEach
+    void cleanUp() {
+        testHelper.cleanUp();
+    }
 
     @Test
-    @WithMockUser
+    @WithUserDetails(value = USERNAME, setupBefore = TestExecutionEvent.TEST_EXECUTION)
     void getTrafficLightsByStatusWhenAuthenticatedShouldRenderViewWithFilteredList() throws Exception {
-        // Arrange — three lights returned, only two match the ACTIVE filter applied in the controller
-        TrafficLight active1 = new TrafficLight(
+        Intersection intersection = createIntersection();
+        testHelper.trafficLight(
                 TrafficLightStatus.ACTIVE, LocalDate.of(2021, 6, 1),
-                Direction.N, TrafficLightType.COLLISION, false
+                Direction.N, TrafficLightType.COLLISION, false,
+                intersection, applicationUser
         );
-        TrafficLight active2 = new TrafficLight(
+        testHelper.trafficLight(
                 TrafficLightStatus.ACTIVE, LocalDate.of(2022, 3, 10),
-                Direction.S, TrafficLightType.NON_COLLISION, true
+                Direction.S, TrafficLightType.NON_COLLISION, true,
+                intersection, applicationUser
         );
-        TrafficLight maintenance = new TrafficLight(
+        testHelper.trafficLight(
                 TrafficLightStatus.MAINTENANCE, LocalDate.of(2020, 1, 1),
-                Direction.E, TrafficLightType.COLLISION, false
+                Direction.E, TrafficLightType.COLLISION, false,
+                intersection, applicationUser
         );
-        given(trafficLightService.getAllTrafficLights()).willReturn(List.of(active1, active2, maintenance));
 
-        // Act & Assert
         mockMvc.perform(get("/trafficLights").param("status", "ACTIVE"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("traffic-lights"))
-                .andExpect(model().attributeExists("trafficLights"))
                 .andExpect(model().attribute("trafficLights", hasSize(2)))
                 .andExpect(model().attribute("selectedStatus", TrafficLightStatus.ACTIVE));
     }
 
     @Test
     void getTrafficLightsByStatusWhenUnauthenticatedShouldRedirectToLogin() throws Exception {
-        // Act & Assert — security config redirects to /login for unauthenticated MVC requests
         mockMvc.perform(get("/trafficLights").param("status", "ACTIVE"))
                 .andExpect(status().is3xxRedirection());
     }
 
-    // =====================================================================
-    // GET /trafficLight/{id} (public — permitAll in SecurityConfig)
-    // =====================================================================
-
     @Test
     void getTrafficLightDetailWhenFoundShouldRenderDetailView() throws Exception {
-        // Arrange — public endpoint, no authentication required
-        TrafficLight trafficLight = new TrafficLight(
+        Intersection intersection = createIntersection();
+        TrafficLight trafficLight = testHelper.trafficLight(
                 TrafficLightStatus.ACTIVE, LocalDate.of(2021, 6, 15),
-                Direction.N, TrafficLightType.COLLISION, false
+                Direction.N, TrafficLightType.COLLISION, false,
+                intersection, applicationUser
         );
-        given(trafficLightService.getTrafficLightByIdWithMaintenanceLogs(1)).willReturn(trafficLight);
+        testHelper.maintenanceLog(
+                LocalDate.of(2023, 1, 15), "Test LED replacement",
+                MaintenanceLogTypes.ELECTRICAL, 150.0, true, "INV-MVC-001",
+                trafficLight
+        );
 
-        // Act & Assert
-        mockMvc.perform(get("/trafficLight/1"))
+        mockMvc.perform(get("/trafficLight/{id}", trafficLight.getId()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("traffic-light-details"))
-                .andExpect(model().attributeExists("trafficLight"))
-                .andExpect(model().attributeExists("maintenanceLogs"));
+                .andExpect(model().attribute("trafficLight",
+                        hasProperty("id", is(trafficLight.getId()))))
+                .andExpect(model().attribute("maintenanceLogs", hasSize(1)));
     }
 
     @Test
     void getTrafficLightDetailWhenNotFoundShouldShowErrorInTrafficLightsView() throws Exception {
-        // Arrange — service throws when ID doesn't exist
-        given(trafficLightService.getTrafficLightByIdWithMaintenanceLogs(999))
-                .willThrow(new TrafficLightNotFoundException(999));
-
-        // Act & Assert — local @ExceptionHandler in TrafficLightController handles this:
-        // returns "traffic-lights" view with an "error" model attribute
-        mockMvc.perform(get("/trafficLight/999"))
+        mockMvc.perform(get("/trafficLight/{id}", 999_999))
                 .andExpect(status().isOk())
                 .andExpect(view().name("traffic-lights"))
-                .andExpect(model().attributeExists("error"));
+                .andExpect(model().attributeExists("error"))
+                .andExpect(model().attribute("trafficLights", hasSize(0)));
+    }
+
+    private Intersection createIntersection() {
+        return testHelper.intersection(
+                51.2194, 4.4025, IntersectionTypes.CROSSROADS, 4,
+                true, LocalDate.of(2020, 1, 1), true, "/images/test.png"
+        );
     }
 }
-

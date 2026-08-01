@@ -1,122 +1,116 @@
 package be.kdg.programming5.controller.api;
 
+import be.kdg.programming5.TestHelper;
+import be.kdg.programming5.business.domain.ApplicationUser;
+import be.kdg.programming5.business.domain.Intersection;
 import be.kdg.programming5.business.domain.TrafficLight;
-import be.kdg.programming5.business.services.IntersectionService;
-import be.kdg.programming5.controller.api.dto.IntersectionTrafficLightDto;
-import be.kdg.programming5.controller.api.mapper.TrafficLightMapper;
+import be.kdg.programming5.business.domain.UserRole;
 import be.kdg.programming5.enums.Direction;
+import be.kdg.programming5.enums.IntersectionTypes;
 import be.kdg.programming5.enums.TrafficLightStatus;
 import be.kdg.programming5.enums.TrafficLightType;
-import be.kdg.programming5.exception.IntersectionNotFoundException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.TestExecutionEvent;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
-import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Integration tests for IntersectionsController — GET /api/intersections/{id}/traffic-lights.
- *
- * Uses @SpringBootTest so the real controller and security config are loaded.
- * IntersectionService and TrafficLightMapper are replaced with Mockito mocks so only
- * the controller routing and security behaviour are under test.
+ * Integration tests for GET /api/intersections/{id}/traffic-lights.
+ * The requests use the real controller, security configuration, service, mapper,
+ * repositories, and test database.
  */
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 class IntersectionsControllerTest {
 
+    private static final String USERNAME = "intersection-owner";
+
     @Autowired
     private MockMvc mockMvc;
 
-    @MockitoBean
-    private IntersectionService intersectionService;
+    @Autowired
+    private TestHelper testHelper;
 
-    @MockitoBean
-    private TrafficLightMapper trafficLightMapper;
+    private ApplicationUser owner;
 
-    @Test
-    @WithMockUser
-    void getTrafficLightsByIntersectionWhenLightsExistShouldReturn200WithBody() throws Exception {
-        // Arrange — intersection exists and has one traffic light
-        TrafficLight light = new TrafficLight(
-                TrafficLightStatus.ACTIVE, LocalDate.of(2022, 4, 10),
-                Direction.E, TrafficLightType.COLLISION, false
-        );
-        IntersectionTrafficLightDto dto = new IntersectionTrafficLightDto(
-                3, TrafficLightStatus.ACTIVE, LocalDate.of(2022, 4, 10),
-                Direction.E, TrafficLightType.COLLISION, false, 1, "TrafficLight", "user1"
-        );
-        // getIntersectionById is called first to verify existence — null return is fine here
-        given(intersectionService.getIntersectionById(1)).willReturn(null);
-        given(intersectionService.getTrafficLightsByIntersectionId(1)).willReturn(List.of(light));
-        given(trafficLightMapper.toIntersectionTrafficLightDtoList(anyList())).willReturn(List.of(dto));
+    @BeforeEach
+    void setUp() {
+        owner = testHelper.applicationUser(USERNAME, "test-password", UserRole.USER);
+    }
 
-        // Act & Assert
-        mockMvc.perform(get("/api/intersections/1/traffic-lights"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].id").value(3))
-                .andExpect(jsonPath("$[0].status").value("ACTIVE"))
-                .andExpect(jsonPath("$[0].ownerUsername").value("user1"));
+    @AfterEach
+    void cleanUp() {
+        testHelper.cleanUp();
     }
 
     @Test
-    @WithMockUser
-    void getTrafficLightsByIntersectionWhenNoLightsExistShouldReturn204() throws Exception {
-        // Arrange — intersection exists but has no traffic lights
-        given(intersectionService.getIntersectionById(2)).willReturn(null);
-        given(intersectionService.getTrafficLightsByIntersectionId(2)).willReturn(List.of());
+    @WithUserDetails(value = USERNAME, setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    void getTrafficLightsByIntersectionWhenLightsExistShouldReturn200WithBody() throws Exception {
+        Intersection intersection = createIntersection(51.2194, 4.4025);
+        TrafficLight trafficLight = testHelper.trafficLight(
+                TrafficLightStatus.ACTIVE, LocalDate.of(2022, 4, 10),
+                Direction.E, TrafficLightType.COLLISION, false,
+                intersection, owner
+        );
 
-        // Act & Assert — empty list triggers the 204 branch in the controller
-        mockMvc.perform(get("/api/intersections/2/traffic-lights"))
+        mockMvc.perform(get("/api/intersections/{id}/traffic-lights", intersection.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(trafficLight.getId()))
+                .andExpect(jsonPath("$[0].status").value("ACTIVE"))
+                .andExpect(jsonPath("$[0].intersectionId").value(intersection.getId()))
+                .andExpect(jsonPath("$[0].ownerUsername").value(USERNAME));
+    }
+
+    @Test
+    @WithUserDetails(value = USERNAME, setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    void getTrafficLightsByIntersectionWhenNoLightsExistShouldReturn204() throws Exception {
+        Intersection intersection = createIntersection(50.8503, 4.3517);
+
+        mockMvc.perform(get("/api/intersections/{id}/traffic-lights", intersection.getId()))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    @WithMockUser
+    @WithUserDetails(value = USERNAME, setupBefore = TestExecutionEvent.TEST_EXECUTION)
     void getTrafficLightsByIntersectionWhenIntersectionNotFoundShouldReturn404() throws Exception {
-        // Arrange — first existence check throws; traffic lights are never queried
-        given(intersectionService.getIntersectionById(999))
-                .willThrow(new IntersectionNotFoundException(999));
-
-        // Act & Assert — GlobalExceptionHandler maps the exception to 404 for API requests
-        mockMvc.perform(get("/api/intersections/999/traffic-lights"))
+        mockMvc.perform(get("/api/intersections/{id}/traffic-lights", 999_999))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     void getTrafficLightsByIntersectionWhenUnauthenticatedShouldReturn200WithBody() throws Exception {
-        // Arrange — the public intersection details page loads these cards through AJAX
-        TrafficLight light = new TrafficLight(
+        Intersection intersection = createIntersection(50.8798, 4.7005);
+        TrafficLight trafficLight = testHelper.trafficLight(
                 TrafficLightStatus.ACTIVE, LocalDate.of(2022, 4, 10),
-                Direction.E, TrafficLightType.COLLISION, false
+                Direction.E, TrafficLightType.COLLISION, false,
+                intersection, owner
         );
-        IntersectionTrafficLightDto dto = new IntersectionTrafficLightDto(
-                3, TrafficLightStatus.ACTIVE, LocalDate.of(2022, 4, 10),
-                Direction.E, TrafficLightType.COLLISION, false, 1, "TrafficLight", "user1"
-        );
-        given(intersectionService.getIntersectionById(1)).willReturn(null);
-        given(intersectionService.getTrafficLightsByIntersectionId(1)).willReturn(List.of(light));
-        given(trafficLightMapper.toIntersectionTrafficLightDtoList(anyList())).willReturn(List.of(dto));
 
-        // Act & Assert — GET is public, but modifying traffic lights still requires authentication
-        mockMvc.perform(get("/api/intersections/1/traffic-lights"))
+        mockMvc.perform(get("/api/intersections/{id}/traffic-lights", intersection.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(3))
-                .andExpect(jsonPath("$[0].status").value("ACTIVE"));
+                .andExpect(jsonPath("$[0].id").value(trafficLight.getId()))
+                .andExpect(jsonPath("$[0].status").value("ACTIVE"))
+                .andExpect(jsonPath("$[0].ownerUsername").value(USERNAME));
+    }
+
+    private Intersection createIntersection(double latitude, double longitude) {
+        return testHelper.intersection(
+                latitude, longitude, IntersectionTypes.CROSSROADS, 4,
+                true, LocalDate.of(2020, 1, 1), true, "/images/test.png"
+        );
     }
 }

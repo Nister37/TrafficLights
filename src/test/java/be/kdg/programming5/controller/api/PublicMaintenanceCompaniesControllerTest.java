@@ -1,30 +1,29 @@
 package be.kdg.programming5.controller.api;
 
+import be.kdg.programming5.TestHelper;
 import be.kdg.programming5.business.domain.MaintenanceCompany;
-import be.kdg.programming5.business.services.MaintenanceCompanyService;
-import org.junit.jupiter.api.BeforeEach;
+import be.kdg.programming5.repository.MaintenanceCompanyRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
+import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests the public maintenance company creation endpoint used by the standalone W10 client.
+ * Integration tests for the public maintenance-company creation endpoint used by
+ * the standalone Week 10 client. The request traverses the real service and repository.
  */
 @SpringBootTest
 @ActiveProfiles("test")
@@ -34,19 +33,19 @@ class PublicMaintenanceCompaniesControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockitoBean
-    private MaintenanceCompanyService maintenanceCompanyService;
+    @Autowired
+    private TestHelper testHelper;
+
+    @Autowired
+    private MaintenanceCompanyRepository maintenanceCompanyRepository;
+
+    @AfterEach
+    void cleanUp() {
+        testHelper.cleanUp();
+    }
 
     @Test
     void createMaintenanceCompanyWithoutAuthenticationOrCsrfShouldReturn201() throws Exception {
-        MaintenanceCompany saved = new MaintenanceCompany(
-                5, "Signal Support", "+32 123 45 67",
-                "contact@signalsupport.example", true, LocalDate.of(2024, 1, 15)
-        );
-        given(maintenanceCompanyService.createMaintenanceCompany(
-                anyString(), anyString(), anyString(), anyBoolean(), any(LocalDate.class)))
-                .willReturn(saved);
-
         String body = """
                 {
                   "name": "Signal Support",
@@ -61,13 +60,21 @@ class PublicMaintenanceCompaniesControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(5))
+                .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.name").value("Signal Support"))
-                .andExpect(jsonPath("$.contactEmail").value("contact@signalsupport.example"));
+                .andExpect(jsonPath("$.contactEmail").value("contact@signalsupport.example"))
+                .andExpect(jsonPath("$.since").value("2024-01-15"));
 
-        then(maintenanceCompanyService).should().createMaintenanceCompany(
-                "Signal Support", "+32 123 45 67",
-                "contact@signalsupport.example", true, LocalDate.of(2024, 1, 15));
+        List<MaintenanceCompany> companies = maintenanceCompanyRepository.findAll();
+        assertEquals(1, companies.size());
+
+        MaintenanceCompany saved = companies.getFirst();
+        assertTrue(saved.getId() > 0);
+        assertEquals("Signal Support", saved.getName());
+        assertEquals("+32 123 45 67", saved.getContactPhone());
+        assertEquals("contact@signalsupport.example", saved.getContactEmail());
+        assertTrue(saved.isActive());
+        assertEquals(LocalDate.of(2024, 1, 15), saved.getSince());
     }
 
     @Test
@@ -109,11 +116,13 @@ class PublicMaintenanceCompaniesControllerTest {
     }
 
     private void assertInvalidRequest(String body) throws Exception {
+        long companyCountBeforeRequest = maintenanceCompanyRepository.count();
+
         mockMvc.perform(post("/api/public/maintenance-companies")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isBadRequest());
 
-        then(maintenanceCompanyService).shouldHaveNoInteractions();
+        assertEquals(companyCountBeforeRequest, maintenanceCompanyRepository.count());
     }
 }
