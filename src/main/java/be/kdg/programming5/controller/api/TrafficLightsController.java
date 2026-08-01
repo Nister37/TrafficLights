@@ -35,7 +35,6 @@ public class TrafficLightsController {
     }
 
     /**
-     * GET /api/traffic-lights/search?status= - Search traffic lights by status.
      * Returns 200 OK with matching list, or 204 No Content if none match.
      * Permitted without authentication so the standalone client repo can call it.
      */
@@ -53,7 +52,6 @@ public class TrafficLightsController {
     }
 
     /**
-     * GET /api/traffic-lights - Retrieve all traffic lights.
      * Returns 200 OK with list, or 204 No Content if empty.
      */
     @GetMapping
@@ -69,7 +67,6 @@ public class TrafficLightsController {
     }
 
     /**
-     * GET /api/traffic-lights/{id} - Retrieve a specific traffic light.
      * Returns 200 OK with the traffic light, or 404 Not Found.
      */
     @GetMapping("/{id}")
@@ -80,7 +77,6 @@ public class TrafficLightsController {
     }
 
     /**
-     * POST /api/traffic-lights - Create a new traffic light.
      * Returns 201 Created with the created traffic light, or 400 Bad Request if validation fails.
      * Returns 404 Not Found if the intersection doesn't exist.
      */
@@ -104,7 +100,6 @@ public class TrafficLightsController {
     }
 
     /**
-     * PATCH /api/traffic-lights/{id} - Partially update a traffic light (merge patch).
      * Only provided (non-null) fields are updated.
      * Returns 204 No Content on success, 404 Not Found if not exists.
      */
@@ -124,7 +119,6 @@ public class TrafficLightsController {
     }
 
     /**
-     * DELETE /api/traffic-lights/{id} - Delete a traffic light.
      * Returns 204 No Content on success, or 404 Not Found.
      */
     @DeleteMapping("/{id}")

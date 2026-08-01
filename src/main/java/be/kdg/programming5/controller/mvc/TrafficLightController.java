@@ -29,11 +29,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Controller for handling traffic light-related HTTP requests.
- * Manages CRUD operations and various filtering options for traffic lights.
- * Demonstrates Spring Data JPA method queries and custom @Query usage.
- */
 @Controller
 public class TrafficLightController {
     private static final Logger logger = LoggerFactory.getLogger(TrafficLightController.class);

@@ -1,9 +1,9 @@
 package be.kdg.programming5.service;
 
+import be.kdg.programming5.TestHelper;
 import be.kdg.programming5.business.domain.Intersection;
 import be.kdg.programming5.business.domain.MaintenanceCompany;
 import be.kdg.programming5.business.domain.MaintenanceLog;
-import be.kdg.programming5.business.domain.MaintenanceLogCompany;
 import be.kdg.programming5.business.domain.TrafficLight;
 import be.kdg.programming5.business.services.MaintenanceCompanyService;
 import be.kdg.programming5.business.services.MaintenanceLogService;
@@ -12,11 +12,9 @@ import be.kdg.programming5.enums.IntersectionTypes;
 import be.kdg.programming5.enums.MaintenanceLogTypes;
 import be.kdg.programming5.enums.TrafficLightStatus;
 import be.kdg.programming5.enums.TrafficLightType;
-import be.kdg.programming5.repository.IntersectionRepository;
 import be.kdg.programming5.repository.MaintenanceCompanyRepository;
 import be.kdg.programming5.repository.MaintenanceLogCompanyRepository;
 import be.kdg.programming5.repository.MaintenanceLogRepository;
-import be.kdg.programming5.repository.TrafficLightRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,6 +40,9 @@ class MaintenanceRelationshipDeletionServiceIntegrationTest {
     private MaintenanceLogService maintenanceLogService;
 
     @Autowired
+    private TestHelper testHelper;
+
+    @Autowired
     private MaintenanceLogCompanyRepository maintenanceLogCompanyRepository;
 
     @Autowired
@@ -50,51 +51,39 @@ class MaintenanceRelationshipDeletionServiceIntegrationTest {
     @Autowired
     private MaintenanceLogRepository maintenanceLogRepository;
 
-    @Autowired
-    private TrafficLightRepository trafficLightRepository;
-
-    @Autowired
-    private IntersectionRepository intersectionRepository;
-
     private MaintenanceCompany seededCompany;
     private MaintenanceLog seededLog;
 
     @BeforeEach
     void setUp() {
-        Intersection intersection = intersectionRepository.save(new Intersection(
+        Intersection intersection = testHelper.intersection(
                 50.0, 4.0, IntersectionTypes.CROSSROADS, 4,
                 true, LocalDate.of(2020, 1, 1), true, "/images/test.png"
-        ));
+        );
 
-        TrafficLight trafficLight = new TrafficLight(
+        TrafficLight trafficLight = testHelper.trafficLight(
                 TrafficLightStatus.ACTIVE, LocalDate.of(2021, 6, 15),
-                Direction.N, TrafficLightType.COLLISION, false
+                Direction.N, TrafficLightType.COLLISION, false,
+                intersection
         );
-        trafficLight.setIntersection(intersection);
-        trafficLight = trafficLightRepository.save(trafficLight);
 
-        seededLog = new MaintenanceLog(
+        seededLog = testHelper.maintenanceLog(
                 LocalDate.of(2023, 1, 15), "Test LED replacement",
-                MaintenanceLogTypes.ELECTRICAL, 150.0, true, "INV-TEST-001"
+                MaintenanceLogTypes.ELECTRICAL, 150.0, true, "INV-TEST-001",
+                trafficLight
         );
-        seededLog.setTrafficLight(trafficLight);
-        seededLog = maintenanceLogRepository.save(seededLog);
 
-        seededCompany = maintenanceCompanyRepository.save(new MaintenanceCompany(
+        seededCompany = testHelper.maintenanceCompany(
                 "Test Maintenance Co.", "+32 123 456", "test@maintenance.be",
                 true, LocalDate.of(2015, 6, 1)
-        ));
+        );
 
-        maintenanceLogCompanyRepository.save(new MaintenanceLogCompany(seededLog, seededCompany));
+        testHelper.maintenanceLogCompany(seededLog, seededCompany);
     }
 
     @AfterEach
     void tearDown() {
-        maintenanceLogCompanyRepository.deleteAllInBatch();
-        maintenanceLogRepository.deleteAllInBatch();
-        trafficLightRepository.deleteAllInBatch();
-        intersectionRepository.deleteAllInBatch();
-        maintenanceCompanyRepository.deleteAllInBatch();
+        testHelper.cleanUp();
     }
 
     @Test

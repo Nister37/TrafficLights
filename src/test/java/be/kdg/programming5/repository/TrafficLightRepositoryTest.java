@@ -1,5 +1,6 @@
 package be.kdg.programming5.repository;
 
+import be.kdg.programming5.TestHelper;
 import be.kdg.programming5.business.domain.*;
 import be.kdg.programming5.enums.*;
 import org.hibernate.Hibernate;
@@ -28,72 +29,57 @@ class TrafficLightRepositoryTest {
     private TrafficLightRepository trafficLightRepository;
 
     @Autowired
-    private IntersectionRepository intersectionRepository;
+    private TestHelper testHelper;
 
     @Autowired
     private MaintenanceLogRepository maintenanceLogRepository;
 
     @Autowired
-    private MaintenanceCompanyRepository maintenanceCompanyRepository;
-
-    @Autowired
     private MaintenanceLogCompanyRepository maintenanceLogCompanyRepository;
-
-    @Autowired
-    private UserRepository userRepository;
 
     private Intersection seededIntersection;
     private TrafficLight seededTrafficLight;
     private MaintenanceLog seededMaintenanceLog;
-    private MaintenanceCompany seededMaintenanceCompany;
     private MaintenanceLogCompany seededMaintenanceLogCompany;
-    private ApplicationUser seededOwner;
 
     @BeforeEach
     void setUp() {
         // Seed a complete entity graph:
         // Intersection -> TrafficLight -> MaintenanceLog -> MaintenanceLogCompany <- MaintenanceCompany
-        seededOwner = userRepository.save(new ApplicationUser("repository-owner", "hashedpw", UserRole.USER));
+        ApplicationUser seededOwner = testHelper.applicationUser(
+                "repository-owner", "hashedpw", UserRole.USER
+        );
 
-        seededIntersection = intersectionRepository.save(new Intersection(
+        seededIntersection = testHelper.intersection(
                 50.0, 4.0, IntersectionTypes.CROSSROADS, 4,
                 true, LocalDate.of(2020, 1, 1), true, "/images/test.png"
-        ));
+        );
 
-        seededTrafficLight = new TrafficLight(
+        seededTrafficLight = testHelper.trafficLight(
                 TrafficLightStatus.ACTIVE, LocalDate.of(2021, 6, 15),
-                Direction.N, TrafficLightType.COLLISION, false
+                Direction.N, TrafficLightType.COLLISION, false,
+                seededIntersection, seededOwner
         );
-        seededTrafficLight.setIntersection(seededIntersection);
-        seededTrafficLight.setOwner(seededOwner);
-        seededTrafficLight = trafficLightRepository.save(seededTrafficLight);
 
-        seededMaintenanceLog = new MaintenanceLog(
+        seededMaintenanceLog = testHelper.maintenanceLog(
                 LocalDate.of(2023, 1, 15), "Test LED replacement",
-                MaintenanceLogTypes.ELECTRICAL, 150.0, true, "INV-TEST-001"
+                MaintenanceLogTypes.ELECTRICAL, 150.0, true, "INV-TEST-001",
+                seededTrafficLight
         );
-        seededMaintenanceLog.setTrafficLight(seededTrafficLight);
-        seededMaintenanceLog = maintenanceLogRepository.save(seededMaintenanceLog);
 
-        seededMaintenanceCompany = maintenanceCompanyRepository.save(new MaintenanceCompany(
+        MaintenanceCompany seededMaintenanceCompany = testHelper.maintenanceCompany(
                 "Test Maintenance Co.", "+32 123 456", "test@maintenance.be",
                 true, LocalDate.of(2015, 6, 1)
-        ));
+        );
 
-        seededMaintenanceLogCompany = maintenanceLogCompanyRepository.save(
-                new MaintenanceLogCompany(seededMaintenanceLog, seededMaintenanceCompany)
+        seededMaintenanceLogCompany = testHelper.maintenanceLogCompany(
+                seededMaintenanceLog, seededMaintenanceCompany
         );
     }
 
     @AfterEach
     void tearDown() {
-        // Clean up in correct FK order (children first)
-        maintenanceLogCompanyRepository.deleteAllInBatch();
-        maintenanceLogRepository.deleteAllInBatch();
-        trafficLightRepository.deleteAllInBatch();
-        intersectionRepository.deleteAllInBatch();
-        maintenanceCompanyRepository.deleteAllInBatch();
-        userRepository.deleteAllInBatch();
+        testHelper.cleanUp();
     }
 
     // ==============================

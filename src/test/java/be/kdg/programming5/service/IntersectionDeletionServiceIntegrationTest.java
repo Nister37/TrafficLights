@@ -1,9 +1,9 @@
 package be.kdg.programming5.service;
 
+import be.kdg.programming5.TestHelper;
 import be.kdg.programming5.business.domain.Intersection;
 import be.kdg.programming5.business.domain.MaintenanceCompany;
 import be.kdg.programming5.business.domain.MaintenanceLog;
-import be.kdg.programming5.business.domain.MaintenanceLogCompany;
 import be.kdg.programming5.business.domain.TrafficLight;
 import be.kdg.programming5.business.services.IntersectionService;
 import be.kdg.programming5.enums.Direction;
@@ -38,6 +38,9 @@ class IntersectionDeletionServiceIntegrationTest {
     private IntersectionService intersectionService;
 
     @Autowired
+    private TestHelper testHelper;
+
+    @Autowired
     private IntersectionRepository intersectionRepository;
 
     @Autowired
@@ -57,40 +60,34 @@ class IntersectionDeletionServiceIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        seededIntersection = intersectionRepository.save(new Intersection(
+        seededIntersection = testHelper.intersection(
                 50.0, 4.0, IntersectionTypes.CROSSROADS, 4,
                 true, LocalDate.of(2020, 1, 1), true, "/images/test.png"
-        ));
+        );
 
-        TrafficLight trafficLight = new TrafficLight(
+        TrafficLight trafficLight = testHelper.trafficLight(
                 TrafficLightStatus.ACTIVE, LocalDate.of(2021, 6, 15),
-                Direction.N, TrafficLightType.COLLISION, false
+                Direction.N, TrafficLightType.COLLISION, false,
+                seededIntersection
         );
-        trafficLight.setIntersection(seededIntersection);
-        trafficLight = trafficLightRepository.save(trafficLight);
 
-        MaintenanceLog log = new MaintenanceLog(
+        MaintenanceLog log = testHelper.maintenanceLog(
                 LocalDate.of(2023, 1, 15), "Test LED replacement",
-                MaintenanceLogTypes.ELECTRICAL, 150.0, true, "INV-TEST-001"
+                MaintenanceLogTypes.ELECTRICAL, 150.0, true, "INV-TEST-001",
+                trafficLight
         );
-        log.setTrafficLight(trafficLight);
-        log = maintenanceLogRepository.save(log);
 
-        seededCompany = maintenanceCompanyRepository.save(new MaintenanceCompany(
+        seededCompany = testHelper.maintenanceCompany(
                 "Test Maintenance Co.", "+32 123 456", "test@maintenance.be",
                 true, LocalDate.of(2015, 6, 1)
-        ));
+        );
 
-        maintenanceLogCompanyRepository.save(new MaintenanceLogCompany(log, seededCompany));
+        testHelper.maintenanceLogCompany(log, seededCompany);
     }
 
     @AfterEach
     void tearDown() {
-        maintenanceLogCompanyRepository.deleteAllInBatch();
-        maintenanceLogRepository.deleteAllInBatch();
-        trafficLightRepository.deleteAllInBatch();
-        intersectionRepository.deleteAllInBatch();
-        maintenanceCompanyRepository.deleteAllInBatch();
+        testHelper.cleanUp();
     }
 
     @Test

@@ -29,8 +29,7 @@ public class PublicTrafficLightsController {
     }
 
     /**
-     * GET /api/public/traffic-lights - List all traffic lights without authentication.
-     * Intended for the standalone client SPA (W10).
+     * Intended for the standalone client SPA.
      */
     @GetMapping
     public ResponseEntity<List<TrafficLightDto>> getAllTrafficLights() {

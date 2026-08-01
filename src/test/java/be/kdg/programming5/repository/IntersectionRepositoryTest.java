@@ -1,7 +1,7 @@
 package be.kdg.programming5.repository;
 
+import be.kdg.programming5.TestHelper;
 import be.kdg.programming5.business.domain.Intersection;
-import be.kdg.programming5.business.domain.TrafficLight;
 import be.kdg.programming5.enums.Direction;
 import be.kdg.programming5.enums.IntersectionTypes;
 import be.kdg.programming5.enums.TrafficLightStatus;
@@ -27,31 +27,27 @@ class IntersectionRepositoryTest {
     private IntersectionRepository intersectionRepository;
 
     @Autowired
-    private TrafficLightRepository trafficLightRepository;
+    private TestHelper testHelper;
 
     private Intersection seededIntersection;
-    private TrafficLight seededTrafficLight;
 
     @BeforeEach
     void setUp() {
-        seededIntersection = intersectionRepository.save(new Intersection(
+        seededIntersection = testHelper.intersection(
                 51.2, 4.4, IntersectionTypes.CROSSROADS, 4,
                 true, LocalDate.of(2019, 3, 1), true, "/images/test-intersection.png"
-        ));
-
-        seededTrafficLight = new TrafficLight(
-                TrafficLightStatus.ACTIVE, LocalDate.of(2022, 5, 20),
-                Direction.N, TrafficLightType.COLLISION, false
         );
-        seededTrafficLight.setIntersection(seededIntersection);
-        seededTrafficLight = trafficLightRepository.save(seededTrafficLight);
+
+        testHelper.trafficLight(
+                TrafficLightStatus.ACTIVE, LocalDate.of(2022, 5, 20),
+                Direction.N, TrafficLightType.COLLISION, false,
+                seededIntersection
+        );
     }
 
     @AfterEach
     void tearDown() {
-        // Remove child before parent to respect FK constraints
-        trafficLightRepository.deleteAllInBatch();
-        intersectionRepository.deleteAllInBatch();
+        testHelper.cleanUp();
     }
 
     // ==============================

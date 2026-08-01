@@ -1,4 +1,4 @@
-package be.kdg.programming5.controller;
+package be.kdg.programming5.controller.api;
 
 import be.kdg.programming5.business.domain.TrafficLight;
 import be.kdg.programming5.business.services.TrafficLightService;
@@ -11,13 +11,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -49,21 +47,11 @@ import org.springframework.http.MediaType;
  */
 @SpringBootTest
 @ActiveProfiles("test")
+@AutoConfigureMockMvc
 class TrafficLightsControllerUnitTest {
 
     @Autowired
-    private WebApplicationContext webApplicationContext;
-
     private MockMvc mockMvc;
-
-    @BeforeEach
-    void setUp() {
-        // Apply the real security filter chain so unauthenticated requests return 401
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(webApplicationContext)
-                .apply(SecurityMockMvcConfigurers.springSecurity())
-                .build();
-    }
 
     @MockitoBean
     private TrafficLightService trafficLightService;

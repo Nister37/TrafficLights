@@ -1,5 +1,6 @@
 package be.kdg.programming5.service;
 
+import be.kdg.programming5.TestHelper;
 import be.kdg.programming5.business.domain.*;
 import be.kdg.programming5.business.services.TrafficLightService;
 import be.kdg.programming5.config.security.CustomUserDetails;
@@ -36,22 +37,13 @@ class TrafficLightServiceIntegrationTest {
     private TrafficLightService trafficLightService;
 
     @Autowired
+    private TestHelper testHelper;
+
+    @Autowired
     private TrafficLightRepository trafficLightRepository;
 
     @Autowired
-    private IntersectionRepository intersectionRepository;
-
-    @Autowired
     private MaintenanceLogRepository maintenanceLogRepository;
-
-    @Autowired
-    private MaintenanceCompanyRepository maintenanceCompanyRepository;
-
-    @Autowired
-    private MaintenanceLogCompanyRepository maintenanceLogCompanyRepository;
-
-    @Autowired
-    private UserRepository userRepository;
 
     private ApplicationUser ownerUser;
     private ApplicationUser adminUser;
@@ -61,51 +53,42 @@ class TrafficLightServiceIntegrationTest {
     @BeforeEach
     void setUp() {
         // Seed users with different roles
-        ownerUser = userRepository.save(new ApplicationUser("testowner", "hashedpw", UserRole.USER));
-        adminUser = userRepository.save(new ApplicationUser("testadmin", "hashedpw", UserRole.ADMIN));
-        otherUser = userRepository.save(new ApplicationUser("testother", "hashedpw", UserRole.USER));
+        ownerUser = testHelper.applicationUser("testowner", "hashedpw", UserRole.USER);
+        adminUser = testHelper.applicationUser("testadmin", "hashedpw", UserRole.ADMIN);
+        otherUser = testHelper.applicationUser("testother", "hashedpw", UserRole.USER);
 
         // Seed intersection
-        Intersection seededIntersection = intersectionRepository.save(new Intersection(
+        Intersection seededIntersection = testHelper.intersection(
                 50.0, 4.0, IntersectionTypes.CROSSROADS, 4,
                 true, LocalDate.of(2020, 1, 1), true, "/images/test.png"
-        ));
+        );
 
         // Seed traffic light owned by ownerUser
-        seededTrafficLight = new TrafficLight(
+        seededTrafficLight = testHelper.trafficLight(
                 TrafficLightStatus.ACTIVE, LocalDate.of(2021, 6, 15),
-                Direction.N, TrafficLightType.COLLISION, false
+                Direction.N, TrafficLightType.COLLISION, false,
+                seededIntersection, ownerUser
         );
-        seededTrafficLight.setIntersection(seededIntersection);
-        seededTrafficLight.setOwner(ownerUser);
-        seededTrafficLight = trafficLightRepository.save(seededTrafficLight);
 
         // Seed maintenance log chain (needed for delete cascade testing)
-        MaintenanceLog log = new MaintenanceLog(
+        MaintenanceLog log = testHelper.maintenanceLog(
                 LocalDate.of(2023, 1, 15), "Test LED replacement",
-                MaintenanceLogTypes.ELECTRICAL, 150.0, true, "INV-TEST-001"
+                MaintenanceLogTypes.ELECTRICAL, 150.0, true, "INV-TEST-001",
+                seededTrafficLight
         );
-        log.setTrafficLight(seededTrafficLight);
-        log = maintenanceLogRepository.save(log);
 
-        MaintenanceCompany company = maintenanceCompanyRepository.save(new MaintenanceCompany(
+        MaintenanceCompany company = testHelper.maintenanceCompany(
                 "Test Maintenance Co.", "+32 123 456", "test@maintenance.be",
                 true, LocalDate.of(2015, 6, 1)
-        ));
+        );
 
-        maintenanceLogCompanyRepository.save(new MaintenanceLogCompany(log, company));
+        testHelper.maintenanceLogCompany(log, company);
     }
 
     @AfterEach
     void tearDown() {
         SecurityContextHolder.clearContext();
-        // Clean up in correct FK order (children first)
-        maintenanceLogCompanyRepository.deleteAllInBatch();
-        maintenanceLogRepository.deleteAllInBatch();
-        trafficLightRepository.deleteAllInBatch();
-        intersectionRepository.deleteAllInBatch();
-        maintenanceCompanyRepository.deleteAllInBatch();
-        userRepository.deleteAllInBatch();
+        testHelper.cleanUp();
     }
 
     // ===============================

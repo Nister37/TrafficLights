@@ -11,10 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * REST API controller for Intersection resources.
- * Provides endpoints for retrieving intersection-related data.
- */
 @RestController
 @RequestMapping("/api/intersections")
 public class IntersectionsController {
@@ -30,7 +26,6 @@ public class IntersectionsController {
     }
 
     /**
-     * GET /api/intersections/{id}/traffic-lights - Retrieve all traffic lights of an intersection.
      * Returns 200 OK with list, or 204 No Content if empty.
      * Returns 404 Not Found if intersection doesn't exist.
      * Permitted without authentication so the public intersection details page can load its cards.
