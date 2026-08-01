@@ -117,11 +117,12 @@
     <!-- Bootstrap Cards Grid: 1 column on mobile, 2 on tablet, 4 on desktop -->
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
             <div class="col" th:each="light : ${trafficLights}">
-                <div class="card h-100 shadow-sm" style="cursor: pointer;" th:onclick="'window.location.href=\'/trafficLight/' + ${light.id} + '\''"
+                <div class="card h-100 shadow-sm"
                      th:classappend="${light.status.name() == 'BROKEN' ? 'border-danger' : (light.status.name() == 'MAINTENANCE' ? 'border-warning' : (light.status.name() == 'ACTIVE' ? 'border-success' : ''))}">
 
                     <!-- Card Body -->
-                    <div class="card-body">
+                    <a th:href="@{/trafficLight/{id}(id=${light.id})}"
+                       class="card-body text-decoration-none text-body">
                         <h5 class="card-title" th:text="${'ID: ' + light.id}">Traffic Light ID</h5>
                         <p class="card-text">
                             <strong th:text="#{trafficLights.table.status} + ':'">Status:</strong>
@@ -148,7 +149,7 @@
                                 Category
                             </span>
                         </p>
-                    </div>
+                    </a>
 
                     <!-- Card Footer -->
                     <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
@@ -157,11 +158,13 @@
                         </small>
                         <form sec:authorize="isAuthenticated()"
                               th:if="${#authorization.expression('hasRole(''ADMIN'')') || (light.owner != null && light.owner.username == #authentication.name)}"
-                              th:action="@{/trafficLight/{id}/delete(id=${light.id})}" method="post" style="display: inline;"
-                              th:attr="onsubmit='event.stopPropagation(); return confirm(\'' + #{trafficLights.filter.deleteConfirm} + '\');'"
-                              onclick="event.stopPropagation();">
+                              th:action="@{/trafficLight/{id}/delete(id=${light.id})}" method="post"
+                              class="d-inline"
+                              th:attr="data-confirm-message=#{trafficLights.filter.deleteConfirm}">
                             <button type="submit" class="btn btn-sm btn-danger">
-                                <i class="bi bi-trash"></i>
+                                <i class="bi bi-trash" aria-hidden="true"></i>
+                                <span class="visually-hidden"
+                                      th:text="${'Delete traffic light ' + light.id}">Delete traffic light</span>
                             </button>
                         </form>
                     </div>

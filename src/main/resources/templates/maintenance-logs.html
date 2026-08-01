@@ -42,11 +42,12 @@
     <!-- Bootstrap Cards Grid: 1 column on mobile, 2 on tablet, 4 on desktop -->
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
             <div class="col" th:each="log : ${maintenanceLogs}">
-                <div class="card h-100 shadow-sm" style="cursor: pointer;" th:onclick="'window.location.href=\'/maintenanceLog/' + ${log.id} + '\''"
+                <div class="card h-100 shadow-sm"
                      th:classappend="${!log.completed} ? 'border-warning' : 'border-success'">
 
                     <!-- Card Body -->
-                    <div class="card-body">
+                    <a th:href="@{/maintenanceLog/{id}(id=${log.id})}"
+                       class="card-body text-decoration-none text-body">
                         <h5 class="card-title" th:text="${'Log #' + log.id}">Log ID</h5>
                         <p class="card-text">
                             <strong th:text="#{maintenanceLogs.table.kind} + ':'">Kind:</strong>
@@ -66,18 +67,19 @@
                             <strong>Cost:</strong>
                             <span th:text="${'$' + log.cost}">$0.00</span>
                         </p>
-                    </div>
+                    </a>
 
                     <!-- Card Footer -->
                     <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
                         <small class="text-muted" th:text="#{maintenanceLogs.table.date} + ': ' + ${log.date}">
                             Date: 2020-01-01
                         </small>
-                        <form th:action="@{/maintenanceLog/{id}/delete(id=${log.id})}" method="post" style="display: inline;"
-                              onsubmit="event.stopPropagation(); return confirm('Are you sure you want to delete this maintenance log?');"
-                              onclick="event.stopPropagation();">
+                        <form th:action="@{/maintenanceLog/{id}/delete(id=${log.id})}" method="post"
+                              class="d-inline"
+                              data-confirm-message="Are you sure you want to delete this maintenance log?">
                             <button type="submit" class="btn btn-sm btn-danger">
-                                <i class="bi bi-trash"></i>
+                                <i class="bi bi-trash" aria-hidden="true"></i>
+                                <span class="visually-hidden" th:text="${'Delete maintenance log ' + log.id}">Delete maintenance log</span>
                             </button>
                         </form>
                     </div>

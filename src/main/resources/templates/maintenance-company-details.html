@@ -71,7 +71,9 @@
                             <a th:href="@{/maintenanceCompanies}" class="btn btn-secondary">
                                 <i class="bi bi-arrow-left"></i> Back to List
                             </a>
-                            <form th:action="@{/maintenanceCompany/{id}/delete(id=${company.id})}" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this maintenance company?');">
+                            <form th:action="@{/maintenanceCompany/{id}/delete(id=${company.id})}" method="post"
+                                  class="d-inline"
+                                  data-confirm-message="Are you sure you want to delete this maintenance company?">
                                 <button type="submit" class="btn btn-danger">
                                     <i class="bi bi-trash"></i> Delete
                                 </button>
@@ -92,7 +94,8 @@
                     <div class="card-body">
                         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
                             <div class="col" th:each="log : ${company.maintenanceLogs}">
-                                <div class="card h-100 shadow-sm" style="cursor: pointer;" th:onclick="'window.location.href=\'/maintenanceLog/' + ${log.id} + '\''">
+                                <a th:href="@{/maintenanceLog/{id}(id=${log.id})}"
+                                   class="card h-100 shadow-sm text-decoration-none text-body">
                                     <div class="card-body">
                                         <h6 class="card-title" th:text="'Log #' + ${log.id}">Log ID</h6>
                                         <p class="card-text mb-1">
@@ -110,7 +113,7 @@
                                                   th:text="${log.completed ? 'Completed' : 'In Progress'}">Status</span>
                                         </p>
                                     </div>
-                                </div>
+                                </a>
                             </div>
                         </div>
                     </div>

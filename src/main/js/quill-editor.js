@@ -11,7 +11,7 @@
 import Quill from 'quill'
 import 'quill/dist/quill.snow.css'
 
-document.addEventListener('DOMContentLoaded', () => {
+function initializeQuillEditor() {
     const textarea = document.getElementById('description')
     if (!textarea) {
         return
@@ -68,4 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
             { capture: true }
         )
     }
-})
+}
+
+initializeQuillEditor()

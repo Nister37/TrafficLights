@@ -6,9 +6,7 @@ import '../scss/site.scss'
 import 'bootstrap'
 import { animate, stagger } from 'animejs'
 
-// Fade-in + slide-up animation for dashboard cards on the home page.
-// Only runs when .hover-card elements are present (index.html).
-document.addEventListener('DOMContentLoaded', () => {
+function initializeHomeCardAnimation() {
     const cards = document.querySelectorAll('.hover-card')
     if (cards.length === 0) {
         return
@@ -21,4 +19,29 @@ document.addEventListener('DOMContentLoaded', () => {
         delay: stagger(100),
         ease: 'outQuad'
     })
-})
+}
+
+function initializeDeleteConfirmations() {
+    document.querySelectorAll('form[data-confirm-message]').forEach(form => {
+        form.addEventListener('submit', event => {
+            const message = form.dataset.confirmMessage
+            if (message && !confirm(message)) {
+                event.preventDefault()
+            }
+        })
+    })
+}
+
+function initializeBrowserActions() {
+    document.querySelector('[data-history-back]')?.addEventListener('click', () => {
+        history.back()
+    })
+
+    document.querySelector('[data-reload-page]')?.addEventListener('click', () => {
+        location.reload()
+    })
+}
+
+initializeHomeCardAnimation()
+initializeDeleteConfirmations()
+initializeBrowserActions()

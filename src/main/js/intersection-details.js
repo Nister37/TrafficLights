@@ -31,7 +31,9 @@ function renderTrafficLightCard(trafficLight, canModify) {
             trafficLight.status === 'PLANNED' ? 'selected' : ''
         }>PLANNED</option>
                         </select>
-                        <button class="btn btn-warning btn-sm" onclick="handleUpdateStatus(${trafficLight.id})">
+                        <button type="button" class="btn btn-warning btn-sm"
+                                data-traffic-light-action="update-status"
+                                data-traffic-light-id="${trafficLight.id}">
                             <i class="bi bi-pencil"></i> Update
                         </button>
                     </div>
@@ -40,7 +42,9 @@ function renderTrafficLightCard(trafficLight, canModify) {
     const deleteControls = canModify
         ? `
                 <div class="card-footer">
-                    <button class="btn btn-danger btn-sm" onclick="handleDeleteTrafficLight(${trafficLight.id})">
+                    <button type="button" class="btn btn-danger btn-sm"
+                            data-traffic-light-action="delete"
+                            data-traffic-light-id="${trafficLight.id}">
                         <i class="bi bi-trash"></i> Delete
                     </button>
                 </div>
@@ -109,7 +113,10 @@ async function loadTrafficLightsForIntersection(intersectionId, containerId) {
 function refreshTrafficLights() {
     const container = document.getElementById('traffic-lights-container')
     if (container && container.dataset.intersectionId) {
-        loadTrafficLightsForIntersection(parseInt(container.dataset.intersectionId), 'traffic-lights-container')
+        loadTrafficLightsForIntersection(
+            Number.parseInt(container.dataset.intersectionId, 10),
+            'traffic-lights-container'
+        )
     }
 }
 
@@ -202,18 +209,44 @@ async function handleDeleteTrafficLight(trafficLightId) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+function handleTrafficLightAction(event) {
+    if (!(event.target instanceof Element)) {
+        return
+    }
+
+    const button = event.target.closest('button[data-traffic-light-action]')
+    if (!button) {
+        return
+    }
+
+    const trafficLightId = Number.parseInt(button.dataset.trafficLightId, 10)
+    if (!Number.isInteger(trafficLightId)) {
+        return
+    }
+
+    if (button.dataset.trafficLightAction === 'update-status') {
+        handleUpdateStatus(trafficLightId)
+    } else if (button.dataset.trafficLightAction === 'delete') {
+        handleDeleteTrafficLight(trafficLightId)
+    }
+}
+
+function initializeIntersectionDetails() {
     const container = document.getElementById('traffic-lights-container')
     if (container && container.dataset.intersectionId) {
-        loadTrafficLightsForIntersection(parseInt(container.dataset.intersectionId), 'traffic-lights-container')
+        container.addEventListener('click', handleTrafficLightAction)
+        loadTrafficLightsForIntersection(
+            Number.parseInt(container.dataset.intersectionId, 10),
+            'traffic-lights-container'
+        )
     }
+
     const form = document.getElementById('add-traffic-light-form')
     if (form) {
         form.addEventListener('submit', handleAddTrafficLight)
     }
-})
 
-// Expose to onclick handlers in the HTML template
-window.handleUpdateStatus = handleUpdateStatus
-window.handleDeleteTrafficLight = handleDeleteTrafficLight
-window.refreshTrafficLights = refreshTrafficLights
+    document.getElementById('refresh-traffic-lights')?.addEventListener('click', refreshTrafficLights)
+}
+
+initializeIntersectionDetails()

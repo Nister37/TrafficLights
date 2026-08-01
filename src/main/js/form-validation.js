@@ -10,7 +10,7 @@
 import flatpickr from 'flatpickr'
 import validator from 'validator'
 
-document.addEventListener('DOMContentLoaded', function() {
+function initializeFormValidation() {
     'use strict'
 
     // --- flatpickr: replace every date input with a calendar picker --------
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
             false
         )
     })
-})
+}
 
 function showFieldError(input, message) {
     input.classList.add('is-invalid')
@@ -76,3 +76,5 @@ function showFieldError(input, message) {
 function clearFieldError(input) {
     input.classList.remove('is-invalid')
 }
+
+initializeFormValidation()

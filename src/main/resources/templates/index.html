@@ -21,7 +21,7 @@
             <div class="row justify-content-center">
                 <div class="col-lg-10">
                     <div class="text-center mb-5">
-                        <i class="bi bi-stoplights-fill text-primary" style="font-size: 5rem;"></i>
+                        <i class="bi bi-stoplights-fill text-primary home-hero-icon"></i>
                         <h1 class="display-4 mt-3" th:text="#{app.title}">Traffic Lights Management System</h1>
                         <p class="lead text-muted" th:text="#{app.welcome}">Welcome to the Traffic Lights Management System</p>
                         <p class="text-muted" th:text="#{app.description}">Use the navigation below to manage traffic lights, intersections, maintenance logs, and companies.</p>
@@ -31,46 +31,50 @@
                     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mt-4">
                         <!-- Traffic Lights Card -->
                         <div class="col">
-                            <div class="card h-100 shadow-sm hover-card" style="cursor: pointer;" onclick="window.location.href='/trafficLights?status=ACTIVE'">
+                            <a th:href="@{/trafficLights(status='ACTIVE')}"
+                               class="card h-100 shadow-sm hover-card text-decoration-none text-body">
                                 <div class="card-body text-center">
-                                    <i class="bi bi-stoplights-fill text-primary" style="font-size: 3rem;"></i>
+                                    <i class="bi bi-stoplights-fill text-primary home-card-icon"></i>
                                     <h5 class="card-title mt-3" th:text="#{menu.trafficLights}">Traffic Lights</h5>
                                     <p class="card-text text-muted">Manage all traffic lights</p>
                                 </div>
-                            </div>
+                            </a>
                         </div>
 
                         <!-- Intersections Card -->
                         <div class="col">
-                            <div class="card h-100 shadow-sm hover-card" style="cursor: pointer;" onclick="window.location.href='/intersections'">
+                            <a th:href="@{/intersections}"
+                               class="card h-100 shadow-sm hover-card text-decoration-none text-body">
                                 <div class="card-body text-center">
-                                    <i class="bi bi-signpost-2 text-success" style="font-size: 3rem;"></i>
+                                    <i class="bi bi-signpost-2 text-success home-card-icon"></i>
                                     <h5 class="card-title mt-3" th:text="#{menu.intersections}">Intersections</h5>
                                     <p class="card-text text-muted">Manage all intersections</p>
                                 </div>
-                            </div>
+                            </a>
                         </div>
 
                         <!-- Maintenance Logs Card -->
                         <div class="col">
-                            <div class="card h-100 shadow-sm hover-card" style="cursor: pointer;" onclick="window.location.href='/maintenanceLogs'">
+                            <a th:href="@{/maintenanceLogs}"
+                               class="card h-100 shadow-sm hover-card text-decoration-none text-body">
                                 <div class="card-body text-center">
-                                    <i class="bi bi-journal-text text-warning" style="font-size: 3rem;"></i>
+                                    <i class="bi bi-journal-text text-warning home-card-icon"></i>
                                     <h5 class="card-title mt-3" th:text="#{menu.maintenanceLogs}">Maintenance Logs</h5>
                                     <p class="card-text text-muted">View maintenance records</p>
                                 </div>
-                            </div>
+                            </a>
                         </div>
 
                         <!-- Companies Card -->
                         <div class="col">
-                            <div class="card h-100 shadow-sm hover-card" style="cursor: pointer;" onclick="window.location.href='/maintenanceCompanies'">
+                            <a th:href="@{/maintenanceCompanies}"
+                               class="card h-100 shadow-sm hover-card text-decoration-none text-body">
                                 <div class="card-body text-center">
-                                    <i class="bi bi-building text-info" style="font-size: 3rem;"></i>
+                                    <i class="bi bi-building text-info home-card-icon"></i>
                                     <h5 class="card-title mt-3" th:text="#{menu.maintenanceCompanies}">Companies</h5>
                                     <p class="card-text text-muted">Manage service companies</p>
                                 </div>
-                            </div>
+                            </a>
                         </div>
                     </div>
 

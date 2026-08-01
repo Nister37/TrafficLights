@@ -148,6 +148,34 @@ tr:hover {
     color: #666;
 }
 
+.home-hero-icon,
+.server-error-icon {
+    font-size: 5rem;
+}
+
+.home-card-icon {
+    font-size: 3rem;
+}
+
+.not-found-icon {
+    font-size: 4rem;
+}
+
+.intersection-card-image {
+    height: 200px;
+    object-fit: cover;
+}
+
+.intersection-detail-image {
+    max-height: 400px;
+    object-fit: cover;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 420px;
+}
+
 // Hover card animation — used on the index.html dashboard cards
 .hover-card {
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
