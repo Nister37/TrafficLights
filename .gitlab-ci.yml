@@ -6,23 +6,22 @@ stages:
 variables:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
-build-job:
+build:
   stage: build
   # eclipse-temurin:21-jdk-alpine (musl libc) cannot run the glibc-compiled Node.js
   # binaries that node-gradle downloads. Switched to the Ubuntu (jammy) variant
   image: eclipse-temurin:21-jdk-jammy
   script:
-    - ./gradlew npmInstall
-    - ./gradlew build -x test
+    - ./gradlew --build-cache assemble
   cache:
     key: "$CI_COMMIT_REF_NAME"
     policy: push
     paths:
       - build
       - .gradle
-      - .node         # node-gradle downloads Node.js here when download=true
+      - .node
 
-test-job:
+test:
   stage: test
   image: eclipse-temurin:21-jdk-jammy
   services:
@@ -36,7 +35,7 @@ test-job:
     # GitLab CI resolves the service by its image name: "postgres"
     CI_DB_HOST_PORT: "postgres:5432"
   script:
-    - ./gradlew test
+    - ./gradlew check
   artifacts:
     # Publish the JUnit report even when tests fail so failures are visible in the pipeline
     when: always

@@ -53,9 +53,8 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-// Tell the node-gradle plugin to download Node.js automatically.
-// This is required in CI where the Docker image (eclipse-temurin:21-jdk-alpine)
-// does not have Node.js / npm installed.
+// Download a fixed Node.js version so local and CI builds do not depend on
+// Node.js or npm being installed separately.
 node {
     download.set(true)
     version.set("20.19.1")
