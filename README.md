@@ -30,46 +30,54 @@ The system allows users to:
 ```mermaid
 erDiagram
     Intersection {
-        long id
+        int id
         double latitude
         double longitude
         enum type
-        int numberOfRoads
-        boolean smartEnabled
-        date openedDate
+        int roadCount
+        boolean isSmartEnabled
+        date openedOn
         boolean hasPedestrianCrossing
+        string intersectionImage
     }
     TrafficLight {
-        long id
+        int id
         enum status
         date installationDate
-        string direction
+        enum direction
         enum type
         boolean rightArrow
     }
     MaintenanceLog {
-        long id
+        int id
         date date
         string description
         enum kind
-        decimal cost
+        double cost
         boolean completed
         string invoiceNumber
     }
     MaintenanceCompany {
-        long id
+        int id
         string name
-        string email
-        string phoneNumber
+        string contactEmail
+        string contactPhone
         boolean active
         date since
     }
     MaintenanceLogCompany {
-        long id
+        int id
         date assignedDate
+    }
+    ApplicationUser {
+        int id
+        string username
+        string passwordHash
+        enum role
     }
 
     Intersection ||--o{ TrafficLight : "has many"
+    ApplicationUser ||--o{ TrafficLight : "owns"
     TrafficLight ||--o{ MaintenanceLog : "has many"
     MaintenanceLog ||--o{ MaintenanceLogCompany : "linked via"
     MaintenanceCompany ||--o{ MaintenanceLogCompany : "linked via"
@@ -239,7 +247,7 @@ Spring profiles for test isolation and integration tests for the repository and 
 
 | Profile | Database | Seeding | Purpose |
 |---------|----------|---------|---------|
-| *(default)* | PostgreSQL `localhost:9432/programming5` | `data.sql` | Development / production |
+| *(default)* | PostgreSQL `localhost:9432/programming5` | `data.sql` | Local development |
 | `test` | PostgreSQL `localhost:9433/programming5_test` | `TestHelper`, lifecycle methods, or Arrange | Automated tests |
 
 The `test` profile (`application-test.properties`) disables `data.sql` via `spring.sql.init.mode=never` and uses `ddl-auto=create-drop` so every test run starts with a clean schema. Persistence-backed tests seed their own data with `TestHelper` and clean it up after each test.
@@ -286,25 +294,26 @@ Test reports are generated at `build/reports/tests/test/index.html`.
 | Service unit tests (mocking + verify) | `TrafficLightServiceUnitTest` | `getAllTrafficLights` (list, empty, verify repo call), `getTrafficLightById` (found, not-found, verify ID arg) |
 | Role verification tests | `TrafficLightServiceIntegrationTest` | `deleteTrafficLight` (owner ✓, admin ✓, non-owner ✗, not-found ✗), `updateTrafficLight` (owner ✓, admin ✓, non-owner ✗, not-found ✗) |
 | Repository tests | `TrafficLightRepositoryTest`, `IntersectionRepositoryTest` | Foreign keys, nullability, lazy vs eager loading and owner fetching |
+| Relationship deletion integration tests | `IntersectionDeletionServiceIntegrationTest`, `MaintenanceRelationshipDeletionServiceIntegrationTest` | Cascade cleanup while preserving entities outside the deleted relationship |
 | Week 12 tests | `CsvImportServiceTest`, `TrafficLightCacheTest` | CSV row handling and cache eviction after raw additions |
 
 ### CI Pipeline
 
 The project uses a GitLab CI pipeline defined in `.gitlab-ci.yml` with two stages:
 
-- **build** — installs frontend dependencies, compiles the project, and caches dependencies (`./gradlew npmInstall`, then `./gradlew build -x test`)
-- **test** — runs all tests against a PostgreSQL service container (`./gradlew test`), publishes JUnit XML results to the GitLab Tests tab
+- **build** — assembles the application with Gradle's build cache (`./gradlew --build-cache assemble`); `processResources` automatically installs frontend dependencies and runs webpack
+- **test** — runs Gradle verification against a PostgreSQL service container (`./gradlew check`) and publishes JUnit XML results to the GitLab Tests tab
 
 ```mermaid
 flowchart LR
     Push["git push"] --> Build
 
     subgraph build stage
-        Build["./gradlew npmInstall\n./gradlew build -x test\n+ npm run build"]
+        Build["./gradlew --build-cache assemble\n(automatic npm + webpack build)"]
     end
 
     subgraph test stage
-        Test["./gradlew test\n(PostgreSQL service container)"]
+        Test["./gradlew check\n(PostgreSQL service container)"]
         Report["JUnit XML\npublished to GitLab"]
     end
 
@@ -325,24 +334,21 @@ Frontend integration: npm, webpack, and a rich client-side library stack served 
 
 ### Setup
 
-Node.js (v20+) is required to build the frontend assets.
+Gradle downloads Node.js 20.19.1 automatically, so a system-wide Node.js installation is not required.
+The first frontend build needs network access to download Node.js and npm dependencies.
 
 ```bash
-# Install all JS/CSS dependencies through Gradle
-.\gradlew.bat npmInstall
-
-# Linux / macOS
-./gradlew npmInstall
-
-# Build all webpack bundles (outputs to src/main/resources/static)
-npm run build
+# Build all webpack bundles (installs dependencies automatically)
+./gradlew npm_run_build
 
 # Lint JavaScript source files
-npm run lint
+./gradlew npm_run_lint
 
 # Check code formatting (dprint)
-npm run format
+./gradlew npm_run_format
 ```
+
+On Windows, replace `./gradlew` with `.\gradlew.bat`.
 
 ### Webpack build pipeline
 
@@ -370,7 +376,8 @@ flowchart LR
     Webpack --> FONTS
 ```
 
-The Gradle build automatically runs `npm run build` through the `npm_run_build` task. Run `./gradlew npmInstall` after cloning the project and whenever the npm dependencies change.
+The normal Gradle build automatically runs `npm_run_build` before copying Spring resources.
+That task also runs `npmInstall` when needed, so a separate installation command is unnecessary.
 
 ### Frontend library stack
 
@@ -424,12 +431,14 @@ Each entry generates one `.js` bundle and (where CSS is imported) one `.css` bun
 
 ### Standalone Week 10 Client API
 
-The separate Week 10 client repository can call these public backend endpoints:
+The backend exposes these public endpoints:
 
 - `GET /api/traffic-lights/search?status=ACTIVE` searches by status.
-- `GET /api/public/traffic-lights` lists traffic lights.
+- `GET /api/public/traffic-lights` lists traffic lights without authentication.
 - `POST /api/public/maintenance-companies` creates a maintenance company without a session cookie or CSRF token.
 
+The current standalone client uses the search and maintenance-company endpoints. CORS is limited to
+those two operations; the public traffic-light list remains available to same-origin and non-browser clients.
 The public creation endpoint is intentionally separate from the authenticated browser-session management API.
 
 ---
@@ -485,8 +494,8 @@ Cache is evicted on every mutating operation (`add`, `create`, `update`, `delete
 Each path uses `@CacheEvict(value = "trafficLightSearch", allEntries = true)`, including the raw `add`
 path used by CSV imports. Completed background imports therefore cannot leave stale search results.
 
-`@EnableCaching` and `@EnableAsync` are declared together in `ApplicationConfig`.
+`@EnableCaching` and `@EnableAsync` are declared on the `Main` application class.
 
 ---
 
-**Last Updated:** May 31, 2026
+**Last Updated:** August 2, 2026

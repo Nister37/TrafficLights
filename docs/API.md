@@ -8,9 +8,11 @@ The browser-session management API uses Spring Security:
 - `GET` and mutation requests under `/api/traffic-lights` require a valid `JSESSIONID` cookie, except for the public search endpoint.
 - `POST`, `PATCH` and `DELETE` requests under `/api/traffic-lights` also require the CSRF token in the header name provided by Spring Security, normally `X-CSRF-TOKEN`.
 - Updating or deleting a traffic light is limited to its owner or an admin.
-- `GET /api/public/traffic-lights` and `POST /api/public/maintenance-companies` support the separate Week 10 client project. Maintenance company creation is the only CSRF-exempt write endpoint.
+- `GET /api/public/traffic-lights` is available without authentication. `POST /api/public/maintenance-companies` supports the separate Week 10 client and is the only CSRF-exempt write endpoint.
 
-The examples below use placeholder cookie and CSRF values. See `http/api/traffic-lights-api.http` for directly runnable request templates.
+The examples below use placeholder cookie and CSRF values. See `src/test/http/api/traffic-lights-api.http`,
+`src/test/http/api/intersections-api.http`, and `src/test/http/api/maintenance-companies-api.http` for
+directly runnable request templates.
 
 ## Public Client Endpoints
 
@@ -36,6 +38,9 @@ Content-Type: application/json
   "since": "2024-01-15"
 }
 ```
+
+`GET /api/public/traffic-lights` is also public, but the current standalone client does not use it.
+CORS for `http://localhost:9000` is intentionally limited to the search request above and maintenance-company creation.
 
 ## Week 2 — GET & DELETE endpoints
 

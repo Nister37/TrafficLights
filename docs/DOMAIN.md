@@ -1,36 +1,53 @@
 # Domain Model
 
-The system manages four main entities:
+The core persisted model is described below. `TrafficLight` also has two specialized entity subclasses.
 
-### **1. Traffic Light**
-- **Attributes:** ID, Status (ACTIVE/MAINTENANCE/BROKEN/PLANNED), Installation Date, Direction, Type (COLLISION/NON_COLLISION), Right Arrow
+### 1. Traffic Light
+
+- **Attributes:** ID, status (`ACTIVE`/`MAINTENANCE`/`BROKEN`/`PLANNED`), installation date, direction, type (`COLLISION`/`NON_COLLISION`), right arrow
 - **Subclasses:**
-    - `SmartTrafficLight`: Includes sensor type and connectivity features
-    - `PedestrianTrafficLight`: Includes audio signal and button request capabilities
+    - `SmartTrafficLight`: sensor type and connectivity
+    - `PedestrianTrafficLight`: audio signal and button-request support
 - **Relationships:**
     - Belongs to one `Intersection` (Many-to-One)
-    - Has many `MaintenanceLogs` (One-to-Many)
+    - Has one optional owner (`ApplicationUser`, Many-to-One)
+    - Has many `MaintenanceLog` records (One-to-Many)
 
-### **2. Intersection**
-- **Attributes:** ID, Latitude, Longitude, Type (CROSSROADS/T_JUNCTION/ROUNDABOUT/COMPLEX), Number of Roads, Smart Enabled, Opened Date, Has Pedestrian Crossing, Image Path
+Traffic-light inheritance uses a single database table with a discriminator column.
+
+### 2. Intersection
+
+- **Attributes:** ID, latitude, longitude, type (`CROSSROADS`/`T_JUNCTION`/`ROUNDABOUT`/`COMPLEX`), road count, smart-enabled flag, opened-on date, pedestrian-crossing flag, intersection image
 - **Relationships:**
-    - Has many `TrafficLights` (One-to-Many)
+    - Has many `TrafficLight` records (One-to-Many)
 
-### **3. Maintenance Log**
-- **Attributes:** ID, Date, Description, Kind (ELECTRICAL/MECHANICAL/SOFTWARE/CLEANING), Cost, Completed, Invoice Number
+### 3. Maintenance Log
+
+- **Attributes:** ID, date, description, kind (`ELECTRICAL`/`MECHANICAL`/`SOFTWARE`/`CLEANING`), cost, completed flag, invoice number
 - **Relationships:**
     - Belongs to one `TrafficLight` (Many-to-One)
-    - Associated with many `MaintenanceCompanies` (Many-to-Many via `MaintenanceLogCompany` association entity)
+    - Has many `MaintenanceLogCompany` association records (One-to-Many)
 
-### **4. Maintenance Company**
-- **Attributes:** ID, Name, Email, Phone Number, Active, Since Date
+### 4. Maintenance Company
+
+- **Attributes:** ID, name, contact email, contact phone, active flag, since date
 - **Relationships:**
-    - Works on many `MaintenanceLogs` (Many-to-Many via `MaintenanceLogCompany` association entity)
+    - Has many `MaintenanceLogCompany` association records (One-to-Many)
 
-### **5. MaintenanceLogCompany (Association Entity)**
-- **Attributes:** ID, Assigned Date
+### 5. MaintenanceLogCompany
+
+This association entity represents the many-to-many business relationship between maintenance logs
+and maintenance companies.
+
+- **Attributes:** ID, assigned date
 - **Relationships:**
     - References one `MaintenanceLog` (Many-to-One)
     - References one `MaintenanceCompany` (Many-to-One)
-- **Constraint:** Unique constraint on (maintenance_log_id, maintenance_company_id)
+- **Constraint:** Unique pair of `maintenance_log_id` and `maintenance_company_id`
+
+### 6. Application User
+
+- **Attributes:** ID, unique username, BCrypt password hash, role (`USER`/`ADMIN`)
+- **Relationships:**
+    - Can be referenced as the owner of many `TrafficLight` records; the mapping is stored on `TrafficLight`
 

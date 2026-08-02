@@ -28,25 +28,29 @@ src/main/
 ├── java/be/kdg/programming5/
 │   ├── business/
 │   │   ├── domain/               # Entity classes
+│   │   │   ├── ApplicationUser.java
 │   │   │   ├── TrafficLight.java
 │   │   │   ├── SmartTrafficLight.java
 │   │   │   ├── PedestrianTrafficLight.java
 │   │   │   ├── Intersection.java
 │   │   │   ├── MaintenanceLog.java
 │   │   │   ├── MaintenanceCompany.java
-│   │   │   └── MaintenanceLogCompany.java
+│   │   │   ├── MaintenanceLogCompany.java
+│   │   │   └── UserRole.java
 │   │   └── services/             # Business logic layer
-│   ├── config/security/          # Spring Security configuration
+│   ├── config/                   # MVC, CORS and security configuration
 │   ├── controller/
 │   │   ├── api/                  # REST Controllers + DTOs + Mapper
 │   │   └── mvc/                  # Thymeleaf MVC Controllers
+│   ├── exception/                # Shared MVC and API exception handling
+│   ├── presentation/             # View models and request-value converters
 │   ├── repository/               # Spring Data JPA Repositories
 │   └── enums/                    # Enumerations
 ├── js/                           # Frontend JavaScript source
 ├── scss/                         # Frontend SCSS source
 └── resources/
     ├── templates/                # Thymeleaf templates
-    ├── static/                   # Generated webpack bundles
+    ├── static/                   # Generated bundles/fonts and static images
     ├── application.properties    # Application configuration
     ├── data.sql                  # Data seeding
     ├── messages.properties       # i18n (English)
@@ -56,8 +60,9 @@ src/main/
 ## Frontend Build
 
 Frontend source files live under `src/main/js` and `src/main/scss`. Webpack bundles them into
-`src/main/resources/static`, which contains generated browser assets. Run `npm run build` after
-changing frontend source files. The Gradle build also invokes the webpack build task.
+`src/main/resources/static`. The Gradle `processResources` task depends on `npm_run_build`, so
+`assemble`, `build`, `check` and `bootRun` create current frontend bundles automatically.
+Run `./gradlew npm_run_build` when only the frontend bundles need to be rebuilt.
 
 ## Security Boundaries
 
@@ -65,4 +70,12 @@ Normal browser-session REST mutations require authentication and CSRF protection
 Week 10 client project uses the dedicated `POST /api/public/maintenance-companies` endpoint, which is the
 only CSRF-exempt write path. Public intersection details load read-only cards through
 `GET /api/intersections/{id}/traffic-lights`.
+
+CORS for the standalone client origin (`http://localhost:9000`) is limited to
+`GET /api/traffic-lights/search` and `POST /api/public/maintenance-companies`.
+
+## Application Features
+
+The `Main` application class enables Spring caching and asynchronous method execution. Search results
+are cached in the service layer, while the admin CSV import runs through an `@Async` service method.
 
