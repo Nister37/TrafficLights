@@ -15,7 +15,7 @@
 GET {{baseUrl}}/api/traffic-lights/search?status=ACTIVE
 Accept: application/json
 
-### GET public traffic lights for the standalone Week 10 client - 200 OK or 204 No Content
+### GET public traffic lights without authentication - 200 OK or 204 No Content
 GET {{baseUrl}}/api/public/traffic-lights
 Accept: application/json
 
