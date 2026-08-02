@@ -9,10 +9,12 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -32,6 +34,8 @@ public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final String GENERIC_ERROR_MESSAGE =
+            "An unexpected error occurred. Please try again later.";
 
     /**
      * Checks if the request is an API request (starts with /api/).
@@ -60,8 +64,41 @@ public class GlobalExceptionHandler {
         mav.addObject("error", "Database Error");
         mav.addObject("message", "A database error occurred. Please try again later.");
         mav.addObject("path", req.getRequestURL().toString());
+        mav.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         mav.setViewName("error/500");
 
+        return mav;
+    }
+
+    /**
+     * Handles missing request parameters and values that cannot be converted to the expected type.
+     */
+    @ExceptionHandler({MissingServletRequestParameterException.class, MethodArgumentTypeMismatchException.class})
+    public Object handleRequestParameterException(HttpServletRequest req, Exception ex) {
+        String message;
+
+        if (ex instanceof MissingServletRequestParameterException missingParameter) {
+            message = "Required request parameter '" + missingParameter.getParameterName() + "' is missing.";
+        } else {
+            MethodArgumentTypeMismatchException typeMismatch = (MethodArgumentTypeMismatchException) ex;
+            message = "Request parameter '" + typeMismatch.getName() + "' has an invalid value.";
+        }
+
+        logger.warn("Invalid request at {}: {}", req.getRequestURL(), message);
+
+        if (isApiRequest(req)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorDto(message));
+        }
+
+        ModelAndView mav = new ModelAndView();
+        mav.addObject("timestamp", LocalDateTime.now().format(FORMATTER));
+        mav.addObject("status", 400);
+        mav.addObject("error", "Bad Request");
+        mav.addObject("message", message);
+        mav.addObject("path", req.getRequestURL().toString());
+        mav.setStatus(HttpStatus.BAD_REQUEST);
+        mav.setViewName("error");
         return mav;
     }
 
@@ -88,6 +125,7 @@ public class GlobalExceptionHandler {
         mav.addObject("error", "Bad Request");
         mav.addObject("message", "Validation failed: " + errors);
         mav.addObject("path", req.getRequestURL().toString());
+        mav.setStatus(HttpStatus.BAD_REQUEST);
         mav.setViewName("error");
 
         return mav;
@@ -101,11 +139,6 @@ public class GlobalExceptionHandler {
     public Object handleNoResourceFoundException(HttpServletRequest req) {
         String path = req.getRequestURI();
 
-        // Silently ignore favicon requests
-        if (path.contains("favicon")) {
-            return null;
-        }
-
         logger.debug("Resource not found: {}", path);
 
         if (isApiRequest(req)) {
@@ -115,6 +148,7 @@ public class GlobalExceptionHandler {
 
         ModelAndView mav = new ModelAndView();
         mav.addObject("path", path);
+        mav.setStatus(HttpStatus.NOT_FOUND);
         mav.setViewName("error/404");
         return mav;
     }
@@ -135,6 +169,7 @@ public class GlobalExceptionHandler {
         ModelAndView mav = new ModelAndView();
         mav.addObject("message", ex.getMessage());
         mav.addObject("path", req.getRequestURL().toString());
+        mav.setStatus(HttpStatus.NOT_FOUND);
         mav.setViewName("error/404");
         return mav;
     }
@@ -179,15 +214,16 @@ public class GlobalExceptionHandler {
 
         if (isApiRequest(req)) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorDto(ex.getMessage() != null ? ex.getMessage() : "An unexpected error occurred"));
+                    .body(new ErrorDto(GENERIC_ERROR_MESSAGE));
         }
 
         ModelAndView mav = new ModelAndView();
         mav.addObject("timestamp", LocalDateTime.now().format(FORMATTER));
         mav.addObject("status", 500);
         mav.addObject("error", "Internal Server Error");
-        mav.addObject("message", ex.getMessage() != null ? ex.getMessage() : "An unexpected error occurred");
+        mav.addObject("message", GENERIC_ERROR_MESSAGE);
         mav.addObject("path", req.getRequestURL().toString());
+        mav.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         mav.setViewName("error");
 
         return mav;

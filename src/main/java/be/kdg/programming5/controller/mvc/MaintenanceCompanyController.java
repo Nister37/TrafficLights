@@ -2,16 +2,19 @@ package be.kdg.programming5.controller.mvc;
 
 import be.kdg.programming5.business.domain.MaintenanceCompany;
 import be.kdg.programming5.business.services.MaintenanceCompanyService;
+import be.kdg.programming5.presentation.viewmodel.MaintenanceCompanyViewModel;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,19 +62,23 @@ public class MaintenanceCompanyController {
 
     @PostMapping("/addMaintenanceCompany")
     public String addMaintenanceCompany(
-            @RequestParam String name,
-            @RequestParam String contactPhone,
-            @RequestParam String contactEmail,
-            @RequestParam(required = false, defaultValue = "false") boolean active,
-            @RequestParam String since) {
-        logger.debug("Adding new maintenance company - name: {}, active: {}", name, active);
+            @Valid @ModelAttribute("company") MaintenanceCompanyViewModel viewModel,
+            BindingResult bindingResult) {
+        logger.debug("Adding new maintenance company - name: {}, active: {}",
+                viewModel.getName(), viewModel.isActive());
+
+        if (bindingResult.hasErrors()) {
+            logger.warn("Validation errors occurred while adding a maintenance company: {}",
+                    bindingResult.getAllErrors());
+            return "add-maintenance-company";
+        }
 
         MaintenanceCompany company = new MaintenanceCompany(
-                name,
-                contactPhone,
-                contactEmail,
-                active,
-                LocalDate.parse(since)
+                viewModel.getName(),
+                viewModel.getContactPhone(),
+                viewModel.getContactEmail(),
+                viewModel.isActive(),
+                viewModel.getSince()
         );
 
         maintenanceCompanyService.addMaintenanceCompany(company);
@@ -98,8 +105,9 @@ public class MaintenanceCompanyController {
     }
 
     @GetMapping("/addMaintenanceCompany")
-    public String addMaintenanceCompanyForm() {
+    public String addMaintenanceCompanyForm(Model model) {
         logger.debug("Displaying add maintenance company form");
+        model.addAttribute("company", new MaintenanceCompanyViewModel());
         return "add-maintenance-company";
     }
 

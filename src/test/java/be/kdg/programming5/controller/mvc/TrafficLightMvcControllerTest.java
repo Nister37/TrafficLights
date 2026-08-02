@@ -116,12 +116,11 @@ class TrafficLightMvcControllerTest {
     }
 
     @Test
-    void getTrafficLightDetailWhenNotFoundShouldShowErrorInTrafficLightsView() throws Exception {
+    void getTrafficLightDetailWhenNotFoundShouldReturn404ErrorPage() throws Exception {
         mockMvc.perform(get("/trafficLight/{id}", 999_999))
-                .andExpect(status().isOk())
-                .andExpect(view().name("traffic-lights"))
-                .andExpect(model().attributeExists("error"))
-                .andExpect(model().attribute("trafficLights", hasSize(0)));
+                .andExpect(status().isNotFound())
+                .andExpect(view().name("error/404"))
+                .andExpect(model().attribute("message", "Traffic light with id 999999 not found"));
     }
 
     private Intersection createIntersection() {

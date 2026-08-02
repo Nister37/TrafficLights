@@ -12,9 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Public creation endpoint used by the standalone Week 10 client application.
- */
 @RestController
 @RequestMapping("/api/public/maintenance-companies")
 public class PublicMaintenanceCompaniesController {
@@ -25,7 +22,7 @@ public class PublicMaintenanceCompaniesController {
     }
 
     @PostMapping
-    public ResponseEntity<MaintenanceCompanyDto> create(
+    public ResponseEntity<MaintenanceCompanyDto> createMaintenanceCompany(
             @RequestBody @Valid CreateMaintenanceCompanyDto dto) {
         MaintenanceCompany company = service.createMaintenanceCompany(
                 dto.name(),

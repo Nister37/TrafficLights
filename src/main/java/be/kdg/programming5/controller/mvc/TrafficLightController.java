@@ -8,7 +8,6 @@ import be.kdg.programming5.business.services.MaintenanceLogService;
 import be.kdg.programming5.enums.Direction;
 import be.kdg.programming5.enums.TrafficLightStatus;
 import be.kdg.programming5.enums.TrafficLightType;
-import be.kdg.programming5.exception.TrafficLightNotFoundException;
 import be.kdg.programming5.presentation.viewmodel.TrafficLightViewModel;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -17,7 +16,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +23,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -159,10 +156,7 @@ public class TrafficLightController {
         return "redirect:/trafficLights?status=ACTIVE";
     }
 
-    /**
-     * Search traffic lights installed after a specific date.
-     * Uses: TrafficLightRepository.findByInstallationDateAfter(LocalDate date)
-     */
+
     @GetMapping("/trafficLights/byDate")
     public String searchByDate(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate afterDate, Model model) {
         logger.debug("Searching traffic lights installed after: {}", afterDate);
@@ -174,10 +168,7 @@ public class TrafficLightController {
         return "traffic-lights";
     }
 
-    /**
-     * Search old traffic lights by status using custom @Query annotation.
-     * Uses: TrafficLightRepository.findOldTrafficLightsByStatus(status, beforeDate)
-     */
+
     @GetMapping("/trafficLights/oldByStatus")
     public String searchOldByStatus(
             @RequestParam TrafficLightStatus status,
@@ -193,22 +184,4 @@ public class TrafficLightController {
         return "traffic-lights";
     }
 
-    /**
-     * Handles TrafficLightNotFoundException locally in this controller.
-     * Logs the error and returns to the traffic lights list page with an error message.
-     *
-     * @param ex the exception that was thrown
-     * @param model the model to add error attributes to
-     * @return view name for the traffic lights list page
-     */
-    @ExceptionHandler(TrafficLightNotFoundException.class)
-    public String handleTrafficLightNotFound(TrafficLightNotFoundException ex, Model model) {
-        logger.error("Traffic light not found: {}", ex.getMessage());
-
-        model.addAttribute("error", ex.getMessage());
-        model.addAttribute("statuses", TrafficLightStatus.values());
-        model.addAttribute("trafficLights", Collections.emptyList());
-
-        return "traffic-lights";
-    }
 }

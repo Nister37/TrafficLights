@@ -16,10 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * REST API controller for TrafficLight resources.
- * Provides endpoints for CRUD operations on traffic lights.
- */
 @RestController
 @RequestMapping("/api/traffic-lights")
 public class TrafficLightsController {

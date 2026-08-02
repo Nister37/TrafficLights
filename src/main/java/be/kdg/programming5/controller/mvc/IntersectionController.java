@@ -4,7 +4,6 @@ import be.kdg.programming5.business.domain.Intersection;
 import be.kdg.programming5.business.domain.TrafficLight;
 import be.kdg.programming5.business.services.IntersectionService;
 import be.kdg.programming5.enums.IntersectionTypes;
-import be.kdg.programming5.exception.IntersectionNotFoundException;
 import be.kdg.programming5.presentation.viewmodel.IntersectionViewModel;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -12,14 +11,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -138,22 +135,4 @@ public class IntersectionController {
         return "redirect:/intersections";
     }
 
-    /**
-     * Handles IntersectionNotFoundException locally in this controller.
-     * Logs the error and returns to the intersections list page with an error message.
-     *
-     * @param ex the exception that was thrown
-     * @param model the model to add error attributes to
-     * @return view name for the intersections list page
-     */
-    @ExceptionHandler(IntersectionNotFoundException.class)
-    public String handleIntersectionNotFound(IntersectionNotFoundException ex, Model model) {
-        logger.error("Intersection not found: {}", ex.getMessage());
-
-        model.addAttribute("error", ex.getMessage());
-        model.addAttribute("intersectionTypes", IntersectionTypes.values());
-        model.addAttribute("intersections", Collections.emptyList());
-
-        return "intersections";
-    }
 }

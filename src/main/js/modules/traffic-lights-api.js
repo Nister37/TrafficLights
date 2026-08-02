@@ -2,7 +2,7 @@
  * Traffic Lights API — fetch functions for HTTP requests.
  * Reusable across pages.
  */
-import { withCsrf } from './csrf.js'
+import { csrfHeaderName, csrfToken } from './csrf.js'
 
 const API_BASE_URL = '/api'
 
@@ -24,7 +24,11 @@ export async function fetchTrafficLightsForIntersection(intersectionId) {
 export async function createTrafficLight(status, installationDate, direction, type, rightArrow, intersectionId) {
     const response = await fetch(`${API_BASE_URL}/traffic-lights`, {
         method: 'POST',
-        headers: withCsrf({ 'Accept': 'application/json', 'Content-Type': 'application/json' }),
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            [csrfHeaderName]: csrfToken
+        },
         body: JSON.stringify({ status, installationDate, direction, type, rightArrow, intersectionId })
     })
     if (!response.ok) {
@@ -37,7 +41,10 @@ export async function createTrafficLight(status, installationDate, direction, ty
 export async function patchTrafficLight(trafficLightId, fields) {
     const response = await fetch(`${API_BASE_URL}/traffic-lights/${trafficLightId}`, {
         method: 'PATCH',
-        headers: withCsrf({ 'Content-Type': 'application/json' }),
+        headers: {
+            'Content-Type': 'application/json',
+            [csrfHeaderName]: csrfToken
+        },
         body: JSON.stringify(fields)
     })
     if (!response.ok) {
@@ -50,7 +57,10 @@ export async function patchTrafficLight(trafficLightId, fields) {
 export async function deleteTrafficLight(trafficLightId) {
     const response = await fetch(`${API_BASE_URL}/traffic-lights/${trafficLightId}`, {
         method: 'DELETE',
-        headers: withCsrf({ Accept: 'application/json' })
+        headers: {
+            Accept: 'application/json',
+            [csrfHeaderName]: csrfToken
+        }
     })
     if (!response.ok) {
         const error = await response.json()

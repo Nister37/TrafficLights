@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * Public read endpoint accessible without authentication.
- * Used by the standalone W10 client application.
+ * The current standalone client uses the filtered search endpoint instead.
  */
 @RestController
 @RequestMapping("/api/public/traffic-lights")
@@ -28,9 +28,6 @@ public class PublicTrafficLightsController {
         this.trafficLightMapper = trafficLightMapper;
     }
 
-    /**
-     * Intended for the standalone client SPA.
-     */
     @GetMapping
     public ResponseEntity<List<TrafficLightDto>> getAllTrafficLights() {
         List<TrafficLightDto> dtos = trafficLightService.getAllTrafficLights().stream()

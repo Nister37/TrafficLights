@@ -4,17 +4,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.List;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * Spring Security configuration.
@@ -37,30 +35,24 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // @formatter:off
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(csrf -> csrf
-                // Disable CSRF only for the W10 standalone client create endpoint
-                .ignoringRequestMatchers(
-                    PathPatternRequestMatcher.withDefaults()
-                        .matcher(HttpMethod.POST, "/api/public/maintenance-companies")
-                )
-            )
+            .cors(Customizer.withDefaults())
+            .csrf(csrf -> csrf.ignoringRequestMatchers(
+                    "/api/public/maintenance-companies"))
             .authorizeHttpRequests(auths -> auths
                 // Public pages — accessible without login
                 .requestMatchers(HttpMethod.GET,
                         "/", "/login",
                         "/trafficLight/**", "/intersection/**",
-                        "/js/**", "/css/**", "/fonts/**", "/images/**", "/webjars/**")
-                    .permitAll()
+                        "/js/**", "/css/**", "/fonts/**", "/images/**", "/webjars/**").permitAll()
                 // Public API — read-only endpoints used by public pages and the standalone client repo
                 .requestMatchers(HttpMethod.GET,  "/api/traffic-lights/search").permitAll()
                 .requestMatchers(HttpMethod.GET,  "/api/intersections/*/traffic-lights").permitAll()
                 .requestMatchers(HttpMethod.GET,  "/api/public/**").permitAll()
-                // Public API — create endpoint used only by the standalone client repo
+                // Public API — createMaintenanceCompany endpoint used only by the standalone client repo
                 .requestMatchers(HttpMethod.POST, "/api/public/maintenance-companies").permitAll()
+                .requestMatchers("/error").permitAll()
                 // Everything else (MVC pages + REST API) requires authentication
-                .anyRequest()
-                    .authenticated()
+                .anyRequest().authenticated()
             )
             .formLogin(formLogin -> formLogin
                 .loginPage("/login")
@@ -90,16 +82,17 @@ public class SecurityConfig {
      * even though it is served from a different origin.
      */
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:9000"));
-        config.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(false);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // Register on /** so that even redirect responses (e.g. 302 → /login) carry the header
-        source.registerCorsConfiguration("/**", config);
-        return source;
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/api/traffic-lights/search")
+                        .allowedOrigins("http://localhost:9000")
+                        .allowedMethods(HttpMethod.GET.name());
+                registry.addMapping("/api/public/maintenance-companies")
+                        .allowedOrigins("http://localhost:9000")
+                        .allowedMethods(HttpMethod.POST.name());
+            }
+        };
     }
 }
